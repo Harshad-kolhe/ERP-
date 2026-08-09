@@ -1,0 +1,6 @@
+packages:
+  - 'frontend'
+  - 'packages/*'
+
+# Keep the store inside the repo so CI caching is a single directory.
+storeDir: .pnpm-store

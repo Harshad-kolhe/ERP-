@@ -1,0 +1,166 @@
+using Erp.BuildingBlocks.Application.Cqrs;
+using Erp.BuildingBlocks.Application.Querying;
+using Erp.BuildingBlocks.Persistence.Querying;
+using Erp.Contracts.Common;
+using Erp.Contracts.Masters;
+using Erp.Modules.Masters.Infrastructure;
+using Erp.SharedKernel.Results;
+using Microsoft.EntityFrameworkCore;
+
+namespace Erp.Modules.Masters.Application.Customers.ListCustomers;
+
+/// <summary>
+/// Returns one page of customers. Projected, never materialised as aggregates —
+/// see <c>ListPartsHandler</c> for the reasoning.
+/// </summary>
+internal sealed class ListCustomersHandler(MastersDbContext db)
+    : IQueryHandler<ListCustomersQuery, PagedResult<CustomerListItemDto>>
+{
+    /// <summary>The allow-list. Anything absent here cannot be sorted or filtered on.</summary>
+    private static readonly QueryMap<CustomerListRow> Map = QueryMap<CustomerListRow>.Create()
+        .Field("customerCode", x => x.CustomerCode, searchable: true)
+        .Field("customerName", x => x.CustomerName, searchable: true)
+        .Field("industry", x => x.Industry)
+        .Field("primaryContact", x => x.PrimaryContact, searchable: true)
+        .Field("secondaryContact", x => x.SecondaryContact)
+        .Field("phone", x => x.Phone)
+        .Field("altPhone", x => x.AltPhone)
+        .Field("email", x => x.Email, searchable: true)
+        .Field("altEmail", x => x.AltEmail)
+        .Field("website", x => x.Website)
+        .Field("billingAddress", x => x.BillingAddress)
+        .Field("billingCity", x => x.BillingCity)
+        .Field("billingState", x => x.BillingState)
+        .Field("billingCountry", x => x.BillingCountry)
+        .Field("billingZipCode", x => x.BillingZipCode)
+        .Field("shippingAddress", x => x.ShippingAddress)
+        .Field("shippingCity", x => x.ShippingCity)
+        .Field("shippingState", x => x.ShippingState)
+        .Field("shippingCountry", x => x.ShippingCountry)
+        .Field("shippingZipCode", x => x.ShippingZipCode)
+        .Field("taxId", x => x.TaxId)
+        .Field("gst", x => x.Gst, searchable: true)
+        .Field("pan", x => x.Pan)
+        .Field("igst", x => x.Igst)
+        .Field("cgst", x => x.Cgst)
+        .Field("sgst", x => x.Sgst)
+        .Field("currency", x => x.Currency)
+        .Field("taxCode", x => x.TaxCode)
+        .Field("isActive", x => x.IsActive)
+        .Field("status", x => x.Status)
+        .Field("createdBy", x => x.CreatedBy)
+        .Field("createdAt", x => x.CreatedAtUtc)
+        .Field("modifiedBy", x => x.ModifiedBy)
+        .Field("modifiedAt", x => x.ModifiedAtUtc)
+        .DefaultSort("customerName")
+        .TieBreaker(x => x.Id)
+        .Build();
+
+    public async Task<Result<PagedResult<CustomerListItemDto>>> HandleAsync(
+        ListCustomersQuery query,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        var rows = db.Customers
+            .AsNoTracking()
+            .Select(c => new CustomerListRow
+            {
+                Id = c.Id,
+                CustomerCode = c.CustomerCode,
+                CustomerName = c.CustomerName,
+                Industry = c.Industry,
+                PrimaryContact = c.PrimaryContact,
+                SecondaryContact = c.SecondaryContact,
+                Phone = c.Phone,
+                AltPhone = c.AltPhone,
+                Email = c.Email,
+                AltEmail = c.AltEmail,
+                Website = c.Website,
+                BillingAddress = c.BillingAddress,
+                BillingCity = c.BillingCity,
+                BillingState = c.BillingState,
+                BillingCountry = c.BillingCountry,
+                BillingZipCode = c.BillingZipCode,
+                ShippingAddress = c.ShippingAddress,
+                ShippingCity = c.ShippingCity,
+                ShippingState = c.ShippingState,
+                ShippingCountry = c.ShippingCountry,
+                ShippingZipCode = c.ShippingZipCode,
+                TaxId = c.TaxId,
+                Gst = c.Gst,
+                Pan = c.Pan,
+                Igst = c.Igst,
+                Cgst = c.Cgst,
+                Sgst = c.Sgst,
+                Currency = c.Currency,
+                TaxCode = c.TaxCode,
+                IsActive = c.IsActive,
+                Status = c.Status,
+                CreatedBy = db.AuditUsers
+                    .Where(u => u.Id == c.CreatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                CreatedAtUtc = c.CreatedAtUtc,
+                ModifiedBy = db.AuditUsers
+                    .Where(u => u.Id == c.ModifiedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                ModifiedAtUtc = c.ModifiedAtUtc,
+            });
+
+        var page = await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
+
+        if (page.IsFailure)
+        {
+            return Result.Failure<PagedResult<CustomerListItemDto>>(page.Error);
+        }
+
+        var items = page.Value.Items.Select(ToDto).ToList();
+
+        return Result.Success(new PagedResult<CustomerListItemDto>(
+            items,
+            page.Value.Page,
+            page.Value.PageSize,
+            page.Value.TotalCount));
+    }
+
+    private static CustomerListItemDto ToDto(CustomerListRow row) => new()
+    {
+        Id = row.Id,
+        CustomerCode = row.CustomerCode,
+        CustomerName = row.CustomerName,
+        Industry = row.Industry,
+        PrimaryContact = row.PrimaryContact,
+        SecondaryContact = row.SecondaryContact,
+        Phone = row.Phone,
+        AltPhone = row.AltPhone,
+        Email = row.Email,
+        AltEmail = row.AltEmail,
+        Website = row.Website,
+        BillingAddress = row.BillingAddress,
+        BillingCity = row.BillingCity,
+        BillingState = row.BillingState,
+        BillingCountry = row.BillingCountry,
+        BillingZipCode = row.BillingZipCode,
+        ShippingAddress = row.ShippingAddress,
+        ShippingCity = row.ShippingCity,
+        ShippingState = row.ShippingState,
+        ShippingCountry = row.ShippingCountry,
+        ShippingZipCode = row.ShippingZipCode,
+        TaxId = row.TaxId,
+        Gst = row.Gst,
+        Pan = row.Pan,
+        Igst = row.Igst,
+        Cgst = row.Cgst,
+        Sgst = row.Sgst,
+        Currency = row.Currency,
+        TaxCode = row.TaxCode,
+        IsActive = row.IsActive,
+        Status = (MasterStatusDto)row.Status,
+        CreatedBy = row.CreatedBy,
+        CreatedAtUtc = row.CreatedAtUtc,
+        ModifiedBy = row.ModifiedBy,
+        ModifiedAtUtc = row.ModifiedAtUtc,
+    };
+}

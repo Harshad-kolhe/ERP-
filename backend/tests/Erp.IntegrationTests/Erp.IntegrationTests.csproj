@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Erp.Api\Erp.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- A real SQL Server per test run. No in-memory provider: it does not
+         enforce constraints, so it cannot prove the schema is correct. -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers.MsSql" />
+    <PackageReference Include="Respawn" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+
+</Project>

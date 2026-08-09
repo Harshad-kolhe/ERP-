@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\Erp.SharedKernel\Erp.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\shared\Erp.BuildingBlocks.Application\Erp.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\shared\Erp.BuildingBlocks.Excel\Erp.BuildingBlocks.Excel.csproj" />
+    <ProjectReference Include="..\..\shared\Erp.BuildingBlocks.Persistence\Erp.BuildingBlocks.Persistence.csproj" />
+    <ProjectReference Include="..\..\shared\Erp.BuildingBlocks.Web\Erp.BuildingBlocks.Web.csproj" />
+    <ProjectReference Include="..\..\Erp.Contracts\Erp.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <!--
+    Everything in this assembly is `internal` except the Integration/ folder.
+    Its own test project is the single exception — no other module gets access,
+    which is what makes the boundary real rather than decorative.
+  -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Erp.Modules.Masters.Tests" />
+  </ItemGroup>
+
+</Project>

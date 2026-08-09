@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    // `dotnet run --project backend/src/Erp.Api` must land on the ports the README
+    // documents and the Next.js BFF defaults to (ERP_API_BASE_URL → :5080). Without
+    // a profile, Kestrel falls back to :5000 in the Production environment, which
+    // skips migrations, the development bootstrap users and the OpenAPI UI — so the
+    // documented one-command start silently produced an app nothing could sign into.
+    "Erp.Api": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:5081;http://localhost:5080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true
+    },
+    // For a machine with no trusted dev certificate. The BFF talks to :5080 over
+    // http anyway, so nothing in the app is lost by dropping the https binding.
+    "http": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true
+    }
+  }
+}

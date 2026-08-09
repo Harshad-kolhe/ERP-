@@ -1,0 +1,58 @@
+// Banned APIs. Every entry here becomes build error RS0030.
+//
+// Format:  T:Full.Type.Name;message      (type)
+//          M:Full.Type.Name.Method();msg (method)
+//          P:Full.Type.Name.Property;msg (property)
+//
+// Each entry exists because the system this replaces was damaged by it.
+// Removing a line requires an ADR in docs/adr/.
+// Test projects downgrade RS0030 to a warning; see tests/Directory.Build.props.
+
+// Raw SQL. Legacy failure #6: 158 interpolated EXEC sites and a UI screen that
+// ran arbitrary SQL. Dynamic filtering goes through QueryMap, an allow-list.
+M:Microsoft.EntityFrameworkCore.RelationalQueryableExtensions.FromSqlRaw``1(System.Linq.IQueryable{``0},System.String,System.Object[]);Raw SQL is banned. Use LINQ, FromSql with an interpolated string, or a QueryMap for dynamic filters.
+M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade,System.String,System.Object[]);Raw SQL is banned. Use ExecuteSql with an interpolated string so parameters are bound.
+M:Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade,System.String,System.Object[],System.Threading.CancellationToken);Raw SQL is banned. Use ExecuteSqlAsync with an interpolated string so parameters are bound.
+T:Microsoft.Data.SqlClient.SqlCommand;Hand-built commands bypass EF conventions, the tenant filter and auditing. Use the DbContext.
+T:Microsoft.Data.SqlClient.SqlConnection;Opening your own connection bypasses the tenant filter, auditing and transactions. Use the DbContext.
+
+// Sync-over-async. Legacy failure #9: 9 blocking calls and 364 synchronous
+// ToList() calls sharing a thread pool with 666 async actions.
+P:System.Threading.Tasks.Task`1.Result;Blocking on a Task starves the thread pool. Await it.
+M:System.Threading.Tasks.Task.Wait();Blocking on a Task starves the thread pool. Await it.
+M:System.Threading.Tasks.Task.Wait(System.Int32);Blocking on a Task starves the thread pool. Await it.
+M:System.Threading.Tasks.Task.Wait(System.TimeSpan);Blocking on a Task starves the thread pool. Await it.
+M:System.Threading.Tasks.Task.Wait(System.Threading.CancellationToken);Blocking on a Task starves the thread pool. Await it.
+M:System.Threading.Tasks.Task.WaitAll(System.Threading.Tasks.Task[]);Blocking on Tasks starves the thread pool. Use Task.WhenAll and await it.
+M:System.Threading.Tasks.Task.WaitAny(System.Threading.Tasks.Task[]);Blocking on Tasks starves the thread pool. Use Task.WhenAny and await it.
+M:Microsoft.EntityFrameworkCore.DbContext.SaveChanges();Use SaveChangesAsync. A synchronous EF call blocks a request thread for the whole database round trip.
+M:Microsoft.EntityFrameworkCore.DbContext.SaveChanges(System.Boolean);Use SaveChangesAsync. A synchronous EF call blocks a request thread for the whole database round trip.
+
+// Ambient time. Untestable, and wrong as soon as the app runs outside one office.
+// Everything is stored UTC; inject IClock so tests control the clock.
+P:System.DateTime.Now;Ambient local time is untestable and timezone-dependent. Inject IClock.
+P:System.DateTime.UtcNow;Ambient time is untestable. Inject IClock so tests can control the clock.
+P:System.DateTime.Today;Ambient local time is untestable and timezone-dependent. Inject IClock.
+P:System.DateTimeOffset.Now;Ambient local time is untestable and timezone-dependent. Inject IClock.
+P:System.DateTimeOffset.UtcNow;Ambient time is untestable. Inject IClock so tests can control the clock.
+
+// NOTE: floating-point money is deliberately NOT banned here. This analyzer does
+// not match predefined type keywords (`float`, `double`), so the entry looked
+// like a guardrail while never firing. It is enforced instead by
+// PersistenceConventionTests.No_mapped_property_uses_floating_point, which
+// checks the actual EF model — the place where the precision loss would matter.
+
+// Logging. Legacy failure #15: logs were written into the OLTP database, where
+// they competed with the application and carried no structure.
+T:System.Console;Use ILogger. Console output is invisible in production and carries no structure.
+
+// Service location. Hides dependencies and defeats the DI graph, which is how
+// a single legacy controller reached 41 constructor parameters unnoticed.
+M:Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService``1(System.IServiceProvider);Resolving services by hand hides dependencies. Inject them through the constructor.
+M:Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService``1(System.IServiceProvider);Resolving services by hand hides dependencies. Inject them through the constructor.
+
+// Culture-dependent parsing. Be explicit: InvariantCulture for wire formats,
+// the request culture for display.
+M:System.Double.Parse(System.String);Specify an IFormatProvider. Implicit culture parsing breaks across locales.
+M:System.Decimal.Parse(System.String);Specify an IFormatProvider. Implicit culture parsing breaks across locales.
+M:System.DateTime.Parse(System.String);Specify an IFormatProvider. Implicit culture parsing breaks across locales.

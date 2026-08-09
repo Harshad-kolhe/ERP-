@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    ZERO dependencies, deliberately. This assembly holds Result, Error, the
+    entity primitives and the value objects, and it must stay loadable by
+    anything. `ProjectDependencyTests` fails the build if a reference is added.
+  -->
+
+</Project>

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The public wire shape: every type here is serialised, published in OpenAPI,
+    and code-generated into the TypeScript client. Kept dependency-free so the
+    contract can never accidentally leak a domain or EF type.
+
+    `ContractPurityTests` enforces that no domain entity reaches this assembly.
+  -->
+
+</Project>

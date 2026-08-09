@@ -1,0 +1,178 @@
+name: PR
+
+# Every gate below maps to a specific failure catalogued in docs/architecture.md.
+# A rule that is not here is not a rule.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  CI: true
+
+jobs:
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks needs history, not just the tip
+
+      # The legacy repository carried a live Azure SQL password in appsettings.json
+      # and in its git history permanently. This gate is why that cannot recur.
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore backend/Erp.slnx
+
+      # Formatting is reported here rather than by the compiler, which is why
+      # IDE0055 is exempt from TreatWarningsAsErrors in Directory.Build.props.
+      #
+      # Only the whitespace and style subcommands: bare `dotnet format` also tries
+      # to auto-fix third-party analyzer diagnostics and exits non-zero on any that
+      # have no code fix (RS0030, the banned-symbol rule, has none). Banned symbols
+      # are already build errors in the step below, so nothing is lost.
+      - name: Format
+        run: |
+          dotnet format whitespace backend/Erp.slnx --verify-no-changes --no-restore
+          dotnet format style backend/Erp.slnx --verify-no-changes --no-restore
+
+      # TreatWarningsAsErrors + BannedSymbols.txt. Raw SQL, blocking calls,
+      # ambient time and Console output fail here, not in review.
+      - name: Build
+        run: dotnet build backend/Erp.slnx --configuration Release --no-restore
+
+      # Architecture tests run inside this step. They boot the real application and
+      # assert that every endpoint declares a permission, that list endpoints return
+      # a paged contract, that module internals stay internal, that no mapped column
+      # is floating point, and that every tenant-scoped entity has a query filter.
+      - name: Test
+        run: >
+          dotnet test backend/Erp.slnx
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=results.trx"
+          --collect:"XPlat Code Coverage"
+
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/TestResults/**'
+
+  migrations:
+    name: Schema drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - run: dotnet tool install --global dotnet-ef
+
+      # The single most important gate in this file.
+      #
+      # The legacy database was the undocumented source of truth: 284 DbSets, ~144
+      # stored procedures holding real business rules, two .sql files in git, and no
+      # migrations folder ever created. The schema existed only inside the live
+      # server, so nobody could review it, diff it, or recreate it.
+      #
+      # This fails when an entity has been changed without a matching migration.
+      - name: Masters
+        run: >
+          dotnet ef migrations has-pending-model-changes
+          --project backend/src/modules/Erp.Modules.Masters
+          --startup-project backend/src/Erp.Api
+          --context MastersDbContext
+
+      - name: Identity
+        run: >
+          dotnet ef migrations has-pending-model-changes
+          --project backend/src/Erp.Api
+          --startup-project backend/src/Erp.Api
+          --context IdentityDataContext
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # --frozen-lockfile: the committed lockfile is the build input. The legacy
+      # front end had no package.json at all and vendored a four-year-old copy of a
+      # commercial component library as raw files.
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm --filter web exec tsc --noEmit
+
+      - name: Lint
+        run: pnpm --filter web lint
+
+      - name: Build
+        run: pnpm --filter web build
+
+  contract:
+    name: Client contract drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Regenerates the TypeScript client from the API's OpenAPI document and fails
+      # if the result differs from what is committed. Server and client types
+      # therefore cannot drift apart between releases.
+      - name: Regenerate client
+        run: pnpm --filter web generate:api
+
+      - name: Fail on drift
+        run: git diff --exit-code -- frontend/src/lib/api/generated

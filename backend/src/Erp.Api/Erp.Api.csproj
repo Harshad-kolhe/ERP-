@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <UserSecretsId>erp-api-a7f3c1d0-9b2e-4c58-8a11-6d4e2f9b3c77</UserSecretsId>
+    <!-- Integration tests spin up this host through WebApplicationFactory. -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup Label="Shared">
+    <ProjectReference Include="..\shared\Erp.BuildingBlocks.Web\Erp.BuildingBlocks.Web.csproj" />
+    <ProjectReference Include="..\shared\Erp.BuildingBlocks.Persistence\Erp.BuildingBlocks.Persistence.csproj" />
+    <ProjectReference Include="..\Erp.Contracts\Erp.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Label="Modules">
+    <!-- Modules are discovered by assembly scan at startup, not wired by hand. -->
+    <ProjectReference Include="..\modules\Erp.Modules.Masters\Erp.Modules.Masters.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Label="Hosting">
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Asp.Versioning.Http" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup Label="Observability">
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Serilog.Sinks.Seq" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+  </ItemGroup>
+
+  <ItemGroup Label="Tooling">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Erp.ArchitectureTests" />
+    <InternalsVisibleTo Include="Erp.IntegrationTests" />
+  </ItemGroup>
+
+</Project>

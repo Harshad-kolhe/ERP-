@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Interface design specification for the new ERP: shell, navigation, dashboard fields and screen archetypes.">
+<title>ERP Interface Design — Machine Build System</title>
+<style>
+  /* ---------------------------------------------------------------------
+     Tokens. The light palette is complete on bare :root so the un-stamped
+     "system" state always resolves. Dark redefines tokens only.
+     Values mirror frontend/src/app/globals.css so this spec is directly
+     transferable, extended with the semantic triad that file still lacks.
+     --------------------------------------------------------------------- */
+  :root {
+    --bg:            oklch(0.985 0.003 250);
+    --surface:       oklch(1 0 0);
+    --surface-2:     oklch(0.972 0.005 250);
+    --sunken:        oklch(0.955 0.008 250);
+    --ink:           oklch(0.185 0.012 250);
+    --ink-soft:      oklch(0.505 0.014 250);
+    --ink-faint:     oklch(0.635 0.012 250);
+    --line:          oklch(0.905 0.008 250);
+    --line-soft:     oklch(0.935 0.006 250);
+
+    --brand:         oklch(0.48 0.13 252);
+    --brand-ink:     oklch(0.985 0.005 250);
+    --brand-wash:    oklch(0.48 0.13 252 / 0.09);
+
+    --ok:            oklch(0.52 0.11 155);
+    --ok-wash:       oklch(0.52 0.11 155 / 0.12);
+    --warn:          oklch(0.62 0.13 72);
+    --warn-wash:     oklch(0.62 0.13 72 / 0.15);
+    --crit:          oklch(0.55 0.20 27);
+    --crit-wash:     oklch(0.55 0.20 27 / 0.12);
+
+    --radius: 0.375rem;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:          oklch(0.155 0.008 250);
+      --surface:     oklch(0.205 0.010 250);
+      --surface-2:   oklch(0.245 0.010 250);
+      --sunken:      oklch(0.128 0.008 250);
+      --ink:         oklch(0.965 0.004 250);
+      --ink-soft:    oklch(0.715 0.012 250);
+      --ink-faint:   oklch(0.575 0.012 250);
+      --line:        oklch(0.315 0.012 250);
+      --line-soft:   oklch(0.265 0.010 250);
+
+      --brand:       oklch(0.72 0.14 252);
+      --brand-ink:   oklch(0.19 0.05 252);
+      --brand-wash:  oklch(0.72 0.14 252 / 0.16);
+
+      --ok:          oklch(0.74 0.14 155);
+      --ok-wash:     oklch(0.74 0.14 155 / 0.16);
+      --warn:        oklch(0.80 0.13 78);
+      --warn-wash:   oklch(0.80 0.13 78 / 0.16);
+      --crit:        oklch(0.70 0.18 25);
+      --crit-wash:   oklch(0.70 0.18 25 / 0.16);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:          oklch(0.155 0.008 250);
+    --surface:     oklch(0.205 0.010 250);
+    --surface-2:   oklch(0.245 0.010 250);
+    --sunken:      oklch(0.128 0.008 250);
+    --ink:         oklch(0.965 0.004 250);
+    --ink-soft:    oklch(0.715 0.012 250);
+    --ink-faint:   oklch(0.575 0.012 250);
+    --line:        oklch(0.315 0.012 250);
+    --line-soft:   oklch(0.265 0.010 250);
+
+    --brand:       oklch(0.72 0.14 252);
+    --brand-ink:   oklch(0.19 0.05 252);
+    --brand-wash:  oklch(0.72 0.14 252 / 0.16);
+
+    --ok:          oklch(0.74 0.14 155);
+    --ok-wash:     oklch(0.74 0.14 155 / 0.16);
+    --warn:        oklch(0.80 0.13 78);
+    --warn-wash:   oklch(0.80 0.13 78 / 0.16);
+    --crit:        oklch(0.70 0.18 25);
+    --crit-wash:   oklch(0.70 0.18 25 / 0.16);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 1180px; margin: 0 auto; padding: 0 24px 120px; }
+  .prose { max-width: 68ch; }
+
+  /* --- Masthead ------------------------------------------------------- */
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    padding: 72px 0 44px;
+    margin-bottom: 56px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 20px;
+  }
+  h1 {
+    font-size: clamp(2rem, 4.6vw, 3.15rem);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    font-weight: 640;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+  .standfirst { font-size: 1.075rem; color: var(--ink-soft); margin: 0; max-width: 62ch; }
+
+  .meta-strip {
+    display: flex; flex-wrap: wrap; gap: 8px 28px;
+    margin-top: 32px;
+    font-family: var(--mono); font-size: 11.5px;
+    color: var(--ink-faint);
+  }
+  .meta-strip b { color: var(--ink-soft); font-weight: 500; }
+
+  /* --- Sections ------------------------------------------------------- */
+  section { margin-bottom: 88px; scroll-margin-top: 24px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+  .sec-num {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    color: var(--brand); padding-top: 2px;
+  }
+  h2 {
+    font-size: 1.72rem; letter-spacing: -0.02em; font-weight: 620;
+    margin: 0; text-wrap: balance;
+  }
+  h3 {
+    font-size: 1.06rem; font-weight: 620; letter-spacing: -0.01em;
+    margin: 40px 0 10px;
+  }
+  p { margin: 0 0 16px; }
+  .lede { color: var(--ink-soft); margin-bottom: 30px; }
+  a { color: var(--brand); }
+  code {
+    font-family: var(--mono); font-size: 0.875em;
+    background: var(--sunken); padding: 1px 5px; border-radius: 3px;
+  }
+  strong { font-weight: 620; }
+
+  /* --- Specimen frame ------------------------------------------------- */
+  .specimen {
+    margin: 26px 0 12px;
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    overflow-x: auto;
+  }
+  .specimen-wide { margin-left: calc(50% - 50vw + 24px); margin-right: calc(50% - 50vw + 24px); }
+  @media (max-width: 1240px) { .specimen-wide { margin-left: 0; margin-right: 0; } }
+  .caption {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    margin: 0 0 26px; letter-spacing: 0.02em;
+  }
+
+  /* --- App chrome mock ------------------------------------------------ */
+  .app {
+    display: grid; grid-template-columns: 208px 1fr;
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 7px; overflow: hidden;
+    min-width: 940px; font-size: 13px;
+  }
+  .side { background: var(--surface); border-right: 1px solid var(--line); padding: 12px 0; }
+  .brandmark {
+    display: flex; align-items: center; gap: 9px;
+    padding: 4px 14px 16px; font-weight: 640; letter-spacing: -0.01em; font-size: 14px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); flex: none; }
+  .navgroup {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--ink-faint);
+    padding: 16px 14px 6px;
+  }
+  .navitem {
+    display: flex; align-items: center; gap: 9px;
+    padding: 5px 14px; color: var(--ink-soft); position: relative;
+  }
+  .navitem svg { flex: none; opacity: 0.75; }
+  .navitem.on { color: var(--brand); background: var(--brand-wash); font-weight: 560; }
+  .navitem.on::before {
+    content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+    width: 2px; background: var(--brand);
+  }
+  .navitem .badge {
+    margin-left: auto; font-family: var(--mono); font-size: 10px;
+    background: var(--crit); color: #fff; border-radius: 9px; padding: 0 5px; line-height: 15px;
+  }
+
+  .main { background: var(--bg); min-width: 0; }
+  .topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 16px; border-bottom: 1px solid var(--line); background: var(--surface);
+  }
+  .searchbox {
+    flex: 1; max-width: 380px; display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 4px 9px; color: var(--ink-faint); background: var(--bg);
+  }
+  .kbd {
+    font-family: var(--mono); font-size: 10px; border: 1px solid var(--line);
+    border-radius: 3px; padding: 0 4px; color: var(--ink-faint); margin-left: auto;
+  }
+  .chipbtn {
+    font-family: var(--mono); font-size: 11px; border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 3px 8px; color: var(--ink-soft); background: var(--bg);
+  }
+  .avatar {
+    width: 25px; height: 25px; border-radius: 50%; background: var(--brand);
+    color: var(--brand-ink); display: grid; place-items: center;
+    font-size: 10.5px; font-weight: 660; font-family: var(--mono);
+  }
+
+  .canvas { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* --- Cards ---------------------------------------------------------- */
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .card-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px; border-bottom: 1px solid var(--line-soft);
+  }
+  .card-title {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--ink-soft); font-weight: 600;
+  }
+  .card-note { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+
+  /* --- Queue strip ---------------------------------------------------- */
+  .queue { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .qcard {
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 3px solid var(--line); border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+  .qcard.crit { border-left-color: var(--crit); }
+  .qcard.warn { border-left-color: var(--warn); }
+  .qcard.calm { border-left-color: var(--brand); }
+  .qlabel {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--ink-faint); display: block; margin-bottom: 5px;
+  }
+  .qnum {
+    font-family: var(--mono); font-size: 25px; font-weight: 600;
+    line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+  }
+  .qsub { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 5px; }
+  .qsub .hot { color: var(--crit); font-weight: 600; }
+  .qsub .mid { color: var(--warn); font-weight: 600; }
+
+  /* --- Tables --------------------------------------------------------- */
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11.5px; }
+  th {
+    text-align: left; font-weight: 600; font-size: 9.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-faint);
+    padding: 7px 12px; border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  td {
+    padding: 7px 12px; border-bottom: 1px solid var(--line-soft);
+    font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-soft);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.key { color: var(--ink); font-weight: 560; }
+  td.num { text-align: right; }
+  .desc { font-family: var(--sans); font-size: 11.5px; white-space: normal; }
+
+  /* --- Status chips: colour AND shape --------------------------------- */
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--mono); font-size: 10px; font-weight: 560;
+    padding: 1px 7px 1px 5px; border-radius: 10px; white-space: nowrap;
+  }
+  .chip::before { content: ''; width: 6px; height: 6px; flex: none; }
+  .chip.ok   { background: var(--ok-wash);   color: var(--ok); }
+  .chip.ok::before   { background: currentColor; border-radius: 50%; }
+  .chip.warn { background: var(--warn-wash); color: var(--warn); }
+  .chip.warn::before { background: currentColor; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .chip.crit { background: var(--crit-wash); color: var(--crit); }
+  .chip.crit::before { background: currentColor; clip-path: polygon(50% 0,100% 50%,50% 100%,0 50%); }
+  .chip.idle { background: var(--sunken); color: var(--ink-faint); }
+  .chip.idle::before { background: currentColor; border-radius: 1px; }
+  .chip.live { background: var(--brand-wash); color: var(--brand); }
+  .chip.live::before { background: currentColor; border-radius: 1px; transform: rotate(45deg); }
+
+  /* --- Build progress rail -------------------------------------------- */
+  .rail { display: flex; gap: 2px; align-items: center; min-width: 168px; }
+  .seg { height: 7px; flex: 1; background: var(--sunken); border-radius: 1px; }
+  .seg.done { background: var(--brand); }
+  .seg.now  { background: var(--brand); opacity: 0.55; }
+  .seg.block { background: var(--crit); }
+
+  .bar { height: 7px; background: var(--sunken); border-radius: 4px; overflow: hidden; min-width: 90px; }
+  .bar > i { display: block; height: 100%; background: var(--brand); border-radius: 4px; }
+  .bar > i.low { background: var(--crit); }
+  .bar > i.mid { background: var(--warn); }
+
+  /* --- Flow pipeline -------------------------------------------------- */
+  .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px; }
+  .stage {
+    background: var(--bg); border: 1px solid var(--line-soft);
+    border-radius: var(--radius); padding: 9px 10px; position: relative;
+  }
+  .stage-n {
+    font-family: var(--mono); font-size: 20px; font-weight: 600;
+    font-variant-numeric: tabular-nums; line-height: 1.1;
+  }
+  .stage-l {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px;
+  }
+  .stage-age { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 3px; }
+  .stage-age b { color: var(--warn); font-weight: 600; }
+
+  /* --- Comparison ledger ---------------------------------------------- */
+  .ledger { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 24px 0; }
+  .ledger-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .ledger-row:last-child { border-bottom: none; }
+  .ledger-cell { padding: 14px 16px; }
+  .ledger-cell.was { background: var(--sunken); border-right: 1px solid var(--line-soft); }
+  .ledger-tag {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; display: block; margin-bottom: 6px;
+  }
+  .was .ledger-tag { color: var(--crit); }
+  .now .ledger-tag { color: var(--ok); }
+  .ledger-cell p { margin: 0; font-size: 13.5px; line-height: 1.55; }
+  .ledger-cell.was p { color: var(--ink-soft); }
+  @media (max-width: 720px) {
+    .ledger-row { grid-template-columns: 1fr; }
+    .ledger-cell.was { border-right: none; border-bottom: 1px solid var(--line-soft); }
+  }
+
+  /* --- Field spec tables ---------------------------------------------- */
+  .spec { width: 100%; border-collapse: collapse; margin: 18px 0 8px; font-size: 13px; }
+  .spec th {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.09em;
+    padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line);
+  }
+  .spec td {
+    font-family: var(--sans); font-size: 13px; white-space: normal;
+    padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line-soft);
+    color: var(--ink-soft); vertical-align: top; line-height: 1.5;
+  }
+  .spec td:first-child {
+    font-family: var(--mono); font-size: 11.5px; color: var(--ink);
+    font-weight: 560; white-space: nowrap; padding-right: 20px;
+  }
+  .spec td.src { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); white-space: nowrap; }
+
+  /* --- Principle list -------------------------------------------------- */
+  .principles { display: grid; gap: 1px; background: var(--line-soft); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 26px 0; }
+  .principle { background: var(--surface); padding: 18px 20px; }
+  .principle h4 {
+    margin: 0 0 6px; font-size: 14.5px; font-weight: 620; letter-spacing: -0.01em;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .principle h4 span {
+    font-family: var(--mono); font-size: 10px; color: var(--brand);
+    letter-spacing: 0.08em; flex: none;
+  }
+  .principle p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+  .principle .because {
+    display: block; margin-top: 8px; font-family: var(--mono); font-size: 10.5px;
+    color: var(--ink-faint); line-height: 1.5;
+  }
+
+  /* --- Nav map --------------------------------------------------------- */
+  .navmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 24px 0; }
+  .navcol { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 13px 15px; }
+  .navcol h5 {
+    margin: 0 0 9px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--brand); font-weight: 600;
+  }
+  .navcol ul { margin: 0; padding: 0; list-style: none; }
+  .navcol li {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+    padding: 2.5px 0; border-bottom: 1px dotted var(--line-soft);
+  }
+  .navcol li:last-child { border-bottom: none; }
+
+  .note {
+    border-left: 2px solid var(--brand); background: var(--brand-wash);
+    padding: 13px 16px; border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 22px 0; font-size: 13.5px; color: var(--ink-soft);
+  }
+  .note b { color: var(--ink); }
+
+  hr { border: none; border-top: 1px solid var(--line); margin: 0 0 56px; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+<style>
+  /* Standalone-only additions. The hosted artifact gets its theme from the
+     viewer's Claude setting; a file opened from disk needs its own control. */
+  .theme-switch {
+    position: fixed; top: 16px; right: 16px; z-index: 100;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em;
+    background: var(--surface); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 6px 11px; cursor: pointer; line-height: 1;
+    box-shadow: 0 1px 3px oklch(0 0 0 / 0.06);
+  }
+  .theme-switch:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .theme-switch:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  @media print {
+    .theme-switch { display: none; }
+    body { background: #fff; }
+    .specimen { break-inside: avoid; }
+    .specimen-wide { margin-left: 0; margin-right: 0; }
+    section { break-inside: avoid-page; margin-bottom: 42px; }
+    .masthead { padding-top: 0; }
+    .app { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<button class="theme-switch" id="themeSwitch" type="button" aria-live="polite">System</button>
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">Interface Design Specification · Phase 1</p>
+    <h1>An ERP you operate, not one you navigate</h1>
+    <p class="standfirst">
+      The system this replaces had 180 list screens and no home. You signed in and were handed a
+      menu. Everything after that was your own memory of where things live. This document proposes
+      the shell, the navigation, and the dashboard that come instead — built on the design tokens
+      already committed to the repository.
+    </p>
+    <div class="meta-strip">
+      <span><b>Domain</b> Engineer-to-order machine build</span>
+      <span><b>Stack</b> Next.js 16 · React 19</span>
+      <span><b>Tokens</b> globals.css, oklch</span>
+      <span><b>Status</b> Proposal</span>
+    </div>
+  </header>
+
+  <!-- ================================================================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>What the old system got wrong</h2></div>
+    <div class="prose">
+      <p class="lede">
+        Not a list of complaints — each of these is a measured finding from the audit, and each one
+        dictates a specific design decision further down.
+      </p>
+    </div>
+
+    <div class="ledger">
+      <div class="ledger-row">
+        <div class="ledger-cell was">
+          <span class="ledger-tag">Was</span>
+          <p>Of roughly 180 list grids, 12 were genuinely server-paged. The rest fetched every
+             matching row into the browser and paged it there.</p>
+        </div>
+        <div class="ledger-cell now">
+          <span class="ledger-tag">Instead</span>
+          <p>One table component. Server paging is the only path through it, so the slow version is
+             not something a developer can accidentally write.</p>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-cell was">
+          <span class="ledger-tag">Was</span>
+          <p>The menu lived in three database tables. Nobody could answer what screens existed
+             without querying production.</p>
+        </div>
+        <div class="ledger-cell now">
+          <span class="ledger-tag">Instead</span>
+          <p>Navigation is a typed file in source, filtered by permission. The feature surface is
+             answerable by reading code.</p>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-cell was">
+          <span class="ledger-tag">Was</span>
+          <p>Ten modules each grew their own approval screen. A manager checked ten places to find
+             what was waiting on them.</p>
+        </div>
+        <div class="ledger-cell now">
+          <span class="ledger-tag">Instead</span>
+          <p>One inbox. Everything awaiting you, from every module, ranked by what it is holding up.</p>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-cell was">
+          <span class="ledger-tag">Was</span>
+          <p>Status was a bare literal. <code>"01"</code> appeared 277 times in the source; a single
+             enum existed in the entire solution.</p>
+        </div>
+        <div class="ledger-cell now">
+          <span class="ledger-tag">Instead</span>
+          <p>Named states, rendered as chips that carry a shape as well as a colour, so they survive
+             colour-blindness and a bad monitor.</p>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-cell was">
+          <span class="ledger-tag">Was</span>
+          <p>No landing screen at all. The application opened on a login page and then a menu bar.</p>
+        </div>
+        <div class="ledger-cell now">
+          <span class="ledger-tag">Instead</span>
+          <p>A home that answers one question — <em>what needs me today</em> — and links straight into
+             the filtered list that resolves it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ================================================================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Six principles</h2></div>
+    <div class="prose">
+      <p class="lede">
+        These are the rules the rest of the document follows. Each exists because of something the
+        previous system did.
+      </p>
+    </div>
+
+    <div class="principles">
+      <div class="principle">
+        <h4><span>P1</span>Numbers are doors, not decoration</h4>
+        <p>Every count on the dashboard is a link into the exact filtered list that produced it.
+           A figure you cannot act on is a figure nobody reads after week two.</p>
+      </div>
+      <div class="principle">
+        <h4><span>P2</span>Density is a feature</h4>
+        <p>A purchase officer lives in this for eight hours. Rows are 30px, numerals are tabular,
+           and the radius is tighter than the framework default. Airy dashboards are for software
+           people demo them; dense ones are for people who use them.</p>
+        <span class="because">Legacy carried 15-column grids. Fighting density loses.</span>
+      </div>
+      <div class="principle">
+        <h4><span>P3</span>State reads at a glance, without colour</h4>
+        <p>Circle is healthy, triangle is warning, diamond is critical, square is inert. Colour
+           reinforces the shape; it never carries the meaning alone.</p>
+      </div>
+      <div class="principle">
+        <h4><span>P4</span>The grid state lives in the URL</h4>
+        <p>A filtered, sorted, paged view is a link you can paste into a message. The back button
+           works. Nobody describes over the phone which filters to click.</p>
+      </div>
+      <div class="principle">
+        <h4><span>P5</span>Keyboard first for the entry roles</h4>
+        <p>Stores and purchasing type all day. <code>⌘K</code> goes anywhere, <code>/</code> focuses
+           search, arrow keys move rows, <code>Enter</code> opens. The mouse stays optional.</p>
+      </div>
+      <div class="principle">
+        <h4><span>P6</span>Show the exception, not the total</h4>
+        <p>"1,284 parts in stock" tells nobody anything. "7 parts below reorder, blocking 3 machines"
+           is the same data doing work.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ================================================================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>The shell</h2></div>
+    <div class="prose">
+      <p class="lede">
+        Persistent sidebar, thin top bar, and a canvas. The two controls that were missing entirely
+        before sit in the top bar: the business-unit switcher and the financial year. Both silently
+        scope everything below them, so both are always visible.
+      </p>
+    </div>
+
+    <div class="specimen specimen-wide">
+      <div class="app">
+        <!-- Sidebar -->
+        <nav class="side">
+          <div class="brandmark"><span class="dot"></span> ERP</div>
+
+          <div class="navgroup">Overview</div>
+          <div class="navitem on">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 7l6-5 6 5v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg>
+            Home
+          </div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3h10v10H3z"/><path d="M6 7h4M6 10h4"/></svg>
+            My approvals <span class="badge">7</span>
+          </div>
+
+          <div class="navgroup">Build</div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2l5 3v6l-5 3-5-3V5z"/><path d="M8 8l5-3M8 8v6M8 8L3 5"/></svg>
+            Engineering
+          </div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M2 6h12M6 2v2M10 2v2"/></svg>
+            Planning
+          </div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 3h2l1.6 7.5h6.6L14 5H5"/><circle cx="6.5" cy="13" r="1"/><circle cx="12" cy="13" r="1"/></svg>
+            Procurement <span class="badge">3</span>
+          </div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/><path d="M2 5l6 3 6-3M8 8v6"/></svg>
+            Stores
+          </div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="2.4"/><path d="M8 1.6v2M8 12.4v2M1.6 8h2M12.4 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M12.5 3.5l-1.4 1.4M4.9 11.1l-1.4 1.4"/></svg>
+            Production
+          </div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1.8l5 2v4.4c0 3-2.1 5.2-5 6-2.9-.8-5-3-5-6V3.8z"/><path d="M5.8 8l1.6 1.6L10.4 6.6"/></svg>
+            Quality
+          </div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 4.5h8v6h-8zM9.5 7h3l2 2v1.5h-5z"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="11.5" cy="12" r="1.2"/></svg>
+            Dispatch
+          </div>
+
+          <div class="navgroup">Configure</div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><ellipse cx="8" cy="4" rx="5.5" ry="2.2"/><path d="M2.5 4v8c0 1.2 2.5 2.2 5.5 2.2s5.5-1 5.5-2.2V4"/><path d="M2.5 8c0 1.2 2.5 2.2 5.5 2.2s5.5-1 5.5-2.2"/></svg>
+            Masters
+          </div>
+          <div class="navitem">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5.5" r="2.4"/><path d="M3 13.5c0-2.5 2.2-4 5-4s5 1.5 5 4"/></svg>
+            Administration
+          </div>
+        </nav>
+
+        <!-- Main -->
+        <div class="main">
+          <div class="topbar">
+            <div class="searchbox">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+              <span style="font-size:12px">Search parts, POs, machines…</span>
+              <span class="kbd">⌘K</span>
+            </div>
+            <span class="chipbtn">BU · Unit 1 — Ahmedabad ▾</span>
+            <span class="chipbtn">FY 25-26 ▾</span>
+            <span class="chipbtn" style="padding:3px 6px">◑</span>
+            <span class="avatar">HK</span>
+          </div>
+
+          <div class="canvas">
+            <!-- Row 1: the queue -->
+            <div class="queue">
+              <div class="qcard crit">
+                <span class="qlabel">Awaiting you</span>
+                <span class="qnum">7</span>
+                <div class="qsub">oldest <span class="hot">6 days</span></div>
+              </div>
+              <div class="qcard warn">
+                <span class="qlabel">GRN to inspect</span>
+                <span class="qnum">12</span>
+                <div class="qsub">3 over <span class="mid">48 h</span></div>
+              </div>
+              <div class="qcard warn">
+                <span class="qlabel">PO overdue</span>
+                <span class="qnum">9</span>
+                <div class="qsub">₹18.4 L at risk</div>
+              </div>
+              <div class="qcard calm">
+                <span class="qlabel">Requisitions open</span>
+                <span class="qnum">23</span>
+                <div class="qsub">14 fully covered</div>
+              </div>
+              <div class="qcard calm">
+                <span class="qlabel">Job cards active</span>
+                <span class="qnum">31</span>
+                <div class="qsub">4 in rework</div>
+              </div>
+            </div>
+
+            <!-- Row 2: machines -->
+            <div class="card">
+              <div class="card-head">
+                <span class="card-title">Machines in build</span>
+                <span class="card-note">6 of 9 shown · sorted by promise date</span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Machine</th><th>Model</th><th>Customer</th>
+                    <th>Stage</th><th style="width:180px">Progress</th>
+                    <th class="num">BOM ready</th><th class="num">Promise</th><th>Risk</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="key">M-2411</td><td>FX-8 Flexo</td><td class="desc">Sunrise Packaging</td>
+                    <td>Assembly</td>
+                    <td><div class="rail"><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg now"></i><i class="seg"></i><i class="seg"></i></div></td>
+                    <td class="num">98%</td><td class="num">12 Sep</td>
+                    <td><span class="chip ok">On track</span></td>
+                  </tr>
+                  <tr>
+                    <td class="key">M-2408</td><td>WS-1600 Sack</td><td class="desc">Gujarat Polyfab</td>
+                    <td>Sub-assembly</td>
+                    <td><div class="rail"><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg block"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i></div></td>
+                    <td class="num">71%</td><td class="num">29 Aug</td>
+                    <td><span class="chip crit">14 short</span></td>
+                  </tr>
+                  <tr>
+                    <td class="key">M-2415</td><td>FX-6 Flexo</td><td class="desc">Anand Flexibles</td>
+                    <td>Procurement</td>
+                    <td><div class="rail"><i class="seg done"></i><i class="seg done"></i><i class="seg now"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i></div></td>
+                    <td class="num">44%</td><td class="num">04 Nov</td>
+                    <td><span class="chip warn">PO pending</span></td>
+                  </tr>
+                  <tr>
+                    <td class="key">M-2402</td><td>WS-1200 Sack</td><td class="desc">Shakti Industries</td>
+                    <td>Testing</td>
+                    <td><div class="rail"><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg now"></i><i class="seg"></i></div></td>
+                    <td class="num">100%</td><td class="num">22 Aug</td>
+                    <td><span class="chip ok">On track</span></td>
+                  </tr>
+                  <tr>
+                    <td class="key">M-2417</td><td>FX-8 Flexo</td><td class="desc">Meridian Print</td>
+                    <td>BOM release</td>
+                    <td><div class="rail"><i class="seg done"></i><i class="seg now"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i></div></td>
+                    <td class="num">08%</td><td class="num">17 Jan</td>
+                    <td><span class="chip idle">Design</span></td>
+                  </tr>
+                  <tr>
+                    <td class="key">M-2399</td><td>WS-1600 Sack</td><td class="desc">Nirman Packaging</td>
+                    <td>Dispatch</td>
+                    <td><div class="rail"><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg done"></i><i class="seg now"></i></div></td>
+                    <td class="num">100%</td><td class="num">14 Aug</td>
+                    <td><span class="chip live">Packing</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Row 3: two-up -->
+            <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:14px">
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">Shortages blocking build</span>
+                  <span class="card-note">by earliest need</span>
+                </div>
+                <table>
+                  <thead>
+                    <tr><th>Part</th><th class="num">Need</th><th class="num">Free</th><th class="num">Short</th><th class="num">By</th><th>Cover</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="key">BRG-6208-2RS</td><td class="num">48</td><td class="num">12</td><td class="num" style="color:var(--crit);font-weight:600">36</td><td class="num">21 Aug</td><td><span class="chip crit">No PO</span></td></tr>
+                    <tr><td class="key">SFT-D40-L820</td><td class="num">6</td><td class="num">0</td><td class="num" style="color:var(--crit);font-weight:600">6</td><td class="num">23 Aug</td><td><span class="chip warn">PO 02 Sep</span></td></tr>
+                    <tr><td class="key">GBX-RV-40-15</td><td class="num">4</td><td class="num">1</td><td class="num" style="color:var(--crit);font-weight:600">3</td><td class="num">26 Aug</td><td><span class="chip warn">PO 28 Aug</span></td></tr>
+                    <tr><td class="key">PLT-SS304-3MM</td><td class="num">120</td><td class="num">94</td><td class="num" style="color:var(--warn);font-weight:600">26</td><td class="num">01 Sep</td><td><span class="chip ok">GRN in QC</span></td></tr>
+                    <tr><td class="key">MTR-3PH-5.5K</td><td class="num">2</td><td class="num">0</td><td class="num" style="color:var(--crit);font-weight:600">2</td><td class="num">03 Sep</td><td><span class="chip crit">No PO</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><span class="card-title">Quality · last 30 days</span></div>
+                <table>
+                  <thead><tr><th>Measure</th><th class="num">Now</th><th class="num">Prev</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td class="key">Lot rejection</td><td class="num">3.8%</td><td class="num">5.2%</td><td><span class="chip ok">−1.4</span></td></tr>
+                    <tr><td class="key">NCR open</td><td class="num">11</td><td class="num">8</td><td><span class="chip warn">+3</span></td></tr>
+                    <tr><td class="key">Avg QC hours</td><td class="num">19.4</td><td class="num">26.1</td><td><span class="chip ok">−6.7</span></td></tr>
+                    <tr><td class="key">Re-inspections</td><td class="num">6</td><td class="num">6</td><td><span class="chip idle">—</span></td></tr>
+                    <tr><td class="key">Negative stock</td><td class="num">0</td><td class="num">0</td><td><span class="chip ok">Clean</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Row 4: flow -->
+            <div class="card">
+              <div class="card-head">
+                <span class="card-title">Procure to receive</span>
+                <span class="card-note">count · median age in stage</span>
+              </div>
+              <div class="flow">
+                <div class="stage"><div class="stage-l">Requisition</div><div class="stage-n">23</div><div class="stage-age">median 2 d</div></div>
+                <div class="stage"><div class="stage-l">PO open</div><div class="stage-n">61</div><div class="stage-age">median 11 d</div></div>
+                <div class="stage"><div class="stage-l">Overdue</div><div class="stage-n" style="color:var(--crit)">9</div><div class="stage-age"><b>max 24 d</b></div></div>
+                <div class="stage"><div class="stage-l">In QC</div><div class="stage-n">12</div><div class="stage-age"><b>3 over 48 h</b></div></div>
+                <div class="stage"><div class="stage-l">To put away</div><div class="stage-n">7</div><div class="stage-age">median 4 h</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Home, purchasing role. Every figure links to the filtered list behind it.</p>
+
+    <div class="note">
+      <b>Why the business-unit switcher is in the chrome.</b> In the old system the unit was a hidden
+      session value applied by a LINQ helper each developer had to remember to call — and every query
+      that forgot leaked another unit's data. It is now enforced by a database query filter that
+      cannot be skipped. Putting the switcher permanently on screen makes the scope that is being
+      enforced visible to the person it affects.
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ================================================================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Navigation, reorganised</h2></div>
+    <div class="prose">
+      <p class="lede">
+        The old menu was grouped the way the code was structured. This one is grouped the way a
+        machine gets built — so a new employee can find a screen by asking what stage of the job
+        they are at, rather than which developer owned it.
+      </p>
+    </div>
+
+    <div class="navmap">
+      <div class="navcol"><h5>Engineering</h5><ul>
+        <li>Machines</li><li>Bills of material</li><li>BOM amendments</li>
+        <li>Sections &amp; assemblies</li><li>Drawings</li><li>Costing</li>
+      </ul></div>
+      <div class="navcol"><h5>Planning</h5><ul>
+        <li>Requirements</li><li>Stock comparison</li><li>Work orders</li>
+        <li>Outsourcing</li><li>Vendor negotiation</li>
+      </ul></div>
+      <div class="navcol"><h5>Procurement</h5><ul>
+        <li>Purchase requests</li><li>Purchase orders</li><li>Revisions &amp; holds</li>
+        <li>Suppliers</li><li>Supplier catalogue</li>
+      </ul></div>
+      <div class="navcol"><h5>Stores</h5><ul>
+        <li>Goods receipt</li><li>Return to supplier</li><li>Material issue</li>
+        <li>Transfers &amp; adjustments</li><li>Stock enquiry</li><li>Bins &amp; locations</li>
+      </ul></div>
+      <div class="navcol"><h5>Production</h5><ul>
+        <li>Job cards</li><li>Work in progress</li><li>Material requisition</li>
+        <li>Returns</li><li>Rework</li>
+      </ul></div>
+      <div class="navcol"><h5>Quality</h5><ul>
+        <li>Incoming inspection</li><li>Rejection memos</li><li>NCR</li>
+        <li>Daily inspection</li><li>Supplier scorecard</li>
+      </ul></div>
+      <div class="navcol"><h5>Dispatch</h5><ul>
+        <li>Packing lists</li><li>Box assignment</li><li>Vehicles</li><li>Gate pass</li>
+      </ul></div>
+      <div class="navcol"><h5>Masters</h5><ul>
+        <li>Parts</li><li>Suppliers &amp; customers</li><li>Units &amp; categories</li>
+        <li>Business units</li><li>Numbering series</li><li>Financial year</li>
+      </ul></div>
+    </div>
+
+    <div class="prose">
+      <h3>The command palette carries the long tail</h3>
+      <p>
+        Roughly 180 screens will never fit in a sidebar that stays readable. <code>⌘K</code> searches
+        screens and records in the same box — type <code>M-2411</code> and the machine comes up; type
+        <code>grn</code> and the goods-receipt screens do. The sidebar then only needs the twenty
+        destinations people use daily, and the other hundred and sixty stay one keystroke away
+        instead of four clicks deep.
+      </p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ================================================================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Dashboard fields, specified</h2></div>
+    <div class="prose">
+      <p class="lede">
+        What each block contains and where the number comes from. The dashboard is composed from
+        these blocks per role — a store keeper and a purchase officer see the same components in a
+        different arrangement, not two different pages.
+      </p>
+    </div>
+
+    <h3>A · Awaiting you</h3>
+    <div class="prose"><p>The first thing on screen, because it is the only block that is about the
+      viewer rather than the business. Rendered from the approvals module plus each role's work queue.</p></div>
+    <table class="spec">
+      <thead><tr><th>Field</th><th>Meaning</th><th class="src">Source</th></tr></thead>
+      <tbody>
+        <tr><td>count</td><td>Items where this user is the current approver or assignee</td><td class="src">approvals.Request</td></tr>
+        <tr><td>oldestAgeDays</td><td>Age of the longest-waiting item. Turns critical past the SLA for that document type.</td><td class="src">min(raisedAtUtc)</td></tr>
+        <tr><td>valueAtRisk</td><td>Sum of document value where the type carries one — POs, quotations. Omitted where it does not.</td><td class="src">document total</td></tr>
+        <tr><td>target</td><td>The filtered list this tile opens. Never a generic index.</td><td class="src">route + query</td></tr>
+      </tbody>
+    </table>
+
+    <h3>B · Machines in build</h3>
+    <div class="prose"><p>The spine of an engineer-to-order business, and the block with no equivalent
+      in the old system. One row per open machine, ordered by promise date rather than machine number.</p></div>
+    <table class="spec">
+      <thead><tr><th>Field</th><th>Meaning</th><th class="src">Source</th></tr></thead>
+      <tbody>
+        <tr><td>machineNo</td><td>Business key. Opens the machine tracker.</td><td class="src">engineering.Machine</td></tr>
+        <tr><td>model · customer</td><td>What it is and who it is for — the two things people identify a job by in conversation.</td><td class="src">Machine, Customer</td></tr>
+        <tr><td>stage</td><td>Design → BOM release → Procurement → Sub-assembly → Assembly → Testing → Dispatch</td><td class="src">derived</td></tr>
+        <tr><td>progressRail</td><td>Seven segments, one per stage. The current segment is half-toned; a blocked one turns critical.</td><td class="src">derived</td></tr>
+        <tr><td>bomReadyPct</td><td>BOM lines with full free stock or confirmed inbound, over total lines. The single most predictive number on the page.</td><td class="src">BOM × StockBalance</td></tr>
+        <tr><td>promisedDate</td><td>Committed dispatch date. Past-due renders critical.</td><td class="src">Machine</td></tr>
+        <tr><td>shortLines</td><td>Count of BOM lines with no cover. Drives the risk chip and links into block C pre-filtered to this machine.</td><td class="src">derived</td></tr>
+      </tbody>
+    </table>
+
+    <h3>C · Shortages blocking build</h3>
+    <div class="prose"><p>The exception list that replaces a stock report. Sorted by need date, not by
+      shortage size — the part needed on Tuesday matters more than the one you are shorter of.</p></div>
+    <table class="spec">
+      <thead><tr><th>Field</th><th>Meaning</th><th class="src">Source</th></tr></thead>
+      <tbody>
+        <tr><td>partNumber</td><td>With description on hover; the code is what people search by.</td><td class="src">masters.Part</td></tr>
+        <tr><td>requiredQty</td><td>Aggregate demand across open work orders and released BOMs</td><td class="src">derived</td></tr>
+        <tr><td>freeQty</td><td>On hand minus reserved. Deliberately not "on hand" — reserved stock is not available and showing it as though it were is how a shortage gets missed.</td><td class="src">inventory.StockBalance</td></tr>
+        <tr><td>shortQty</td><td>required − free. The only number in the row rendered in the critical colour.</td><td class="src">derived</td></tr>
+        <tr><td>neededBy</td><td>Earliest date any consumer needs it</td><td class="src">WorkOrder schedule</td></tr>
+        <tr><td>coverage</td><td>No PO / PO with expected date / in QC / awaiting put-away. Says what is already being done so nobody raises a duplicate requisition.</td><td class="src">PO + GRN state</td></tr>
+      </tbody>
+    </table>
+
+    <h3>D · Procure to receive</h3>
+    <div class="prose"><p>A five-stage pipeline with a count and a median age each. Age is what makes it
+      diagnostic: sixty-one open POs is normal, sixty-one open POs with a median age of eleven days
+      is not.</p></div>
+    <table class="spec">
+      <thead><tr><th>Field</th><th>Meaning</th><th class="src">Source</th></tr></thead>
+      <tbody>
+        <tr><td>stageCount</td><td>Documents currently sitting in that stage</td><td class="src">per module</td></tr>
+        <tr><td>medianAge</td><td>Median, not mean — one three-month-old PO should not move the number for the other sixty.</td><td class="src">derived</td></tr>
+        <tr><td>breachCount</td><td>How many exceed the stage SLA. This is the figure that renders in warning colour.</td><td class="src">derived</td></tr>
+      </tbody>
+    </table>
+
+    <h3>E · Quality, last 30 days</h3>
+    <div class="prose"><p>Every measure is shown beside its previous period, because a rejection rate
+      of 3.8% means nothing without knowing it was 5.2%.</p></div>
+    <table class="spec">
+      <thead><tr><th>Field</th><th>Meaning</th><th class="src">Source</th></tr></thead>
+      <tbody>
+        <tr><td>lotRejectionPct</td><td>Rejected lots over inspected lots</td><td class="src">quality.QcResult</td></tr>
+        <tr><td>ncrOpen</td><td>Non-conformance reports not yet closed</td><td class="src">quality.Ncr</td></tr>
+        <tr><td>avgQcHours</td><td>GRN posted to QC decision. The metric that shortens the receive pipeline.</td><td class="src">derived</td></tr>
+        <tr><td>negativeStockLines</td><td>Balances below zero. Should always read zero; if it ever does not, the ledger has a bug and this is where it surfaces.</td><td class="src">StockBalance</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <b>What is deliberately absent.</b> No revenue chart, no gauge dials, no "total parts" counter,
+      no activity feed. None of them change what anybody does next. The dashboard earns its place by
+      being the shortest route to the day's work, and every block that is not that makes the blocks
+      that are harder to see.
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ================================================================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Screen archetypes</h2></div>
+    <div class="prose">
+      <p class="lede">
+        Roughly 180 screens, four shapes. Building the four properly is what stops the hundred and
+        eighty from becoming a hundred and eighty bespoke implementations, which is precisely what
+        happened last time.
+      </p>
+    </div>
+
+    <h3>The list — the shape most screens take</h3>
+    <div class="specimen">
+      <div class="app" style="grid-template-columns:1fr;min-width:760px">
+        <div class="main">
+          <div class="topbar" style="gap:8px">
+            <span style="font-weight:620;font-size:14px;font-family:var(--sans)">Purchase orders</span>
+            <span class="chipbtn" style="margin-left:12px">Saved view · Overdue ▾</span>
+            <span class="chipbtn">Status: Open ×</span>
+            <span class="chipbtn">Supplier: any ▾</span>
+            <span style="margin-left:auto" class="chipbtn">Columns</span>
+            <span class="chipbtn">Export</span>
+            <span class="chipbtn" style="background:var(--brand);color:var(--brand-ink);border-color:var(--brand)">New order</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>PO number</th><th>Supplier</th><th class="num">Value</th><th class="num">Raised</th><th class="num">Promised</th><th class="num">Received</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="key">25-26/PO/1043</td><td class="desc">Nandi Bearings</td><td class="num">₹4,82,000</td><td class="num">02 Jul</td><td class="num">18 Jul</td><td class="num">0%</td><td><span class="chip crit">24 d late</span></td></tr>
+              <tr><td class="key">25-26/PO/1051</td><td class="desc">Precision Shafts Ltd</td><td class="num">₹2,15,400</td><td class="num">09 Jul</td><td class="num">08 Aug</td><td class="num">60%</td><td><span class="chip warn">Part received</span></td></tr>
+              <tr><td class="key">25-26/PO/1067</td><td class="desc">Shakti Gearbox</td><td class="num">₹9,40,000</td><td class="num">21 Jul</td><td class="num">28 Aug</td><td class="num">0%</td><td><span class="chip live">Open</span></td></tr>
+              <tr><td class="key">25-26/PO/1072</td><td class="desc">Vega Motors</td><td class="num">₹1,88,750</td><td class="num">28 Jul</td><td class="num">30 Aug</td><td class="num">0%</td><td><span class="chip live">Open</span></td></tr>
+              <tr><td class="key">25-26/PO/1078</td><td class="desc">Ashok Steels</td><td class="num">₹6,12,300</td><td class="num">04 Aug</td><td class="num">02 Sep</td><td class="num">100%</td><td><span class="chip ok">Closed</span></td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex;align-items:center;gap:12px;padding:9px 14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--ink-faint)">
+            <span>Page 1 of 13 · 61 orders</span>
+            <span style="margin-left:auto" class="chipbtn">Previous</span>
+            <span class="chipbtn">Next</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Every list has these parts: saved views, removable filter chips, column chooser, server-side export, server pager. Nothing bespoke.</p>
+
+    <div class="prose">
+      <h3>The other three</h3>
+      <p>
+        <strong>Detail</strong> — a header of identity and state, tabs for lines, documents, history
+        and approvals, and the action bar pinned bottom-right so it stays reachable on a long form.
+        The audit trail is a tab, not a separate screen nobody opens.
+      </p>
+      <p>
+        <strong>Approval queue</strong> — the unified inbox. Each row shows what it is, who raised it,
+        the value, how long it has waited and <em>what it is holding up</em>. Approve and reject are
+        inline; opening the document is for when you need convincing, not a mandatory step.
+      </p>
+      <p>
+        <strong>Staged import</strong> — the Excel upload workflow, which was genuinely good in the
+        old system and is worth keeping: upload, validate, preview with per-row errors, then commit or
+        discard as one unit. Never a partial import that leaves half a BOM in the database.
+      </p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ================================================================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">07</span><h2>What React is actually buying</h2></div>
+    <div class="prose">
+      <p class="lede">
+        You asked what justifies the rewrite on the interface side. Not "it is modern" — these are
+        the specific things the old architecture could not do.
+      </p>
+
+      <h3>Navigation stops costing a page load</h3>
+      <p>
+        Every screen change previously meant a full round trip: a Razor view, then several megabytes
+        of scripts that were served with <code>no-store</code> so they were re-downloaded every single
+        time. Moving between two lists to compare them was a measurable wait. Client-side routing makes
+        that instant, and the layout, sidebar and session state survive the transition.
+      </p>
+
+      <h3>One table component instead of a hundred and eighty</h3>
+      <p>
+        The old grids were written per screen, which is why 149 of them ended up client-paged: each
+        was a fresh chance to get it wrong. A single component that only knows how to ask the server
+        for one page makes the correct version the path of least resistance — and fixes all 180 screens
+        when it improves.
+      </p>
+
+      <h3>Approve without losing your place</h3>
+      <p>
+        An approval marks the row done immediately and reconciles with the server underneath. Working
+        through a queue of thirty stops being thirty page reloads. This is only safe because the API
+        returns real status codes now — the old envelope returned HTTP 200 with <code>Status: false</code>
+        inside, so the client could not tell success from failure and could not risk assuming.
+      </p>
+
+      <h3>A filtered view is a link</h3>
+      <p>
+        Grid state lives in the URL, so "the nine overdue POs" is something you paste into a message
+        rather than describe over the phone. It also means the browser's back button behaves, which
+        it never did before.
+      </p>
+
+      <h3>The shop floor can be treated differently</h3>
+      <p>
+        Job card and goods-receipt screens are used standing up, on a tablet, sometimes on bad wifi.
+        Being a real client application means those screens can hold state through a dropout and
+        submit when the connection returns. A server-rendered form simply loses the entry.
+      </p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ================================================================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">08</span><h2>Build order</h2></div>
+    <div class="prose">
+      <p class="lede">
+        The kit before the screens. Every hour spent on the first two items is repaid roughly a
+        hundred and eighty times.
+      </p>
+    </div>
+
+    <table class="spec">
+      <thead><tr><th>Step</th><th>What</th><th class="src">Unblocks</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>App shell — sidebar, top bar, business-unit and financial-year switchers, permission-filtered navigation</td><td class="src">every screen</td></tr>
+        <tr><td>2</td><td>Form kit — react-hook-form plus Zod field components, matching the table kit that already exists</td><td class="src">every create/edit</td></tr>
+        <tr><td>3</td><td>Part create/edit/approve screens, completing the vertical slice already begun</td><td class="src">proves the kit</td></tr>
+        <tr><td>4</td><td>Command palette over screens and records</td><td class="src">the long tail</td></tr>
+        <tr><td>5</td><td>Approval inbox, once the approvals module exists</td><td class="src">block A</td></tr>
+        <tr><td>6</td><td>Dashboard blocks, as the modules that feed them land</td><td class="src">home</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <b>One ordering warning.</b> The dashboard is last, not first. Every block on it reads from a
+      module that does not exist yet — machines, stock balances, purchase orders, QC results. Building
+      the home screen before those means building it twice, against invented data the first time.
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('themeSwitch');
+    var modes = ['system', 'light', 'dark'];
+    var labels = { system: 'Theme: System', light: 'Theme: Light', dark: 'Theme: Dark' };
+    var index = 0;
+
+    try {
+      var saved = localStorage.getItem('erp-design-theme');
+      if (saved && modes.indexOf(saved) > -1) index = modes.indexOf(saved);
+    } catch (error) {
+      /* file:// origins can block storage; the default is fine. */
+    }
+
+    function apply() {
+      var mode = modes[index];
+      if (mode === 'system') root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', mode);
+      button.textContent = labels[mode];
+      try { localStorage.setItem('erp-design-theme', mode); } catch (error) { /* ignore */ }
+    }
+
+    button.addEventListener('click', function () {
+      index = (index + 1) % modes.length;
+      apply();
+    });
+
+    apply();
+  })();
+</script>
+</body>
+</html>

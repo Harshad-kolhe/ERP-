@@ -1,0 +1,83 @@
+# ---------------------------------------------------------------------------
+# Local development infrastructure.
+#
+#   docker compose up -d
+#
+# Nothing here is production configuration. The passwords below are local-only
+# throwaways and are deliberately committed so a new developer can start with
+# one command. Real environments read every secret from env vars / Key Vault.
+# ---------------------------------------------------------------------------
+name: erp
+
+services:
+  # SQL Server 2022. To use SQL Server 2025 instead, switch the tag to
+  # `2025-latest` — the rest of the configuration is identical.
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: erp-sqlserver
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: 'Local_Dev_Only_P@ssw0rd!'
+      MSSQL_PID: Developer
+    ports:
+      - '1433:1433'
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      # /opt/mssql-tools18/ is correct for the 2022+ images; -C trusts the self-signed cert.
+      test:
+        [
+          'CMD-SHELL',
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  # Structured log sink. Replaces the legacy habit of writing logs into the
+  # OLTP database, where they competed with the application for IO.
+  seq:
+    image: datalust/seq:latest
+    container_name: erp-seq
+    environment:
+      ACCEPT_EULA: 'Y'
+      SEQ_FIRSTRUN_NOAUTHENTICATION: 'true'
+    ports:
+      - '5341:5341' # ingestion
+      - '8081:80' # UI  → http://localhost:8081
+    volumes:
+      - seq-data:/data
+
+  # S3-compatible object storage for documents and engineering drawings.
+  # Replaces wwwroot/UploadedFiles and the UNC share.
+  minio:
+    image: minio/minio:latest
+    container_name: erp-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: erp-local
+      MINIO_ROOT_PASSWORD: Local_Dev_Only_P@ssw0rd!
+    ports:
+      - '9000:9000' # API
+      - '9001:9001' # console → http://localhost:9001
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  # Catches every outbound email in development so nothing reaches a real inbox.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: erp-mailpit
+    ports:
+      - '1025:1025' # SMTP
+      - '8025:8025' # UI → http://localhost:8025
+
+volumes:
+  sqlserver-data:
+  seq-data:
+  minio-data:

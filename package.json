@@ -1,0 +1,17 @@
+{
+  "name": "erp",
+  "private": true,
+  "packageManager": "pnpm@10.34.5",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "pnpm --filter web dev",
+    "dev:all": "docker compose up -d --wait && concurrently -k --kill-signal SIGINT -n api,web -c blue,magenta \"dotnet watch --non-interactive --project backend/src/Erp.Api\" \"pnpm --filter web dev\"",
+    "dev:down": "docker compose down",
+    "lint": "pnpm --filter web lint",
+    "test": "pnpm --filter web test",
+    "typecheck": "pnpm --filter web typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  }
+}

@@ -106,7 +106,7 @@ export function DataTable<TRow>({
         <span>
           {page ? (
             <>
-              Page {page.page} of {Math.max(page.totalPages, 1)} · {page.totalCount} records
+              Page {page.page} of {Math.max(page.totalPages ?? 0, 1)} · {page.totalCount} records
             </>
           ) : null}
         </span>

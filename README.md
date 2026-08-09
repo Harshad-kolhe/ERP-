@@ -113,11 +113,17 @@ dotnet test backend/tests/Erp.ArchitectureTests --filter FullyQualifiedName~Sche
 ```
 backend/        .NET 10 solution — the only deployable backend
 frontend/       Next.js 16 app; also the BFF that holds the session cookie
-packages/       shared TypeScript (generated API client, tsconfig bases)
-db/             seed data, generated ERDs, and the few SQL objects that earn an ADR
-tools/          data-migration ETL from the legacy system
+contracts/      openapi.json, emitted by the backend build and committed
+db/             generated ERDs, and the few SQL objects that earn an ADR
 docs/           architecture, ADRs, data model, runbooks
 ```
+
+The TypeScript view of the API is generated from `contracts/openapi.json` into
+`frontend/src/lib/api/generated/`, and both are committed — CI regenerates them
+and fails on any diff, so the server and the web app cannot drift apart.
+
+`pnpm-workspace.yaml` also declares `packages/*`, for shared TypeScript that has
+no home yet. Nothing lives there today; the workspace is the frontend alone.
 
 The diagrams in [`db/erd/`](db/erd) are generated from the EF Core model, so they
 describe the schema that exists rather than the one someone last drew. Where it is

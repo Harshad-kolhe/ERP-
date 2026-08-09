@@ -332,7 +332,7 @@ function Pager<TRow>({
       <span className="tabular-nums">
         {page ? (
           <>
-            Page {page.page} of {Math.max(page.totalPages, 1)} · {page.totalCount} records
+            Page {page.page} of {Math.max(page.totalPages ?? 0, 1)} · {page.totalCount} records
             {/* The grid keeps the previous page on screen while the next one loads,
                 so without this the pager looks frozen rather than busy. */}
             {isFetching ? ' · updating…' : ''}

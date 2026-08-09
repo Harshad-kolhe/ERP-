@@ -59,6 +59,14 @@ dist/
 next-env.d.ts
 .pnpm-store/
 .pnpm-debug.log*
+
+# pnpm is the package manager — pnpm-lock.yaml is the only lockfile that may be
+# committed. The `preinstall` guard in package.json makes `npm install` fail
+# loudly, but npm writes its lockfile before that script runs, so a stray one can
+# still appear. Ignored rather than committed: two lockfiles in one repository
+# means two dependency graphs, and nobody diffs them against each other.
+package-lock.json
+yarn.lock
 npm-debug.log*
 yarn-error.log*
 

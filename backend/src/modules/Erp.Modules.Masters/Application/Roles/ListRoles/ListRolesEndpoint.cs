@@ -22,7 +22,7 @@ internal sealed class ListRolesEndpoint : IEndpoint
                 string? sort,
                 string? search,
                 string? filter,
-                IQueryHandler<ListRolesQuery, PagedResult<RoleListItemDto>> handler,
+                IQueryHandler<ListRolesQuery, PagedResult<RoleMasterListItemDto>> handler,
                 CancellationToken cancellationToken) =>
             {
                 var request = PageRequestBinding.From(page, pageSize, sort, search, filter);
@@ -35,6 +35,6 @@ internal sealed class ListRolesEndpoint : IEndpoint
                 "The legacy role master, which does NOT grant permissions — authorisation runs on "
                 + "Identity roles. Server-paged, with free-text search across the role name.")
             .RequirePermission(MastersPermissions.RoleRead)
-            .Produces<PagedResult<RoleListItemDto>>();
+            .Produces<PagedResult<RoleMasterListItemDto>>();
     }
 }

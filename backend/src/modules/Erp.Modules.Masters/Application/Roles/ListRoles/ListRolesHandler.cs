@@ -18,7 +18,7 @@ namespace Erp.Modules.Masters.Application.Roles.ListRoles;
 /// </para>
 /// </summary>
 internal sealed class ListRolesHandler(ErpDbContext db)
-    : IQueryHandler<ListRolesQuery, PagedResult<RoleListItemDto>>
+    : IQueryHandler<ListRolesQuery, PagedResult<RoleMasterListItemDto>>
 {
     private static readonly QueryMap<RoleListRow> Map = QueryMap<RoleListRow>.Create()
         .Field("rolesName", x => x.RolesName, searchable: true)
@@ -33,7 +33,7 @@ internal sealed class ListRolesHandler(ErpDbContext db)
         .TieBreaker(x => x.Id)
         .Build();
 
-    public async Task<Result<PagedResult<RoleListItemDto>>> HandleAsync(
+    public async Task<Result<PagedResult<RoleMasterListItemDto>>> HandleAsync(
         ListRolesQuery query,
         CancellationToken cancellationToken)
     {
@@ -55,19 +55,19 @@ internal sealed class ListRolesHandler(ErpDbContext db)
 
         if (page.IsFailure)
         {
-            return Result.Failure<PagedResult<RoleListItemDto>>(page.Error);
+            return Result.Failure<PagedResult<RoleMasterListItemDto>>(page.Error);
         }
 
         var items = page.Value.Items.Select(ToDto).ToList();
 
-        return Result.Success(new PagedResult<RoleListItemDto>(
+        return Result.Success(new PagedResult<RoleMasterListItemDto>(
             items,
             page.Value.Page,
             page.Value.PageSize,
             page.Value.TotalCount));
     }
 
-    private static RoleListItemDto ToDto(RoleListRow row) => new()
+    private static RoleMasterListItemDto ToDto(RoleListRow row) => new()
     {
         Id = row.Id,
         RolesName = row.RolesName,

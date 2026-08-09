@@ -26,20 +26,11 @@ export type AssemblyNodeAttributesDtoTechnicalSpecification = null | string;
 
 export type AssemblyNodeAttributesDtoRemark = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type AssemblyNodeAttributesDtoQuantity = null | number | string;
+export type AssemblyNodeAttributesDtoQuantity = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type AssemblyNodeAttributesDtoWeightKg = null | number | string;
+export type AssemblyNodeAttributesDtoWeightKg = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type AssemblyNodeAttributesDtoDisplaySequence = null | number | string;
+export type AssemblyNodeAttributesDtoDisplaySequence = null | number;
 
 export interface AssemblyNodeAttributesDto {
   manualCode?: AssemblyNodeAttributesDtoManualCode;
@@ -48,11 +39,8 @@ export interface AssemblyNodeAttributesDto {
   drawingPath?: AssemblyNodeAttributesDtoDrawingPath;
   technicalSpecification?: AssemblyNodeAttributesDtoTechnicalSpecification;
   remark?: AssemblyNodeAttributesDtoRemark;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   quantity?: AssemblyNodeAttributesDtoQuantity;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   weightKg?: AssemblyNodeAttributesDtoWeightKg;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   displaySequence?: AssemblyNodeAttributesDtoDisplaySequence;
 }
 
@@ -63,11 +51,6 @@ export type AssemblyNodeDetailDtoParentId = null | string;
 export type AssemblyNodeDetailDtoParentCode = null | string;
 
 export type AssemblyNodeDetailDtoParentName = null | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type AssemblyNodeDetailDtoBusinessUnitId = number | string;
 
 export type AssemblyNodeDetailDtoModifiedAtUtc = null | string;
 
@@ -82,8 +65,7 @@ export interface AssemblyNodeDetailDto {
   parentName?: AssemblyNodeDetailDtoParentName;
   attributes: AssemblyNodeAttributesDto;
   isActive: boolean;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  businessUnitId: AssemblyNodeDetailDtoBusinessUnitId;
+  businessUnitId: number;
   createdAtUtc: string;
   modifiedAtUtc?: AssemblyNodeDetailDtoModifiedAtUtc;
   rowVersion: string;
@@ -97,11 +79,6 @@ export type AssemblyNodeListItemDtoParentCode = null | string;
 
 export type AssemblyNodeListItemDtoParentName = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type AssemblyNodeListItemDtoChildCount = number | string;
-
 export type AssemblyNodeListItemDtoMachineType = null | string;
 
 export type AssemblyNodeListItemDtoDrivenBy = null | string;
@@ -112,20 +89,11 @@ export type AssemblyNodeListItemDtoTechnicalSpecification = null | string;
 
 export type AssemblyNodeListItemDtoRemark = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type AssemblyNodeListItemDtoQuantity = null | number | string;
+export type AssemblyNodeListItemDtoQuantity = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type AssemblyNodeListItemDtoWeightKg = null | number | string;
+export type AssemblyNodeListItemDtoWeightKg = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type AssemblyNodeListItemDtoDisplaySequence = null | number | string;
+export type AssemblyNodeListItemDtoDisplaySequence = null | number;
 
 export type AssemblyNodeListItemDtoCreatedBy = null | string;
 
@@ -142,18 +110,14 @@ export interface AssemblyNodeListItemDto {
   parentId?: AssemblyNodeListItemDtoParentId;
   parentCode?: AssemblyNodeListItemDtoParentCode;
   parentName?: AssemblyNodeListItemDtoParentName;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  childCount: AssemblyNodeListItemDtoChildCount;
+  childCount: number;
   machineType?: AssemblyNodeListItemDtoMachineType;
   drivenBy?: AssemblyNodeListItemDtoDrivenBy;
   drawingPath?: AssemblyNodeListItemDtoDrawingPath;
   technicalSpecification?: AssemblyNodeListItemDtoTechnicalSpecification;
   remark?: AssemblyNodeListItemDtoRemark;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   quantity?: AssemblyNodeListItemDtoQuantity;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   weightKg?: AssemblyNodeListItemDtoWeightKg;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   displaySequence?: AssemblyNodeListItemDtoDisplaySequence;
   isActive: boolean;
   createdBy?: AssemblyNodeListItemDtoCreatedBy;
@@ -162,15 +126,7 @@ export interface AssemblyNodeListItemDto {
   modifiedAtUtc?: AssemblyNodeListItemDtoModifiedAtUtc;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type BusinessUnitDetailDtoId = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type BusinessUnitDetailDtoBusinessUnitId = null | number | string;
+export type BusinessUnitDetailDtoBusinessUnitId = null | number;
 
 export type BusinessUnitDetailDtoBusinessName = null | string;
 
@@ -195,9 +151,7 @@ export type BusinessUnitDetailDtoPan = null | string;
 export type BusinessUnitDetailDtoModifiedAtUtc = null | string;
 
 export interface BusinessUnitDetailDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: BusinessUnitDetailDtoId;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
+  id: number;
   businessUnitId: BusinessUnitDetailDtoBusinessUnitId;
   businessName: BusinessUnitDetailDtoBusinessName;
   address?: BusinessUnitDetailDtoAddress;
@@ -215,15 +169,7 @@ export interface BusinessUnitDetailDto {
   rowVersion: string;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type BusinessUnitListItemDtoId = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type BusinessUnitListItemDtoBusinessUnitId = null | number | string;
+export type BusinessUnitListItemDtoBusinessUnitId = null | number;
 
 export type BusinessUnitListItemDtoBusinessName = null | string;
 
@@ -242,9 +188,7 @@ export type BusinessUnitListItemDtoGstn = null | string;
 export type BusinessUnitListItemDtoStateName = null | string;
 
 export interface BusinessUnitListItemDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: BusinessUnitListItemDtoId;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
+  id: number;
   businessUnitId: BusinessUnitListItemDtoBusinessUnitId;
   businessName: BusinessUnitListItemDtoBusinessName;
   address?: BusinessUnitListItemDtoAddress;
@@ -269,11 +213,6 @@ export interface CreateAssemblyNodeRequest {
   attributes?: CreateAssemblyNodeRequestAttributes;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CreateBusinessUnitRequestBusinessUnitId = number | string;
-
 export type CreateBusinessUnitRequestAddress = null | string;
 
 export type CreateBusinessUnitRequestStateName = null | string;
@@ -293,8 +232,7 @@ export type CreateBusinessUnitRequestGstn = null | string;
 export type CreateBusinessUnitRequestPan = null | string;
 
 export interface CreateBusinessUnitRequest {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  businessUnitId: CreateBusinessUnitRequestBusinessUnitId;
+  businessUnitId: number;
   businessName: string;
   address?: CreateBusinessUnitRequestAddress;
   stateName?: CreateBusinessUnitRequestStateName;
@@ -350,20 +288,11 @@ export type CreateCustomerRequestGst = null | string;
 
 export type CreateCustomerRequestPan = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateCustomerRequestIgst = null | number | string;
+export type CreateCustomerRequestIgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateCustomerRequestCgst = null | number | string;
+export type CreateCustomerRequestCgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateCustomerRequestSgst = null | number | string;
+export type CreateCustomerRequestSgst = null | number;
 
 export type CreateCustomerRequestCurrency = null | string;
 
@@ -393,22 +322,14 @@ export interface CreateCustomerRequest {
   taxId?: CreateCustomerRequestTaxId;
   gst?: CreateCustomerRequestGst;
   pan?: CreateCustomerRequestPan;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   igst?: CreateCustomerRequestIgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   cgst?: CreateCustomerRequestCgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   sgst?: CreateCustomerRequestSgst;
   currency?: CreateCustomerRequestCurrency;
   taxCode?: CreateCustomerRequestTaxCode;
   isActive?: boolean;
   status?: MasterStatusDto;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CreateEmployeeRequestEmployeeCode = number | string;
 
 export type CreateEmployeeRequestMiddleName = null | string;
 
@@ -422,10 +343,7 @@ export type CreateEmployeeRequestState = null | string;
 
 export type CreateEmployeeRequestUserName = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CreateEmployeeRequestRoleId = null | number | string;
+export type CreateEmployeeRequestRoleId = null | number;
 
 export type CreateEmployeeRequestDepartment = null | string;
 
@@ -441,10 +359,7 @@ export type CreateEmployeeRequestJoiningDate = null | string;
 
 export type CreateEmployeeRequestBloodGroup = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CreateEmployeeRequestShoeSize = null | number | string;
+export type CreateEmployeeRequestShoeSize = null | number;
 
 export type CreateEmployeeRequestAadharNo = null | string;
 
@@ -460,44 +375,22 @@ export type CreateEmployeeRequestWillingToTravel = null | boolean;
 
 export type CreateEmployeeRequestApplicableForService = null | boolean;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateEmployeeRequestProvidentFund = null | number | string;
+export type CreateEmployeeRequestProvidentFund = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateEmployeeRequestEmployeeStateInsurance = null | number | string;
+export type CreateEmployeeRequestEmployeeStateInsurance = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateEmployeeRequestProfessionalTax = null | number | string;
+export type CreateEmployeeRequestProfessionalTax = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateEmployeeRequestIncomeTaxTds = null | number | string;
+export type CreateEmployeeRequestIncomeTaxTds = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateEmployeeRequestGrossSalary = null | number | string;
+export type CreateEmployeeRequestGrossSalary = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateEmployeeRequestNetSalary = null | number | string;
+export type CreateEmployeeRequestNetSalary = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateEmployeeRequestPerHourSalary = null | number | string;
+export type CreateEmployeeRequestPerHourSalary = null | number;
 
 export interface CreateEmployeeRequest {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  employeeCode: CreateEmployeeRequestEmployeeCode;
+  employeeCode: number;
   firstName: string;
   middleName?: CreateEmployeeRequestMiddleName;
   lastName?: CreateEmployeeRequestLastName;
@@ -505,7 +398,6 @@ export interface CreateEmployeeRequest {
   address?: CreateEmployeeRequestAddress;
   state?: CreateEmployeeRequestState;
   userName?: CreateEmployeeRequestUserName;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   roleId?: CreateEmployeeRequestRoleId;
   department?: CreateEmployeeRequestDepartment;
   designation?: CreateEmployeeRequestDesignation;
@@ -515,7 +407,6 @@ export interface CreateEmployeeRequest {
   joiningDate?: CreateEmployeeRequestJoiningDate;
   isMarried?: boolean;
   bloodGroup?: CreateEmployeeRequestBloodGroup;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   shoeSize?: CreateEmployeeRequestShoeSize;
   aadharNo?: CreateEmployeeRequestAadharNo;
   panNo?: CreateEmployeeRequestPanNo;
@@ -526,19 +417,12 @@ export interface CreateEmployeeRequest {
   isOverTimeApplicable?: CreateEmployeeRequestIsOverTimeApplicable;
   willingToTravel?: CreateEmployeeRequestWillingToTravel;
   applicableForService?: CreateEmployeeRequestApplicableForService;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   providentFund?: CreateEmployeeRequestProvidentFund;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   employeeStateInsurance?: CreateEmployeeRequestEmployeeStateInsurance;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   professionalTax?: CreateEmployeeRequestProfessionalTax;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   incomeTaxTds?: CreateEmployeeRequestIncomeTaxTds;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   grossSalary?: CreateEmployeeRequestGrossSalary;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   netSalary?: CreateEmployeeRequestNetSalary;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   perHourSalary?: CreateEmployeeRequestPerHourSalary;
   isActive?: boolean;
   status?: MasterStatusDto;
@@ -582,14 +466,8 @@ export interface CreatePartRequest {
   attributes?: CreatePartRequestAttributes;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CreateRoleMasterRequestRoleId = number | string;
-
 export interface CreateRoleMasterRequest {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  roleId: CreateRoleMasterRequestRoleId;
+  roleId: number;
   rolesName: string;
   bypassBusinessUnit?: boolean;
   isActive?: boolean;
@@ -661,20 +539,11 @@ export type CreateSupplierRequestTaxCode = null | string;
 
 export type CreateSupplierRequestQualityCompliance = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateSupplierRequestIgst = null | number | string;
+export type CreateSupplierRequestIgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateSupplierRequestCgst = null | number | string;
+export type CreateSupplierRequestCgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CreateSupplierRequestSgst = null | number | string;
+export type CreateSupplierRequestSgst = null | number;
 
 export type CreateSupplierRequestActiveStatus = null | string;
 
@@ -710,36 +579,22 @@ export interface CreateSupplierRequest {
   currency?: CreateSupplierRequestCurrency;
   taxCode?: CreateSupplierRequestTaxCode;
   qualityCompliance?: CreateSupplierRequestQualityCompliance;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   igst?: CreateSupplierRequestIgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   cgst?: CreateSupplierRequestCgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   sgst?: CreateSupplierRequestSgst;
   activeStatus?: CreateSupplierRequestActiveStatus;
   isActive?: boolean;
   status?: MasterStatusDto;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CurrentUserDtoBusinessUnitId = number | string;
-
 export interface CurrentUserDto {
   userId: string;
   userName: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  businessUnitId: CurrentUserDtoBusinessUnitId;
+  businessUnitId: number;
   canAccessAllBusinessUnits: boolean;
   permissions: string[];
   isSuperAdministrator: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CustomerDetailDtoId = number | string;
 
 export type CustomerDetailDtoCustomerCode = null | string;
 
@@ -787,35 +642,20 @@ export type CustomerDetailDtoGst = null | string;
 
 export type CustomerDetailDtoPan = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CustomerDetailDtoIgst = null | number | string;
+export type CustomerDetailDtoIgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CustomerDetailDtoCgst = null | number | string;
+export type CustomerDetailDtoCgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CustomerDetailDtoSgst = null | number | string;
+export type CustomerDetailDtoSgst = null | number;
 
 export type CustomerDetailDtoCurrency = null | string;
 
 export type CustomerDetailDtoTaxCode = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CustomerDetailDtoBusinessUnitId = number | string;
-
 export type CustomerDetailDtoModifiedAtUtc = null | string;
 
 export interface CustomerDetailDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: CustomerDetailDtoId;
+  id: number;
   customerCode: CustomerDetailDtoCustomerCode;
   customerName: CustomerDetailDtoCustomerName;
   industry?: CustomerDetailDtoIndustry;
@@ -839,27 +679,18 @@ export interface CustomerDetailDto {
   taxId?: CustomerDetailDtoTaxId;
   gst?: CustomerDetailDtoGst;
   pan?: CustomerDetailDtoPan;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   igst?: CustomerDetailDtoIgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   cgst?: CustomerDetailDtoCgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   sgst?: CustomerDetailDtoSgst;
   currency?: CustomerDetailDtoCurrency;
   taxCode?: CustomerDetailDtoTaxCode;
   isActive: boolean;
   status: MasterStatusDto;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  businessUnitId: CustomerDetailDtoBusinessUnitId;
+  businessUnitId: number;
   createdAtUtc: string;
   modifiedAtUtc?: CustomerDetailDtoModifiedAtUtc;
   rowVersion: string;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type CustomerListItemDtoId = number | string;
 
 export type CustomerListItemDtoCustomerCode = null | string;
 
@@ -907,20 +738,11 @@ export type CustomerListItemDtoGst = null | string;
 
 export type CustomerListItemDtoPan = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CustomerListItemDtoIgst = null | number | string;
+export type CustomerListItemDtoIgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CustomerListItemDtoCgst = null | number | string;
+export type CustomerListItemDtoCgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type CustomerListItemDtoSgst = null | number | string;
+export type CustomerListItemDtoSgst = null | number;
 
 export type CustomerListItemDtoCurrency = null | string;
 
@@ -933,8 +755,7 @@ export type CustomerListItemDtoModifiedBy = null | string;
 export type CustomerListItemDtoModifiedAtUtc = null | string;
 
 export interface CustomerListItemDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: CustomerListItemDtoId;
+  id: number;
   customerCode: CustomerListItemDtoCustomerCode;
   customerName: CustomerListItemDtoCustomerName;
   industry: CustomerListItemDtoIndustry;
@@ -958,11 +779,8 @@ export interface CustomerListItemDto {
   taxId?: CustomerListItemDtoTaxId;
   gst: CustomerListItemDtoGst;
   pan?: CustomerListItemDtoPan;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   igst?: CustomerListItemDtoIgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   cgst?: CustomerListItemDtoCgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   sgst?: CustomerListItemDtoSgst;
   currency?: CustomerListItemDtoCurrency;
   taxCode?: CustomerListItemDtoTaxCode;
@@ -974,15 +792,7 @@ export interface CustomerListItemDto {
   modifiedAtUtc?: CustomerListItemDtoModifiedAtUtc;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type EmployeeDetailDtoId = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type EmployeeDetailDtoEmployeeCode = null | number | string;
+export type EmployeeDetailDtoEmployeeCode = null | number;
 
 export type EmployeeDetailDtoFirstName = null | string;
 
@@ -998,10 +808,7 @@ export type EmployeeDetailDtoState = null | string;
 
 export type EmployeeDetailDtoUserName = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type EmployeeDetailDtoRoleId = null | number | string;
+export type EmployeeDetailDtoRoleId = null | number;
 
 export type EmployeeDetailDtoDepartment = null | string;
 
@@ -1017,10 +824,7 @@ export type EmployeeDetailDtoJoiningDate = null | string;
 
 export type EmployeeDetailDtoBloodGroup = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type EmployeeDetailDtoShoeSize = null | number | string;
+export type EmployeeDetailDtoShoeSize = null | number;
 
 export type EmployeeDetailDtoAadharNo = null | string;
 
@@ -1036,52 +840,24 @@ export type EmployeeDetailDtoWillingToTravel = null | boolean;
 
 export type EmployeeDetailDtoApplicableForService = null | boolean;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeDetailDtoProvidentFund = null | number | string;
+export type EmployeeDetailDtoProvidentFund = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeDetailDtoEmployeeStateInsurance = null | number | string;
+export type EmployeeDetailDtoEmployeeStateInsurance = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeDetailDtoProfessionalTax = null | number | string;
+export type EmployeeDetailDtoProfessionalTax = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeDetailDtoIncomeTaxTds = null | number | string;
+export type EmployeeDetailDtoIncomeTaxTds = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeDetailDtoGrossSalary = null | number | string;
+export type EmployeeDetailDtoGrossSalary = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeDetailDtoNetSalary = null | number | string;
+export type EmployeeDetailDtoNetSalary = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeDetailDtoPerHourSalary = null | number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type EmployeeDetailDtoBusinessUnitId = number | string;
+export type EmployeeDetailDtoPerHourSalary = null | number;
 
 export type EmployeeDetailDtoModifiedAtUtc = null | string;
 
 export interface EmployeeDetailDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: EmployeeDetailDtoId;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
+  id: number;
   employeeCode: EmployeeDetailDtoEmployeeCode;
   firstName: EmployeeDetailDtoFirstName;
   middleName?: EmployeeDetailDtoMiddleName;
@@ -1090,7 +866,6 @@ export interface EmployeeDetailDto {
   address?: EmployeeDetailDtoAddress;
   state?: EmployeeDetailDtoState;
   userName?: EmployeeDetailDtoUserName;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   roleId?: EmployeeDetailDtoRoleId;
   department?: EmployeeDetailDtoDepartment;
   designation?: EmployeeDetailDtoDesignation;
@@ -1100,7 +875,6 @@ export interface EmployeeDetailDto {
   joiningDate?: EmployeeDetailDtoJoiningDate;
   isMarried: boolean;
   bloodGroup?: EmployeeDetailDtoBloodGroup;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   shoeSize?: EmployeeDetailDtoShoeSize;
   aadharNo?: EmployeeDetailDtoAadharNo;
   panNo?: EmployeeDetailDtoPanNo;
@@ -1111,39 +885,23 @@ export interface EmployeeDetailDto {
   isOverTimeApplicable?: EmployeeDetailDtoIsOverTimeApplicable;
   willingToTravel?: EmployeeDetailDtoWillingToTravel;
   applicableForService?: EmployeeDetailDtoApplicableForService;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   providentFund?: EmployeeDetailDtoProvidentFund;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   employeeStateInsurance?: EmployeeDetailDtoEmployeeStateInsurance;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   professionalTax?: EmployeeDetailDtoProfessionalTax;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   incomeTaxTds?: EmployeeDetailDtoIncomeTaxTds;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   grossSalary?: EmployeeDetailDtoGrossSalary;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   netSalary?: EmployeeDetailDtoNetSalary;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   perHourSalary?: EmployeeDetailDtoPerHourSalary;
   canEditPayroll: boolean;
   isActive: boolean;
   status: MasterStatusDto;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  businessUnitId: EmployeeDetailDtoBusinessUnitId;
+  businessUnitId: number;
   createdAtUtc: string;
   modifiedAtUtc?: EmployeeDetailDtoModifiedAtUtc;
   rowVersion: string;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type EmployeeListItemDtoId = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type EmployeeListItemDtoEmployeeCode = null | number | string;
+export type EmployeeListItemDtoEmployeeCode = null | number;
 
 export type EmployeeListItemDtoFirstName = null | string;
 
@@ -1171,10 +929,7 @@ export type EmployeeListItemDtoJoiningDate = null | string;
 
 export type EmployeeListItemDtoBloodGroup = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type EmployeeListItemDtoShoeSize = null | number | string;
+export type EmployeeListItemDtoShoeSize = null | number;
 
 export type EmployeeListItemDtoAadharNo = null | string;
 
@@ -1192,40 +947,19 @@ export type EmployeeListItemDtoApplicableForService = null | boolean;
 
 export type EmployeeListItemDtoBusinessUnit = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeListItemDtoProvidentFund = null | number | string;
+export type EmployeeListItemDtoProvidentFund = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeListItemDtoEmployeeStateInsurance = null | number | string;
+export type EmployeeListItemDtoEmployeeStateInsurance = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeListItemDtoProfessionalTax = null | number | string;
+export type EmployeeListItemDtoProfessionalTax = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeListItemDtoIncomeTaxTds = null | number | string;
+export type EmployeeListItemDtoIncomeTaxTds = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeListItemDtoGrossSalary = null | number | string;
+export type EmployeeListItemDtoGrossSalary = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeListItemDtoNetSalary = null | number | string;
+export type EmployeeListItemDtoNetSalary = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type EmployeeListItemDtoPerHourSalary = null | number | string;
+export type EmployeeListItemDtoPerHourSalary = null | number;
 
 export type EmployeeListItemDtoCreatedBy = null | string;
 
@@ -1234,9 +968,7 @@ export type EmployeeListItemDtoModifiedBy = null | string;
 export type EmployeeListItemDtoModifiedAtUtc = null | string;
 
 export interface EmployeeListItemDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: EmployeeListItemDtoId;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
+  id: number;
   employeeCode: EmployeeListItemDtoEmployeeCode;
   firstName?: EmployeeListItemDtoFirstName;
   lastName?: EmployeeListItemDtoLastName;
@@ -1253,7 +985,6 @@ export interface EmployeeListItemDto {
   joiningDate: EmployeeListItemDtoJoiningDate;
   isMarried?: boolean;
   bloodGroup?: EmployeeListItemDtoBloodGroup;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   shoeSize?: EmployeeListItemDtoShoeSize;
   aadharNo?: EmployeeListItemDtoAadharNo;
   panNo?: EmployeeListItemDtoPanNo;
@@ -1265,19 +996,12 @@ export interface EmployeeListItemDto {
   willingToTravel?: EmployeeListItemDtoWillingToTravel;
   applicableForService?: EmployeeListItemDtoApplicableForService;
   businessUnit?: EmployeeListItemDtoBusinessUnit;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   providentFund?: EmployeeListItemDtoProvidentFund;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   employeeStateInsurance?: EmployeeListItemDtoEmployeeStateInsurance;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   professionalTax?: EmployeeListItemDtoProfessionalTax;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   incomeTaxTds?: EmployeeListItemDtoIncomeTaxTds;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   grossSalary?: EmployeeListItemDtoGrossSalary;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   netSalary?: EmployeeListItemDtoNetSalary;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   perHourSalary?: EmployeeListItemDtoPerHourSalary;
   isActive: boolean;
   status: MasterStatusDto;
@@ -1291,10 +1015,7 @@ export type HttpValidationProblemDetailsType = null | string;
 
 export type HttpValidationProblemDetailsTitle = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type HttpValidationProblemDetailsStatus = null | number | string;
+export type HttpValidationProblemDetailsStatus = null | number;
 
 export type HttpValidationProblemDetailsDetail = null | string;
 
@@ -1305,7 +1026,6 @@ export type HttpValidationProblemDetailsErrors = {[key: string]: string[]};
 export interface HttpValidationProblemDetails {
   type?: HttpValidationProblemDetailsType;
   title?: HttpValidationProblemDetailsTitle;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   status?: HttpValidationProblemDetailsStatus;
   detail?: HttpValidationProblemDetailsDetail;
   instance?: HttpValidationProblemDetailsInstance;
@@ -1314,37 +1034,19 @@ export interface HttpValidationProblemDetails {
 
 export type IFormFile = Blob;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type ImportResultDtoTotalRows = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type ImportResultDtoImportedRows = number | string;
-
 export interface ImportResultDto {
   master: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalRows: ImportResultDtoTotalRows;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  importedRows: ImportResultDtoImportedRows;
+  totalRows: number;
+  importedRows: number;
   committed: boolean;
   errors: ImportRowErrorDto[];
   errorsTruncated: boolean;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type ImportRowErrorDtoRow = number | string;
-
 export type ImportRowErrorDtoColumn = null | string;
 
 export interface ImportRowErrorDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  row: ImportRowErrorDtoRow;
+  row: number;
   column?: ImportRowErrorDtoColumn;
   message: string;
 }
@@ -1377,308 +1079,102 @@ export const MasterStatusDto = {
   Hold: 'Hold',
 } as const;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfAssemblyNodeListItemDtoPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfAssemblyNodeListItemDtoPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfAssemblyNodeListItemDtoTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfAssemblyNodeListItemDtoTotalPages = number | string;
-
 export interface PagedResultOfAssemblyNodeListItemDto {
   items: AssemblyNodeListItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfAssemblyNodeListItemDtoPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfAssemblyNodeListItemDtoPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfAssemblyNodeListItemDtoTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfAssemblyNodeListItemDtoTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfBusinessUnitListItemDtoPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfBusinessUnitListItemDtoPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfBusinessUnitListItemDtoTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfBusinessUnitListItemDtoTotalPages = number | string;
 
 export interface PagedResultOfBusinessUnitListItemDto {
   items: BusinessUnitListItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfBusinessUnitListItemDtoPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfBusinessUnitListItemDtoPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfBusinessUnitListItemDtoTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfBusinessUnitListItemDtoTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfCustomerListItemDtoPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfCustomerListItemDtoPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfCustomerListItemDtoTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfCustomerListItemDtoTotalPages = number | string;
 
 export interface PagedResultOfCustomerListItemDto {
   items: CustomerListItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfCustomerListItemDtoPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfCustomerListItemDtoPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfCustomerListItemDtoTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfCustomerListItemDtoTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfEmployeeListItemDtoPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfEmployeeListItemDtoPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfEmployeeListItemDtoTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfEmployeeListItemDtoTotalPages = number | string;
 
 export interface PagedResultOfEmployeeListItemDto {
   items: EmployeeListItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfEmployeeListItemDtoPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfEmployeeListItemDtoPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfEmployeeListItemDtoTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfEmployeeListItemDtoTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfParentPartListItemDtoPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfParentPartListItemDtoPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfParentPartListItemDtoTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfParentPartListItemDtoTotalPages = number | string;
 
 export interface PagedResultOfParentPartListItemDto {
   items: ParentPartListItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfParentPartListItemDtoPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfParentPartListItemDtoPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfParentPartListItemDtoTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfParentPartListItemDtoTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfPartListItemDtoPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfPartListItemDtoPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfPartListItemDtoTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfPartListItemDtoTotalPages = number | string;
 
 export interface PagedResultOfPartListItemDto {
   items: PartListItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfPartListItemDtoPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfPartListItemDtoPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfPartListItemDtoTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfPartListItemDtoTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfPermissionDefinitionPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfPermissionDefinitionPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfPermissionDefinitionTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfPermissionDefinitionTotalPages = number | string;
 
 export interface PagedResultOfPermissionDefinition {
   items: PermissionDefinition[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfPermissionDefinitionPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfPermissionDefinitionPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfPermissionDefinitionTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfPermissionDefinitionTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfRoleListItemDtoPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfRoleListItemDtoPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfRoleListItemDtoTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfRoleListItemDtoTotalPages = number | string;
 
 export interface PagedResultOfRoleListItemDto {
   items: RoleListItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfRoleListItemDtoPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfRoleListItemDtoPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfRoleListItemDtoTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfRoleListItemDtoTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfSupplierListItemDtoPage = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfSupplierListItemDtoPageSize = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfSupplierListItemDtoTotalCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PagedResultOfSupplierListItemDtoTotalPages = number | string;
+export interface PagedResultOfRoleMasterListItemDto {
+  items: RoleMasterListItemDto[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
+  hasPreviousPage?: boolean;
+  hasNextPage?: boolean;
+}
 
 export interface PagedResultOfSupplierListItemDto {
   items: SupplierListItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  page: PagedResultOfSupplierListItemDtoPage;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  pageSize: PagedResultOfSupplierListItemDtoPageSize;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalCount: PagedResultOfSupplierListItemDtoTotalCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  totalPages?: PagedResultOfSupplierListItemDtoTotalPages;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
 }
@@ -1687,32 +1183,15 @@ export type ParentPartComponentDtoPartNumber = null | string;
 
 export type ParentPartComponentDtoPartDescription = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartComponentDtoQuantity = number | string;
-
 export type ParentPartComponentDtoUnitOfMeasureCode = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartComponentDtoUnitWeightKg = null | number | string;
+export type ParentPartComponentDtoUnitWeightKg = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartComponentDtoRate = null | number | string;
+export type ParentPartComponentDtoRate = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartComponentDtoAmount = null | number | string;
+export type ParentPartComponentDtoAmount = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartComponentDtoLineWeightKg = null | number | string;
+export type ParentPartComponentDtoLineWeightKg = null | number;
 
 export type ParentPartComponentDtoDrawingNumber = null | string;
 
@@ -1722,16 +1201,11 @@ export interface ParentPartComponentDto {
   partId: string;
   partNumber?: ParentPartComponentDtoPartNumber;
   partDescription?: ParentPartComponentDtoPartDescription;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  quantity: ParentPartComponentDtoQuantity;
+  quantity: number;
   unitOfMeasureCode?: ParentPartComponentDtoUnitOfMeasureCode;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   unitWeightKg?: ParentPartComponentDtoUnitWeightKg;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   rate?: ParentPartComponentDtoRate;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   amount?: ParentPartComponentDtoAmount;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   lineWeightKg?: ParentPartComponentDtoLineWeightKg;
   drawingNumber?: ParentPartComponentDtoDrawingNumber;
   remark?: ParentPartComponentDtoRemark;
@@ -1751,21 +1225,6 @@ export type ParentPartDetailDtoDrawingNumber = null | string;
 
 export type ParentPartDetailDtoCategory = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartDetailDtoTotalWeightKg = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartDetailDtoTotalAmount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type ParentPartDetailDtoBusinessUnitId = number | string;
-
 export type ParentPartDetailDtoModifiedAtUtc = null | string;
 
 export interface ParentPartDetailDto {
@@ -1781,13 +1240,10 @@ export interface ParentPartDetailDto {
   drawingNumber?: ParentPartDetailDtoDrawingNumber;
   category?: ParentPartDetailDtoCategory;
   components: ParentPartComponentDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  totalWeightKg: ParentPartDetailDtoTotalWeightKg;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  totalAmount: ParentPartDetailDtoTotalAmount;
+  totalWeightKg: number;
+  totalAmount: number;
   isActive: boolean;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  businessUnitId: ParentPartDetailDtoBusinessUnitId;
+  businessUnitId: number;
   createdAtUtc: string;
   modifiedAtUtc?: ParentPartDetailDtoModifiedAtUtc;
   rowVersion: string;
@@ -1807,21 +1263,6 @@ export type ParentPartListItemDtoDrawingNumber = null | string;
 
 export type ParentPartListItemDtoCategory = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type ParentPartListItemDtoComponentCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartListItemDtoTotalWeightKg = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type ParentPartListItemDtoTotalAmount = number | string;
-
 export type ParentPartListItemDtoCreatedBy = null | string;
 
 export type ParentPartListItemDtoModifiedBy = null | string;
@@ -1840,12 +1281,9 @@ export interface ParentPartListItemDto {
   unitOfMeasureCode?: ParentPartListItemDtoUnitOfMeasureCode;
   drawingNumber?: ParentPartListItemDtoDrawingNumber;
   category?: ParentPartListItemDtoCategory;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  componentCount: ParentPartListItemDtoComponentCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  totalWeightKg: ParentPartListItemDtoTotalWeightKg;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  totalAmount: ParentPartListItemDtoTotalAmount;
+  componentCount: number;
+  totalWeightKg: number;
+  totalAmount: number;
   isActive: boolean;
   createdBy?: ParentPartListItemDtoCreatedBy;
   createdAtUtc: string;
@@ -1877,25 +1315,13 @@ export type PartAttributesDtoPartRevisionNo = null | string;
 
 export type PartAttributesDtoSourceCode = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type PartAttributesDtoWeightKg = null | number | string;
+export type PartAttributesDtoWeightKg = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PartAttributesDtoLeadTimeDays = null | number | string;
+export type PartAttributesDtoLeadTimeDays = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type PartAttributesDtoMinimumStockLevel = null | number | string;
+export type PartAttributesDtoMinimumStockLevel = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PartAttributesDtoReorderPoint = null | number | string;
+export type PartAttributesDtoReorderPoint = null | number;
 
 export type PartAttributesDtoRevisionRemark = null | string;
 
@@ -1916,13 +1342,9 @@ export interface PartAttributesDto {
   seriesCode?: PartAttributesDtoSeriesCode;
   partRevisionNo?: PartAttributesDtoPartRevisionNo;
   sourceCode?: PartAttributesDtoSourceCode;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   weightKg?: PartAttributesDtoWeightKg;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   leadTimeDays?: PartAttributesDtoLeadTimeDays;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   minimumStockLevel?: PartAttributesDtoMinimumStockLevel;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   reorderPoint?: PartAttributesDtoReorderPoint;
   revisionRemark?: PartAttributesDtoRevisionRemark;
   holdRemark?: PartAttributesDtoHoldRemark;
@@ -1934,11 +1356,6 @@ export type PartDetailDtoCategoryId = null | string;
 export type PartDetailDtoHsnCode = null | string;
 
 export type PartDetailDtoDrawingNumber = null | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PartDetailDtoBusinessUnitId = number | string;
 
 export type PartDetailDtoModifiedAtUtc = null | string;
 
@@ -1953,8 +1370,7 @@ export interface PartDetailDto {
   attributes: PartAttributesDto;
   isActive: boolean;
   status: PartStatusDto;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  businessUnitId: PartDetailDtoBusinessUnitId;
+  businessUnitId: number;
   createdAtUtc: string;
   modifiedAtUtc?: PartDetailDtoModifiedAtUtc;
   rowVersion: string;
@@ -1984,25 +1400,13 @@ export type PartListItemDtoPartRevisionNo = null | string;
 
 export type PartListItemDtoSourceCode = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type PartListItemDtoWeightKg = null | number | string;
+export type PartListItemDtoWeightKg = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PartListItemDtoLeadTimeDays = null | number | string;
+export type PartListItemDtoLeadTimeDays = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type PartListItemDtoMinimumStockLevel = null | number | string;
+export type PartListItemDtoMinimumStockLevel = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type PartListItemDtoReorderPoint = null | number | string;
+export type PartListItemDtoReorderPoint = null | number;
 
 export type PartListItemDtoHsnCode = null | string;
 
@@ -2038,13 +1442,9 @@ export interface PartListItemDto {
   seriesCode?: PartListItemDtoSeriesCode;
   partRevisionNo?: PartListItemDtoPartRevisionNo;
   sourceCode?: PartListItemDtoSourceCode;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   weightKg?: PartListItemDtoWeightKg;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   leadTimeDays?: PartListItemDtoLeadTimeDays;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   minimumStockLevel?: PartListItemDtoMinimumStockLevel;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   reorderPoint?: PartListItemDtoReorderPoint;
   hsnCode?: PartListItemDtoHsnCode;
   drawingNumber?: PartListItemDtoDrawingNumber;
@@ -2082,10 +1482,7 @@ export type ProblemDetailsType = null | string;
 
 export type ProblemDetailsTitle = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type ProblemDetailsStatus = null | number | string;
+export type ProblemDetailsStatus = null | number;
 
 export type ProblemDetailsDetail = null | string;
 
@@ -2094,7 +1491,6 @@ export type ProblemDetailsInstance = null | string;
 export interface ProblemDetails {
   type?: ProblemDetailsType;
   title?: ProblemDetailsTitle;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   status?: ProblemDetailsStatus;
   detail?: ProblemDetailsDetail;
   instance?: ProblemDetailsInstance;
@@ -2102,63 +1498,33 @@ export interface ProblemDetails {
 
 export type RoleDetailDtoDescription = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type RoleDetailDtoUserCount = number | string;
-
 export interface RoleDetailDto {
   id: string;
   name: string;
   description?: RoleDetailDtoDescription;
   permissions: string[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  userCount: RoleDetailDtoUserCount;
+  userCount: number;
   isSuperAdministrator: boolean;
 }
 
 export type RoleListItemDtoDescription = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type RoleListItemDtoPermissionCount = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type RoleListItemDtoUserCount = number | string;
-
 export interface RoleListItemDto {
   id: string;
   name: string;
   description?: RoleListItemDtoDescription;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  permissionCount: RoleListItemDtoPermissionCount;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  userCount: RoleListItemDtoUserCount;
+  permissionCount: number;
+  userCount: number;
   isSuperAdministrator: boolean;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type RoleMasterDetailDtoId = number | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type RoleMasterDetailDtoRoleId = number | string;
 
 export type RoleMasterDetailDtoRolesName = null | string;
 
 export type RoleMasterDetailDtoModifiedAtUtc = null | string;
 
 export interface RoleMasterDetailDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: RoleMasterDetailDtoId;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  roleId: RoleMasterDetailDtoRoleId;
+  id: number;
+  roleId: number;
   rolesName: RoleMasterDetailDtoRolesName;
   bypassBusinessUnit: boolean;
   isActive: boolean;
@@ -2167,10 +1533,16 @@ export interface RoleMasterDetailDto {
   rowVersion: string;
 }
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type SupplierDetailDtoId = number | string;
+export type RoleMasterListItemDtoRolesName = null | string;
+
+export interface RoleMasterListItemDto {
+  id: number;
+  rolesName: RoleMasterListItemDtoRolesName;
+  roleId: number;
+  isActive: boolean;
+  bypassBusinessUnit: boolean;
+  createdAtUtc: string;
+}
 
 export type SupplierDetailDtoSupplierCode = null | string;
 
@@ -2234,33 +1606,18 @@ export type SupplierDetailDtoTaxCode = null | string;
 
 export type SupplierDetailDtoQualityCompliance = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type SupplierDetailDtoIgst = null | number | string;
+export type SupplierDetailDtoIgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type SupplierDetailDtoCgst = null | number | string;
+export type SupplierDetailDtoCgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type SupplierDetailDtoSgst = null | number | string;
+export type SupplierDetailDtoSgst = null | number;
 
 export type SupplierDetailDtoActiveStatus = null | string;
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type SupplierDetailDtoBusinessUnitId = number | string;
 
 export type SupplierDetailDtoModifiedAtUtc = null | string;
 
 export interface SupplierDetailDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: SupplierDetailDtoId;
+  id: number;
   supplierCode: SupplierDetailDtoSupplierCode;
   supplierName: SupplierDetailDtoSupplierName;
   supplierType?: SupplierDetailDtoSupplierType;
@@ -2292,26 +1649,17 @@ export interface SupplierDetailDto {
   currency?: SupplierDetailDtoCurrency;
   taxCode?: SupplierDetailDtoTaxCode;
   qualityCompliance?: SupplierDetailDtoQualityCompliance;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   igst?: SupplierDetailDtoIgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   cgst?: SupplierDetailDtoCgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   sgst?: SupplierDetailDtoSgst;
   activeStatus?: SupplierDetailDtoActiveStatus;
   isActive: boolean;
   status: MasterStatusDto;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  businessUnitId: SupplierDetailDtoBusinessUnitId;
+  businessUnitId: number;
   createdAtUtc: string;
   modifiedAtUtc?: SupplierDetailDtoModifiedAtUtc;
   rowVersion: string;
 }
-
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type SupplierListItemDtoId = number | string;
 
 export type SupplierListItemDtoSupplierCode = null | string;
 
@@ -2375,20 +1723,11 @@ export type SupplierListItemDtoTaxCode = null | string;
 
 export type SupplierListItemDtoQualityCompliance = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type SupplierListItemDtoIgst = null | number | string;
+export type SupplierListItemDtoIgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type SupplierListItemDtoCgst = null | number | string;
+export type SupplierListItemDtoCgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type SupplierListItemDtoSgst = null | number | string;
+export type SupplierListItemDtoSgst = null | number;
 
 export type SupplierListItemDtoActiveStatus = null | string;
 
@@ -2399,8 +1738,7 @@ export type SupplierListItemDtoModifiedBy = null | string;
 export type SupplierListItemDtoModifiedAtUtc = null | string;
 
 export interface SupplierListItemDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  id: SupplierListItemDtoId;
+  id: number;
   supplierCode: SupplierListItemDtoSupplierCode;
   supplierName: SupplierListItemDtoSupplierName;
   supplierType: SupplierListItemDtoSupplierType;
@@ -2432,11 +1770,8 @@ export interface SupplierListItemDto {
   currency?: SupplierListItemDtoCurrency;
   taxCode?: SupplierListItemDtoTaxCode;
   qualityCompliance?: SupplierListItemDtoQualityCompliance;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   igst?: SupplierListItemDtoIgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   cgst?: SupplierListItemDtoCgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   sgst?: SupplierListItemDtoSgst;
   activeStatus?: SupplierListItemDtoActiveStatus;
   isActive: boolean;
@@ -2534,20 +1869,11 @@ export type UpdateCustomerRequestGst = null | string;
 
 export type UpdateCustomerRequestPan = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateCustomerRequestIgst = null | number | string;
+export type UpdateCustomerRequestIgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateCustomerRequestCgst = null | number | string;
+export type UpdateCustomerRequestCgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateCustomerRequestSgst = null | number | string;
+export type UpdateCustomerRequestSgst = null | number;
 
 export type UpdateCustomerRequestCurrency = null | string;
 
@@ -2577,11 +1903,8 @@ export interface UpdateCustomerRequest {
   taxId?: UpdateCustomerRequestTaxId;
   gst?: UpdateCustomerRequestGst;
   pan?: UpdateCustomerRequestPan;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   igst?: UpdateCustomerRequestIgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   cgst?: UpdateCustomerRequestCgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   sgst?: UpdateCustomerRequestSgst;
   currency?: UpdateCustomerRequestCurrency;
   taxCode?: UpdateCustomerRequestTaxCode;
@@ -2601,10 +1924,7 @@ export type UpdateEmployeeRequestState = null | string;
 
 export type UpdateEmployeeRequestUserName = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type UpdateEmployeeRequestRoleId = null | number | string;
+export type UpdateEmployeeRequestRoleId = null | number;
 
 export type UpdateEmployeeRequestDepartment = null | string;
 
@@ -2620,10 +1940,7 @@ export type UpdateEmployeeRequestJoiningDate = null | string;
 
 export type UpdateEmployeeRequestBloodGroup = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-export type UpdateEmployeeRequestShoeSize = null | number | string;
+export type UpdateEmployeeRequestShoeSize = null | number;
 
 export type UpdateEmployeeRequestAadharNo = null | string;
 
@@ -2639,40 +1956,19 @@ export type UpdateEmployeeRequestWillingToTravel = null | boolean;
 
 export type UpdateEmployeeRequestApplicableForService = null | boolean;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateEmployeeRequestProvidentFund = null | number | string;
+export type UpdateEmployeeRequestProvidentFund = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateEmployeeRequestEmployeeStateInsurance = null | number | string;
+export type UpdateEmployeeRequestEmployeeStateInsurance = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateEmployeeRequestProfessionalTax = null | number | string;
+export type UpdateEmployeeRequestProfessionalTax = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateEmployeeRequestIncomeTaxTds = null | number | string;
+export type UpdateEmployeeRequestIncomeTaxTds = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateEmployeeRequestGrossSalary = null | number | string;
+export type UpdateEmployeeRequestGrossSalary = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateEmployeeRequestNetSalary = null | number | string;
+export type UpdateEmployeeRequestNetSalary = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateEmployeeRequestPerHourSalary = null | number | string;
+export type UpdateEmployeeRequestPerHourSalary = null | number;
 
 export interface UpdateEmployeeRequest {
   rowVersion: string;
@@ -2683,7 +1979,6 @@ export interface UpdateEmployeeRequest {
   address?: UpdateEmployeeRequestAddress;
   state?: UpdateEmployeeRequestState;
   userName?: UpdateEmployeeRequestUserName;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   roleId?: UpdateEmployeeRequestRoleId;
   department?: UpdateEmployeeRequestDepartment;
   designation?: UpdateEmployeeRequestDesignation;
@@ -2693,7 +1988,6 @@ export interface UpdateEmployeeRequest {
   joiningDate?: UpdateEmployeeRequestJoiningDate;
   isMarried?: boolean;
   bloodGroup?: UpdateEmployeeRequestBloodGroup;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
   shoeSize?: UpdateEmployeeRequestShoeSize;
   aadharNo?: UpdateEmployeeRequestAadharNo;
   panNo?: UpdateEmployeeRequestPanNo;
@@ -2704,19 +1998,12 @@ export interface UpdateEmployeeRequest {
   isOverTimeApplicable?: UpdateEmployeeRequestIsOverTimeApplicable;
   willingToTravel?: UpdateEmployeeRequestWillingToTravel;
   applicableForService?: UpdateEmployeeRequestApplicableForService;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   providentFund?: UpdateEmployeeRequestProvidentFund;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   employeeStateInsurance?: UpdateEmployeeRequestEmployeeStateInsurance;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   professionalTax?: UpdateEmployeeRequestProfessionalTax;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   incomeTaxTds?: UpdateEmployeeRequestIncomeTaxTds;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   grossSalary?: UpdateEmployeeRequestGrossSalary;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   netSalary?: UpdateEmployeeRequestNetSalary;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   perHourSalary?: UpdateEmployeeRequestPerHourSalary;
   isActive?: boolean;
   status?: MasterStatusDto;
@@ -2834,20 +2121,11 @@ export type UpdateSupplierRequestTaxCode = null | string;
 
 export type UpdateSupplierRequestQualityCompliance = null | string;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateSupplierRequestIgst = null | number | string;
+export type UpdateSupplierRequestIgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateSupplierRequestCgst = null | number | string;
+export type UpdateSupplierRequestCgst = null | number;
 
-/**
- * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
- */
-export type UpdateSupplierRequestSgst = null | number | string;
+export type UpdateSupplierRequestSgst = null | number;
 
 export type UpdateSupplierRequestActiveStatus = null | string;
 
@@ -2883,11 +2161,8 @@ export interface UpdateSupplierRequest {
   currency?: UpdateSupplierRequestCurrency;
   taxCode?: UpdateSupplierRequestTaxCode;
   qualityCompliance?: UpdateSupplierRequestQualityCompliance;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   igst?: UpdateSupplierRequestIgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   cgst?: UpdateSupplierRequestCgst;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
   sgst?: UpdateSupplierRequestSgst;
   activeStatus?: UpdateSupplierRequestActiveStatus;
   isActive?: boolean;
@@ -2895,25 +2170,13 @@ export interface UpdateSupplierRequest {
 }
 
 export type ListRolesParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 };
 
 export type ListSuppliersParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
@@ -2924,14 +2187,8 @@ export type ImportsuppliersBody = {
 };
 
 export type ListMasterRolesParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
@@ -2942,14 +2199,8 @@ export type ImportrolesBody = {
 };
 
 export type ListPartsParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
@@ -2960,14 +2211,8 @@ export type ImportpartsBody = {
 };
 
 export type ListParentPartsParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
@@ -2978,14 +2223,8 @@ types?: string;
 };
 
 export type ListEmployeesParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
@@ -2996,14 +2235,8 @@ export type ImportemployeesBody = {
 };
 
 export type ListCustomersParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
@@ -3014,14 +2247,8 @@ export type ImportcustomersBody = {
 };
 
 export type ListBusinessUnitsParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
@@ -3032,42 +2259,24 @@ export type ImportbusinessUnitsBody = {
 };
 
 export type ListAssembliesParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
 };
 
 export type ListSectionsParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
 };
 
 export type ListSubAssembliesParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-page?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
+page?: number;
+pageSize?: number;
 sort?: string;
 search?: string;
 filter?: string;
@@ -4116,7 +3325,7 @@ export const createRoleMaster = async (createRoleMasterRequest: CreateRoleMaster
  * @summary List role master records
  */
 export type listMasterRolesResponse200 = {
-  data: PagedResultOfRoleListItemDto
+  data: PagedResultOfRoleMasterListItemDto
   status: 200
 }
 

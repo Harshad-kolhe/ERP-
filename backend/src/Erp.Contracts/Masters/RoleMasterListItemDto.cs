@@ -8,7 +8,7 @@ namespace Erp.Contracts.Masters;
 /// UI labels it rather than letting an administrator assume otherwise.
 /// </para>
 /// </summary>
-public sealed record RoleListItemDto
+public sealed record RoleMasterListItemDto
 {
     public required int Id { get; init; }
 

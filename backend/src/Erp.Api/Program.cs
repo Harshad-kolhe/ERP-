@@ -60,7 +60,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     // a status column into the literal "02" that nobody can read three years later.
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-builder.Services.AddOpenApi();
+builder.Services.AddErpOpenApi();
 
 // Validators defined by the host itself — the role screens. Modules register their own.
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);

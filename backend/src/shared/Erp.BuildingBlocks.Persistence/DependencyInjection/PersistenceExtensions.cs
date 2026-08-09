@@ -1,12 +1,46 @@
 using Erp.BuildingBlocks.Persistence.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Erp.BuildingBlocks.Persistence.DependencyInjection;
 
 public static class PersistenceExtensions
 {
+    private const string ConnectionStringName = "Erp";
+
+    /// <summary>
+    /// The database every module connects to. Every <c>UseSqlServer</c> call goes
+    /// through here rather than reading the configuration key directly.
+    /// <para>
+    /// The guard exists because the missing-configuration case was unreadable.
+    /// <c>UseSqlServer(null)</c> is accepted without complaint and fails much later,
+    /// on first connection, as <c>"The ConnectionString property has not been
+    /// initialized"</c> thrown from inside SqlClient — a stack trace that names
+    /// neither the setting nor the application. On a freshly cloned repository that
+    /// is the first thing a new developer sees, and connection strings are per-machine
+    /// by design, so it is the one setup step that can never be committed for them.
+    /// </para>
+    /// </summary>
+    public static string ErpConnectionString(this IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        var connectionString = configuration.GetConnectionString(ConnectionStringName);
+
+        // Whitespace as well as null: an empty `ConnectionStrings__Erp=` line in a
+        // .env file reaches here as "", which passes a null check and then fails
+        // exactly the same way, in exactly the same unreadable place.
+        return !string.IsNullOrWhiteSpace(connectionString)
+            ? connectionString
+            : throw new InvalidOperationException(
+                $"ConnectionStrings:{ConnectionStringName} is not configured. In development set it with "
+                + $"`dotnet user-secrets set \"ConnectionStrings:{ConnectionStringName}\" \"<connection string>\"` "
+                + $"from backend/src/Erp.Api, or export ConnectionStrings__{ConnectionStringName}. "
+                + "See docs/local-setup.md §3.");
+    }
+
     /// <summary>
     /// Registers the cross-cutting save interceptors. Call once from the host.
     /// </summary>

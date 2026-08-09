@@ -63,14 +63,19 @@ first run. There are no credentials in this repository.
 defaults only; `gitleaks` runs on every pull request.
 
 ```bash
-# Development
-cd backend/src/Erp.Api
-dotnet user-secrets set "ConnectionStrings:Erp" "Server=localhost,1433;Database=Erp;User Id=sa;Password=...;TrustServerCertificate=True"
+cp .env.example .env      # gitignored; .env.example is the committed list of variables
 ```
+
+`Program.cs` reads `.env` into environment variables before the configuration
+builder runs, and a real environment variable always wins over the file — so CI
+and every deployed environment behave as if it were absent. `dotnet user-secrets`
+remains available for values that must not sit in the repository folder at all.
 
 Every other environment supplies configuration through environment variables
 (`ConnectionStrings__Erp`) or Azure Key Vault. Environments are selected with
 `ASPNETCORE_ENVIRONMENT`, never by editing a config file.
+
+Full setup, both platforms: [`docs/local-setup.md`](docs/local-setup.md).
 
 ## Common tasks
 

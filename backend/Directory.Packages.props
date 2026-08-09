@@ -60,6 +60,14 @@
     <PackageVersion Include="Asp.Versioning.Http" Version="10.2.1" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.16.18" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.8.0" />
+    <!--
+      Reads `.env` into environment variables before the configuration builder runs,
+      so a developer sets local configuration in one file rather than one
+      `dotnet user-secrets set` per key. Development convenience only: it never
+      overwrites a real environment variable, so CI and every deployed environment
+      behave as if it were absent. See Program.cs and docs/local-setup.md §3.
+    -->
+    <PackageVersion Include="DotNetEnv" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup Label="Validation">

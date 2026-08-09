@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using DotNetEnv;
 using Erp.Api.Administration;
 using Erp.Api.Authentication;
 using Erp.Api.Extensions;
@@ -14,6 +15,20 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Scalar.AspNetCore;
 using Serilog;
+
+// `.env` → environment variables, before the configuration builder reads them.
+// One gitignored file per machine holds every local setting, so onboarding is a
+// copy of `.env.example` rather than one `dotnet user-secrets set` per key, and a
+// new shared variable arrives with the pull request that needs it.
+//
+// TraversePath: found by walking up from the working directory, so the same file
+// serves `dotnet run` from backend/ and `dotnet ef` from src/Erp.Api/.
+//
+// NoClobber: a real environment variable always wins. CI and every deployed
+// environment therefore behave exactly as if no file existed, and a stale .env
+// left on a server cannot quietly override what the platform supplies. Missing
+// file is not an error — that is the normal case everywhere but a laptop.
+Env.TraversePath().NoClobber().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 

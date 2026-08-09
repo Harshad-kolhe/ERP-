@@ -96,56 +96,71 @@ Server=localhost;Database=Erp;Trusted_Connection=True;TrustServerCertificate=Tru
 Server=localhost\SQLEXPRESS;Database=Erp;Trusted_Connection=True;TrustServerCertificate=True
 ```
 
-Then supply it by one of the two mechanisms below. Both are standard .NET; pick
-one per machine and stop thinking about it.
+### `.env` — the one to use
 
-### Option A — user-secrets (recommended on Windows, fine anywhere)
+```bash
+cp .env.example .env
+```
 
-Stored outside the repository tree entirely, in `~/.microsoft/usersecrets/`,
-keyed by the `UserSecretsId` in [`Erp.Api.csproj`](../backend/src/Erp.Api/Erp.Api.csproj).
-Set once, persists forever, no per-shell ceremony.
+Then edit the `ConnectionStrings__Erp` line to match. On macOS with the container
+running, the value already in the example file is correct and there is nothing to
+edit at all.
+
+That is the whole step. Same command on macOS, Linux and Windows, in any shell —
+no `source`, no `direnv`, no per-key command.
+
+`.env` is gitignored, and `.env.example` is the committed list of every variable
+a developer needs. When a new one is introduced, it goes into `.env.example` in
+the same pull request, and everyone picks it up with a diff instead of a message.
+
+**How it works.** [`Program.cs`](../backend/src/Erp.Api/Program.cs) calls
+`Env.TraversePath().NoClobber().Load()` before `WebApplication.CreateBuilder`,
+which reads `.env` into environment variables. Environment variables are a
+first-class configuration provider in .NET, and `__` (double underscore) is the
+section separator — so `ConnectionStrings__Erp` *is* the configuration key
+`ConnectionStrings:Erp`. The same file therefore configures the frontend, docker
+compose and the API, because all three read environment variables.
+
+Two properties of that call matter:
+
+- **`TraversePath`** — the file is found by walking up from the working
+  directory, so one `.env` at the repository root serves `dotnet run` from
+  `backend/` and `dotnet ef` from `backend/src/Erp.Api/`.
+- **`NoClobber`** — a real environment variable always wins over a line in the
+  file. CI and every deployed environment behave exactly as if no `.env` existed,
+  and a stale file left on a server cannot override what the platform supplies.
+  A missing file is not an error; that is the normal case everywhere but a
+  laptop.
+
+### user-secrets — the alternative
+
+Still supported, and unchanged: values live in `~/.microsoft/usersecrets/`, keyed
+by the `UserSecretsId` in [`Erp.Api.csproj`](../backend/src/Erp.Api/Erp.Api.csproj),
+outside the repository tree entirely.
 
 ```bash
 cd backend/src/Erp.Api
 dotnet user-secrets set "ConnectionStrings:Erp" "<connection string>"
+dotnet user-secrets list                          # they are readable plain JSON, not encrypted
+dotnet user-secrets remove "ConnectionStrings:Erp"
 ```
 
-### Option B — environment variables via `.env` (Unix shells)
+Prefer it when a value must not sit inside the repository folder even
+gitignored — a shared staging credential on a machine that is not yours, say.
+For ordinary local development `.env` is fewer commands and one file.
 
-Environment variables are a first-class configuration provider in .NET. `__`
-(double underscore) is the section separator, so `ConnectionStrings__Erp` is
-exactly `ConnectionStrings:Erp`. No package is needed to read them.
-
-Create `backend/.env` — already gitignored:
-
-```bash
-ConnectionStrings__Erp=Server=localhost,1433;Database=Erp;User Id=sa;Password=Local_Dev_Only_P@ssw0rd!;TrustServerCertificate=True
-ASPNETCORE_ENVIRONMENT=Development
-```
-
-Load it into the shell before running:
-
-```bash
-cd backend
-set -a; source .env; set +a
-```
-
-`set -a` exports everything subsequently sourced; `set +a` stops. The same
-exported variables also apply to `dotnet ef` commands, which boot the same host.
-For this to happen automatically per directory, `brew install direnv` and put
-`dotenv` in an `.envrc`.
-
-This option is awkward in PowerShell, which has no `source` — use option A on
-Windows.
+**Do not use both for the same key.** Environment variables are layered above
+user-secrets by the default host builder, so `.env` silently wins and you end up
+debugging a value you cannot see. Pick one per machine.
 
 ### Optional: a stable administrator login
 
-By default the bootstrap generates a random password and logs it once. To fix
-both values instead:
+By default the bootstrap generates a random password and logs it once. Uncomment
+these in `.env` to fix both instead:
 
 ```bash
-dotnet user-secrets set "Bootstrap:AdminEmail" "you@erp.local"
-dotnet user-secrets set "Bootstrap:AdminPassword" "Something!Long12"
+Bootstrap__AdminEmail=you@erp.local
+Bootstrap__AdminPassword=Local!DevOnly123
 ```
 
 The password must satisfy the Identity policy: 12+ characters, upper, lower,
@@ -179,10 +194,11 @@ are `pnpm --filter web <script>`.
 warning on first run, and never again.** Scroll back and copy it before doing
 anything else, or set `Bootstrap:AdminPassword` as above.
 
-A `.env` for the frontend is optional. It reads exactly one variable and already
-defaults to the right value — see
-[`server.ts`](../frontend/src/lib/api/server.ts). Copy `.env.example` to
-`frontend/.env.local` only if the API moves off port 5080.
+The frontend reads exactly one variable and already defaults to the right value —
+see [`server.ts`](../frontend/src/lib/api/server.ts). Next.js loads env files from
+its own project directory rather than the repository root, so if you do need to
+override `ERP_API_BASE_URL`, put it in `frontend/.env.local`. The root `.env` is
+read by the API and by docker compose.
 
 If `https://localhost:5081` complains about the certificate, either trust the
 development certificate with `dotnet dev-certs https --trust`, or skip https
@@ -311,13 +327,16 @@ dotnet ef migrations add <Name> \
 
 | Symptom | Cause |
 |---|---|
+| `ConnectionStrings:Erp is not configured…` | §3 was skipped on this machine. The message names the fix. |
+| `InvalidOperationException: The ConnectionString property has not been initialized.` | The same cause, seen on a build from before the guard in `PersistenceExtensions.ErpConnectionString` existed: `UseSqlServer(null)` was accepted and failed later inside SqlClient, naming neither the setting nor the application. |
 | `A network-related or instance-specific error…` | database not running, or wrong `Server=`. On macOS check `docker compose ps`. |
 | `The certificate chain was issued by an authority that is not trusted` | `TrustServerCertificate=True` missing from the connection string. |
 | `Login failed for user 'sa'` | password does not match `MSSQL_SA_PASSWORD` in `docker-compose.yml`. |
 | App starts, no tables, cannot sign in | `ASPNETCORE_ENVIRONMENT` is not `Development` — see §5. |
 | `CREATE SCHEMA permission denied` | the login is not `db_owner` on `Erp`. |
 | Cannot find the admin password | it is logged once at first run only. Reset the database, or set `Bootstrap:AdminPassword` and reset. |
-| Works on one machine, not another after `git pull` | user-secrets and `.env` are per-machine and are not in the repository. Redo §3. |
+| Works on one machine, not another after `git pull` | `.env` is gitignored and per-machine. `cp .env.example .env` — and if a teammate added a variable, diff the two files. |
+| A setting in `.env` appears to be ignored | something already exports that variable in the shell, or it is also set in user-secrets. Real environment variables win by design (`NoClobber`); check with `env \| grep <name>` and `dotnet user-secrets list`. |
 | Integration tests fail, others pass | Docker Desktop is not running. Testcontainers needs it on both platforms. |
 
 ---

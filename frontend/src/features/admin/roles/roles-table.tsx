@@ -1,78 +1,78 @@
 'use client';
 
-import type { ColumnDef } from '@tanstack/react-table';
-import Link from 'next/link';
 import { useMemo } from 'react';
 
-import { DataTable } from '@/components/data-table/data-table';
-import { useServerTable } from '@/components/data-table/use-server-table';
+import { usePermissions } from '@/components/permission/session-provider';
+import type { TreeColumn } from '@/components/tree-list/tree-list';
+import {
+  numberColumn,
+  serialNumberColumn,
+  textColumn,
+} from '@/features/masters/shared/master-columns';
+import { MasterTreeList } from '@/features/masters/shared/master-tree-list';
 import type { AdminRoleListItem } from '@/lib/api/types';
 
-import { useRoles } from './use-roles';
-
+/**
+ * The identity roles grid.
+ *
+ * On `MasterTreeList` like every other list in the app. It used to be the one
+ * screen built on a second, simpler table component, which is how it became the
+ * only screen whose colours ignored the theme toggle — it hardcoded a grey ramp
+ * while everything else used tokens.
+ *
+ * Nothing here is sortable or filterable, and that is a property of the endpoint
+ * rather than a decision about the screen: `/admin/roles` publishes no `QueryMap`,
+ * so a sort or filter term would come back 400. Offering the control and failing
+ * is worse than not offering it, so the columns say so.
+ */
 export function RolesTable() {
-  const { state, apply, toggleSort, queryString } = useServerTable();
-  const { data, isFetching } = useRoles(queryString);
+  const { can } = usePermissions();
 
-  const columns = useMemo<ColumnDef<AdminRoleListItem, unknown>[]>(
+  const columns = useMemo<TreeColumn<AdminRoleListItem>[]>(
     () => [
+      serialNumberColumn<AdminRoleListItem>(),
+      inert(textColumn('name', 'Role', 240)),
+      inert(textColumn('description', 'Description', 420)),
       {
-        id: 'name',
-        header: 'Role',
-        accessorKey: 'name',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <Link
-            href={`/admin/roles/${row.original.id}`}
-            className="text-primary font-medium underline-offset-4 hover:underline"
-          >
-            {row.original.name}
-          </Link>
-        ),
+        dataField: 'permissionCount',
+        caption: 'Permissions',
+        width: 130,
+        minWidth: 110,
+        align: 'right',
+        allowSorting: false,
+        allowFiltering: false,
+        // "All" rather than a count: a super-administrator role stores no
+        // permission rows, so its count is zero — which would read as "grants
+        // nothing", the exact opposite of the truth.
+        calculateCellValue: (row) =>
+          row.isSuperAdministrator ? 'All' : String(row.permissionCount),
       },
-      {
-        id: 'description',
-        header: 'Description',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <span className="text-muted-foreground font-sans">{row.original.description || '—'}</span>
-        ),
-      },
-      {
-        id: 'permissionCount',
-        header: 'Permissions',
-        enableSorting: false,
-        // "All" rather than a count: a super-administrator role stores no permission
-        // rows, so its count is zero — which would read as "grants nothing", the
-        // exact opposite of the truth.
-        cell: ({ row }) =>
-          row.original.isSuperAdministrator ? (
-            <span className="text-primary font-medium">All</span>
-          ) : (
-            row.original.permissionCount
-          ),
-      },
-      {
-        id: 'userCount',
-        header: 'Users',
-        enableSorting: false,
-        // Shown because editing a role that nobody holds is safe, and editing one
-        // that fifty people hold is not. The number is the warning.
-        cell: ({ row }) => row.original.userCount,
-      },
+      // Shown because editing a role nobody holds is safe and editing one that
+      // fifty people hold is not. The number is the warning.
+      inert(numberColumn('userCount', 'Users', 110)),
     ],
     [],
   );
 
   return (
-    <DataTable
+    <MasterTreeList<AdminRoleListItem>
+      basePath="/admin"
+      resource="roles"
       columns={columns}
-      page={data}
-      isLoading={isFetching && !data}
-      state={state}
-      onPageChange={apply}
-      onToggleSort={toggleSort}
-      emptyMessage="No roles yet."
+      keyField="id"
+      stretchColumn="description"
+      searchPlaceholder="Search roles…"
+      ariaLabel="Roles"
+      emptyTitle="No roles"
+      emptyHint="No roles have been defined yet."
+      exportFileName="Roles"
+      editHref={(row) => `/admin/roles/${row.id}`}
+      canEdit={can('admin.role.update')}
     />
   );
+}
+
+/** Turns off the controls this endpoint cannot serve. See the note above. */
+function inert(column: TreeColumn<AdminRoleListItem>): TreeColumn<AdminRoleListItem> {
+  return { ...column, allowSorting: false, allowFiltering: false };
 }

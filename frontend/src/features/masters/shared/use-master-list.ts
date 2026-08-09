@@ -16,11 +16,23 @@ import type { PagedResult } from '@/lib/api/types';
  * The query key includes the full query string, so every distinct combination of
  * page, sort, filter and search is cached separately and going back to a previous
  * page is instant without re-fetching.
+ *
+ * `basePath` is in the key as well as in the URL. Without it `/masters/roles` and
+ * `/admin/roles` — two different tables that happen to share a name — would share
+ * a cache entry and serve each other's rows.
+ *
+ * It is in the key with its leading slash stripped, so `/masters` yields the same
+ * `['masters', …]` prefix the detail and count hooks use and the invalidation in
+ * `useSaveMasterRecord` still reaches this list after a save.
  */
-export function useMasterList<TRow>(resource: string, queryString: string) {
+export function useMasterList<TRow>(
+  resource: string,
+  queryString: string,
+  basePath = '/masters',
+) {
   return useQuery({
-    queryKey: ['masters', resource, 'list', queryString],
-    queryFn: () => apiFetch<PagedResult<TRow>>(`/masters/${resource}?${queryString}`),
+    queryKey: [basePath.replace(/^\//, ''), resource, 'list', queryString],
+    queryFn: () => apiFetch<PagedResult<TRow>>(`${basePath}/${resource}?${queryString}`),
     placeholderData: (previous) => previous,
   });
 }

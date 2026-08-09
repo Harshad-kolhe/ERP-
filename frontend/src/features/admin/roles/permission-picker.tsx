@@ -19,12 +19,15 @@ import type { PermissionDefinition } from '@/lib/api/types';
 export function PermissionPicker({
   catalogue,
   isLoading,
+  isError,
   value,
   onChange,
   disabled,
 }: {
   catalogue: PermissionDefinition[];
   isLoading: boolean;
+  /** The catalogue request failed — distinct from it having returned nothing. */
+  isError?: boolean;
   value: string[];
   onChange: (next: string[]) => void;
   disabled?: boolean;
@@ -58,17 +61,33 @@ export function PermissionPicker({
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground flex items-center gap-2 rounded-md border p-4 text-sm">
+      <div
+        role="status"
+        className="text-muted-foreground flex items-center gap-2 rounded-md border p-4 text-sm"
+      >
         <Spinner className="size-4" />
         Loading permissions…
       </div>
     );
   }
 
+  // Checked before the empty branch. A failed catalogue request also arrives as an
+  // empty array with isLoading false, so without this a network error was reported
+  // to the user as a statement about the backend's architecture.
+  if (isError) {
+    return (
+      <p role="alert" className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">
+        The permission catalogue could not be loaded, so there is nothing to choose from yet. Try
+        again in a moment.
+      </p>
+    );
+  }
+
   if (catalogue.length === 0) {
     return (
       <p className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">
-        No permissions are defined. That means no module published an IPermissionSource.
+        No permissions are defined yet. This usually means the API is running without its permission
+        modules loaded — an administrator will need to check the deployment.
       </p>
     );
   }
@@ -101,12 +120,14 @@ export function PermissionPicker({
                     </span>
                   </label>
 
+                  {/* No `title` on the rows below: it reached neither keyboard nor
+                      touch, and the code it showed is already rendered under each
+                      label. */}
                   <div className="mt-2.5 ml-6 grid gap-2 sm:grid-cols-2">
                     {permissions.map((permission) => (
                       <label
                         key={permission.code}
                         className="flex cursor-pointer items-start gap-2.5"
-                        title={permission.code}
                       >
                         <Checkbox
                           checked={granted.has(permission.code)}

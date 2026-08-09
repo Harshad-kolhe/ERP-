@@ -84,7 +84,7 @@ export function EmployeeForm({ employee }: { employee?: EmployeeDetail }) {
   const router = useRouter();
   const { can } = usePermissions();
   const isNew = !employee;
-  const { lookups } = useLookups(EMPLOYEE_LOOKUPS);
+  const { lookups, isError: lookupsFailed } = useLookups(EMPLOYEE_LOOKUPS);
 
   // On an existing record the server has already said whether this caller may see
   // the pay fields; on a new one there is nothing to load, so ask the session.
@@ -160,6 +160,7 @@ export function EmployeeForm({ employee }: { employee?: EmployeeDetail }) {
       submitLabel={isNew ? 'Create employee' : 'Save changes'}
       onCancel={() => router.push('/masters/employees')}
       lookups={lookups}
+      lookupsFailed={lookupsFailed}
       title={isNew ? 'New employee' : 'Edit employee'}
       backLabel="Employees"
       identityCode={employee?.employeeCode ? String(employee.employeeCode) : null}

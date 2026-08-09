@@ -5,9 +5,7 @@ export const metadata = { title: 'New business unit · ERP' };
 export default function NewBusinessUnitPage() {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex min-h-0 flex-1 flex-col">
-        <BusinessUnitForm />
-      </div>
+      <BusinessUnitForm />
     </div>
   );
 }

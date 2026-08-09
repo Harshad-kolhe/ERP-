@@ -82,3 +82,14 @@ export const SUB_ASSEMBLY_SCREEN: AssemblyLevelScreen = {
     update: 'masters.subassembly.update',
   },
 };
+
+/**
+ * "sub-assembly" → "Sub-assembly", so a noun declared for prose reads as a title.
+ *
+ * Lives beside the screen definitions because every caller is capitalising one of
+ * their `noun` fields. It was written out twice — in the form and in the table —
+ * which is two chances for the same word to be capitalised two ways.
+ */
+export function sentenceCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}

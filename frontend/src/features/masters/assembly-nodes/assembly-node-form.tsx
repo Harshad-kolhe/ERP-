@@ -22,7 +22,7 @@ import {
   assemblyNodeFormSections,
   type AssemblyNodeFormValues,
 } from './assembly-node-form-fields';
-import type { AssemblyLevelScreen } from './assembly-node-level';
+import { sentenceCase, type AssemblyLevelScreen } from './assembly-node-level';
 
 /**
  * Mirrors `CreateAssemblyNodeValidator` and `AssemblyNodeAttributesValidator`.
@@ -80,7 +80,7 @@ export function AssemblyNodeForm({
   const router = useRouter();
   const isNew = !node;
   const listHref = `/masters/${screen.resource}`;
-  const { lookups } = useLookups(ASSEMBLY_NODE_LOOKUPS);
+  const { lookups, isError: lookupsFailed } = useLookups(ASSEMBLY_NODE_LOOKUPS);
 
   const schema = useMemo(() => buildSchema(screen.parent !== null), [screen.parent]);
 
@@ -142,6 +142,7 @@ export function AssemblyNodeForm({
       submitLabel={isNew ? `Create ${screen.noun}` : 'Save changes'}
       onCancel={() => router.push(listHref)}
       lookups={lookups}
+      lookupsFailed={lookupsFailed}
       title={isNew ? `New ${screen.noun}` : `Edit ${screen.noun}`}
       backLabel={screen.plural}
       identityCode={node?.code}
@@ -174,8 +175,4 @@ function toFormValues(node?: AssemblyNodeDetail): AssemblyNodeFormValues {
     displaySequence: numberToInput(a?.displaySequence),
     isActive: node?.isActive ?? true,
   };
-}
-
-function sentenceCase(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
 }

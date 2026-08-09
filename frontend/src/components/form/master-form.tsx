@@ -10,6 +10,7 @@ import {
   SelectField,
   TextField,
   TextareaField,
+  selectPlaceholder,
 } from '@/components/form/fields';
 import { ReferenceField, type ReferenceSource } from '@/components/form/reference-field';
 import { Button } from '@/components/ui/button';
@@ -98,6 +99,7 @@ export function MasterForm<TValues extends FieldValues>({
   onCancel,
   disabled = false,
   lookups = {},
+  lookupsFailed = false,
   title,
   backLabel,
   identityCode,
@@ -115,6 +117,12 @@ export function MasterForm<TValues extends FieldValues>({
   disabled?: boolean;
   /** Server-held option lists, keyed by lookup name. See `useLookups`. */
   lookups?: Record<string, { code: string; name: string }[]>;
+  /**
+   * The lookup request failed. Without it an empty option list is indistinguishable
+   * from one still in flight, and every dropdown on the form sits at "Loading…"
+   * for as long as the screen is open.
+   */
+  lookupsFailed?: boolean;
   /** Heading in the identity bar, e.g. "Edit part". */
   title: string;
   /** What the back button says it returns to, e.g. "Parts". */
@@ -159,22 +167,22 @@ export function MasterForm<TValues extends FieldValues>({
     <Form {...form}>
       <form onSubmit={onSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
         {/* ---------- one sticky bar: navigation, identity and state ---------- */}
-        <header className="sticky top-0 z-30 flex flex-wrap items-center gap-x-4 gap-y-2 bg-[#003366] px-5 py-2.5 shadow-sm">
+        <header className="sticky top-0 z-30 flex flex-wrap items-center gap-x-4 gap-y-2 bg-form-bar px-5 py-2.5 shadow-sm">
           <button
             type="button"
             onClick={requestLeave}
-            className="inline-flex h-8 items-center gap-1 rounded-lg bg-white/10 px-2.5 text-xs font-medium text-white hover:bg-white/20"
+            className="inline-flex h-8 items-center gap-1 rounded-lg bg-form-bar-foreground/10 px-2.5 text-xs font-medium text-form-bar-foreground hover:bg-form-bar-foreground/20"
           >
             <ChevronLeft className="h-3.5 w-3.5" /> {backLabel}
           </button>
 
-          <h1 className="text-lg font-semibold tracking-tight text-white">{title}</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-form-bar-foreground">{title}</h1>
 
-          <div className="flex items-center gap-2 border-l border-white/20 pl-4">
+          <div className="flex items-center gap-2 border-l border-form-bar-foreground/20 pl-4">
             {identityCode ? (
-              <span className="font-mono text-sm text-white/90">{identityCode}</span>
+              <span className="font-mono text-sm text-form-bar-foreground/90">{identityCode}</span>
             ) : (
-              <span className="font-mono text-sm text-white/70">
+              <span className="font-mono text-sm text-form-bar-foreground/70">
                 {identityPlaceholder ?? 'Assigned on save'}
               </span>
             )}
@@ -186,7 +194,7 @@ export function MasterForm<TValues extends FieldValues>({
 
           <span className="flex-1" />
 
-          {auditLine && <p className="hidden text-[11px] text-white/70 md:block">{auditLine}</p>}
+          {auditLine && <p className="hidden text-[11px] text-form-bar-foreground/70 md:block">{auditLine}</p>}
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
@@ -205,6 +213,7 @@ export function MasterForm<TValues extends FieldValues>({
                     field={field}
                     disabled={disabled || isSubmitting}
                     lookups={lookups}
+                    lookupsFailed={lookupsFailed}
                   />
                 ))}
               </Section>
@@ -213,10 +222,10 @@ export function MasterForm<TValues extends FieldValues>({
         </div>
 
         {/* ---------- action bar, pinned so Save is never below the fold ---------- */}
-        <div className="border-line bg-surface/90 supports-[backdrop-filter]:bg-surface/75 sticky bottom-0 z-20 flex flex-wrap items-center gap-2 border-t px-4 py-3 backdrop-blur-md">
+        <div className="border-border bg-card/90 supports-[backdrop-filter]:bg-card/75 sticky bottom-0 z-20 flex flex-wrap items-center gap-2 border-t px-4 py-3 backdrop-blur-md">
           {confirm ? (
             <div role="alertdialog" aria-label="Confirm" className="flex w-full flex-wrap items-center gap-2">
-              <p className="text-ink text-[13px]">
+              <p className="text-foreground text-[13px]">
                 {confirm === 'leave'
                   ? 'Discard unsaved changes to this record?'
                   : 'Reset every field back to the last saved values?'}
@@ -255,7 +264,7 @@ export function MasterForm<TValues extends FieldValues>({
                 ) : null}
               </div>
 
-              {isDirty && <span className="text-ink-3 text-[11px]">Unsaved changes</span>}
+              {isDirty && <span className="text-ink-faint text-[11px]">Unsaved changes</span>}
 
               <Button
                 type="button"
@@ -290,12 +299,12 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="border-line bg-surface overflow-hidden rounded-xl border shadow-sm">
-      <div className="border-line bg-surface-2 flex items-center gap-2 border-b px-4 py-2.5">
-        <span className="bg-brand-soft text-brand-strong flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold">
+    <section className="border-border bg-card overflow-hidden rounded-xl border shadow-sm">
+      <div className="border-border bg-muted flex items-center gap-2 border-b px-4 py-2.5">
+        <span className="bg-accent text-brand-strong flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold">
           {step}
         </span>
-        <h2 className="text-ink text-[13px] font-semibold">{title}</h2>
+        <h2 className="text-foreground text-[13px] font-semibold">{title}</h2>
         <span className="flex-1" />
         {errorCount > 0 && (
           <span className="text-destructive text-[11px] font-medium">
@@ -305,7 +314,7 @@ function Section({
       </div>
 
       {description && (
-        <p className="text-ink-2 border-line border-b px-4 py-2 text-xs">{description}</p>
+        <p className="text-muted-foreground border-border border-b px-4 py-2 text-xs">{description}</p>
       )}
 
       {/* `contents` keeps fieldset semantics without drawing a second box. */}
@@ -319,12 +328,15 @@ function Section({
 }
 
 function IdentityBadge({ badge }: { badge: MasterFormBadge }) {
+  // Tinted washes over the navy bar rather than the solid pills the grid uses: the
+  // label stays the bar's own foreground in all three tones, so the colour reads as
+  // a state and never as the thing you have to read the text through.
   const tone =
     badge.tone === 'ok'
-      ? 'border-emerald-300/40 bg-emerald-400/20 text-white'
+      ? 'border-success/40 bg-success/20 text-form-bar-foreground'
       : badge.tone === 'warn'
-        ? 'border-amber-300/40 bg-amber-400/20 text-white'
-        : 'border-white/30 bg-white/10 text-white';
+        ? 'border-warning/40 bg-warning/20 text-form-bar-foreground'
+        : 'border-form-bar-foreground/30 bg-form-bar-foreground/10 text-form-bar-foreground';
 
   return (
     <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${tone}`}>
@@ -342,10 +354,12 @@ function FieldControl<TValues extends FieldValues>({
   field,
   disabled,
   lookups,
+  lookupsFailed,
 }: {
   field: MasterField<TValues>;
   disabled: boolean;
   lookups: Record<string, { code: string; name: string }[]>;
+  lookupsFailed: boolean;
 }) {
   const common = {
     name: field.name,
@@ -387,7 +401,7 @@ function FieldControl<TValues extends FieldValues>({
       <SelectField<TValues>
         {...common}
         options={options}
-        placeholder={options.length === 0 ? 'Loading…' : 'Select…'}
+        placeholder={selectPlaceholder(options, lookupsFailed)}
       />,
     );
   }
@@ -402,8 +416,17 @@ function FieldControl<TValues extends FieldValues>({
     case 'number':
     case 'integer':
       // type="text" with a numeric inputmode: a number input silently drops what
-      // it cannot parse as you type, so a half-entered "1." disappears.
-      return wrap(<TextField<TValues> {...common} placeholder={field.placeholder} />);
+      // it cannot parse as you type, so a half-entered "1." disappears. The
+      // inputmode has to be passed explicitly — it was described here for a while
+      // before anything actually set it, which left every quantity and weight on
+      // this form opening a full alphabetic keyboard on a tablet.
+      return wrap(
+        <TextField<TValues>
+          {...common}
+          placeholder={field.placeholder}
+          inputMode={field.kind === 'integer' ? 'numeric' : 'decimal'}
+        />,
+      );
 
     case 'date':
       return wrap(<TextField<TValues> {...common} type="date" />);

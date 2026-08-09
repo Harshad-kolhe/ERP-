@@ -72,7 +72,7 @@ const schema = z.object({
 export function SupplierForm({ supplier }: { supplier?: SupplierDetail }) {
   const router = useRouter();
   const isNew = !supplier;
-  const { lookups } = useLookups(SUPPLIER_LOOKUPS);
+  const { lookups, isError: lookupsFailed } = useLookups(SUPPLIER_LOOKUPS);
 
   const save = useSaveMasterRecord<SupplierFormValues>({
     resource: 'suppliers',
@@ -144,6 +144,7 @@ export function SupplierForm({ supplier }: { supplier?: SupplierDetail }) {
       submitLabel={isNew ? 'Create supplier' : 'Save changes'}
       onCancel={() => router.push('/masters/suppliers')}
       lookups={lookups}
+      lookupsFailed={lookupsFailed}
       title={isNew ? 'New supplier' : 'Edit supplier'}
       backLabel="Suppliers"
       identityCode={supplier?.supplierCode}

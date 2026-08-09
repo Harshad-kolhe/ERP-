@@ -41,7 +41,12 @@ export function useLookups(types: readonly string[]) {
   return {
     /** Empty until loaded, so a form can render its inputs before the options arrive. */
     lookups: query.data?.lookups ?? EMPTY,
-    isPending: query.isPending,
+    /**
+     * A failed request also yields an empty set, so a caller that only watched
+     * `isPending` left every dropdown on the form sitting at "Loading…" forever.
+     * Callers use this to say the options are unavailable instead.
+     */
+    isError: query.isError,
   };
 }
 

@@ -29,11 +29,22 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <SessionProvider user={user}>
+      {/* Past ~20 nav links and a top bar before reaching the page. Visually hidden
+          until focused, which is the first thing a keyboard user meets. */}
+      <a
+        href="#main"
+        className="bg-card focus:ring-ring sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:shadow-md focus:ring-2 focus:outline-none"
+      >
+        Skip to content
+      </a>
+
       <div className="flex h-svh overflow-hidden">
         <Sidebar defaultCollapsed={collapsed} />
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
-          <main className="min-h-0 flex-1 overflow-y-auto">{children}</main>
+          <main id="main" className="min-h-0 flex-1 overflow-y-auto">
+            {children}
+          </main>
         </div>
       </div>
     </SessionProvider>

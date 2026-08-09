@@ -3,22 +3,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api/fetcher';
-import type { PagedResult, PermissionDefinition, AdminRoleDetail, AdminRoleListItem } from '@/lib/api/types';
+import type { PagedResult, PermissionDefinition, AdminRoleDetail } from '@/lib/api/types';
 
+/**
+ * `all` is `['admin', 'roles']` — the same prefix `useMasterList` builds from a
+ * `basePath` of `/admin`, so saving a role through `useSaveRole` still
+ * invalidates the list the grid is reading. The list hook that used to live here
+ * went with the bespoke table it fed.
+ */
 export const roleKeys = {
   all: ['admin', 'roles'] as const,
-  list: (query: string) => [...roleKeys.all, 'list', query] as const,
   detail: (id: string) => [...roleKeys.all, 'detail', id] as const,
   permissions: ['admin', 'permissions'] as const,
 };
-
-export function useRoles(queryString: string) {
-  return useQuery({
-    queryKey: roleKeys.list(queryString),
-    queryFn: () => apiFetch<PagedResult<AdminRoleListItem>>(`/admin/roles?${queryString}`),
-    placeholderData: (previous) => previous,
-  });
-}
 
 export function useRole(id: string) {
   return useQuery({

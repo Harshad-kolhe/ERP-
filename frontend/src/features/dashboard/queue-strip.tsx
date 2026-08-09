@@ -72,8 +72,14 @@ function QueueTile({
     <Link
       href={href}
       className={cn(
-        'bg-card hover:border-l-primary rounded-md border border-l-[3px] p-3.5 transition-colors',
-        tone === 'warn' && count > 0 ? 'border-l-amber-500' : 'border-l-primary/60',
+        'bg-card rounded-md border border-l-[3px] p-3.5 transition-colors',
+        // The hover colour is per-tone rather than one blanket rule. It used to be
+        // an unconditional `hover:border-l-primary`, which meant pointing at a
+        // queue that wanted clearing turned its amber warning blue — the hover
+        // state erased the one thing the tile was there to say.
+        tone === 'warn' && count > 0
+          ? 'border-l-warning hover:border-l-warning'
+          : 'border-l-primary/60 hover:border-l-primary',
       )}
     >
       <span className="text-muted-foreground block font-mono text-[10px] tracking-[0.09em] uppercase">

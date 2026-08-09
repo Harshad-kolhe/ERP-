@@ -48,49 +48,52 @@ export default async function HomePage() {
             <QueueStrip />
           </Suspense>
 
+          {/* Two halves of real content. "Still to come" used to sit here and take
+              half the fold, which is what made a working dashboard read as an empty
+              one — a four-item roadmap is not a tile, and it has moved below. */}
           <div className="grid gap-4 lg:grid-cols-2">
             <Suspense fallback={null}>
               <PartStatusCard />
             </Suspense>
 
-            <section className="bg-muted/30 rounded-md border border-dashed p-5">
-              <h2 className="text-muted-foreground font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
-                Still to come
-              </h2>
-              <p className="text-muted-foreground mt-2 text-[13px] leading-relaxed">
-                Machines in build, shortages blocking assembly, and the procure-to-receive pipeline.
-                Each needs the module that feeds it — building them against invented data would mean
-                building them twice.
-              </p>
-              <ol className="text-muted-foreground/80 mt-3 space-y-1 font-mono text-[11.5px]">
-                <li>1 · Users &amp; role assignment</li>
-                <li>2 · Part create, edit, approve</li>
-                <li>3 · Suppliers, customers, employees</li>
-                <li>4 · Procurement → receipts → stock</li>
-              </ol>
-            </section>
+            <Link
+              href="/"
+              className="bg-card hover:border-primary/50 group flex items-start gap-3 rounded-md border p-4 transition-colors"
+            >
+              <FileText className="text-primary mt-0.5 size-4 shrink-0" aria-hidden />
+              <span>
+                <span className="flex items-center gap-1.5 text-sm font-semibold">
+                  What this system does
+                  <ArrowRight
+                    className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100"
+                    aria-hidden
+                  />
+                </span>
+                <span className="text-muted-foreground mt-0.5 block text-[13px] leading-relaxed">
+                  How an order moves from enquiry to dispatch, what each department can do, and
+                  which parts are ready to use today. Worth sending to anyone new.
+                </span>
+              </span>
+            </Link>
           </div>
         </Can>
 
-        <Link
-          href="/"
-          className="bg-card hover:border-primary/50 group flex max-w-2xl items-start gap-3 rounded-md border p-4 transition-colors"
-        >
-          <FileText className="text-primary mt-0.5 size-4 shrink-0" aria-hidden />
-          <span>
-            <span className="flex items-center gap-1.5 text-sm font-semibold">
-              What this system does
-              <ArrowRight
-                className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100"
-                aria-hidden
-              />
-            </span>
-            <span className="text-muted-foreground mt-0.5 block text-[13px] leading-relaxed">
-              How an order moves from enquiry to dispatch, what each department can do, and which
-              parts are ready to use today. Worth sending to anyone new.
-            </span>
-          </span>
-        </Link>
+        <section className="bg-muted/30 rounded-md border border-dashed p-5">
+          <h2 className="text-muted-foreground font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
+            Still to come
+          </h2>
+          <p className="text-muted-foreground mt-2 max-w-3xl text-[13px] leading-relaxed">
+            Machines in build, shortages blocking assembly, and the procure-to-receive pipeline. Each
+            needs the module that feeds it — building them against invented data would mean building
+            them twice.
+          </p>
+          <ol className="text-muted-foreground/80 mt-3 space-y-1 font-mono text-[11.5px]">
+            <li>1 · Users &amp; role assignment</li>
+            <li>2 · Part create, edit, approve</li>
+            <li>3 · Suppliers, customers, employees</li>
+            <li>4 · Procurement → receipts → stock</li>
+          </ol>
+        </section>
       </div>
     </div>
   );

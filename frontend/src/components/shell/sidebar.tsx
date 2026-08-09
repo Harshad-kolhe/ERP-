@@ -3,13 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
 import { usePermissions } from '@/components/permission/session-provider';
 import { NAV, type NavItem } from '@/config/nav';
 import { APP_HOME } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
+import { BrandMark } from './brand-mark';
+import { NavPending } from './nav-pending';
 import { SIDEBAR_COOKIE, SIDEBAR_COOKIE_MAX_AGE } from './sidebar-preference';
 
 /**
@@ -57,42 +59,69 @@ export function Sidebar({ defaultCollapsed = false }: { defaultCollapsed?: boole
   return (
     <div
       className={cn(
-        'bg-card relative flex shrink-0 flex-col border-r transition-[width] duration-200 ease-out motion-reduce:transition-none',
+        'bg-card flex shrink-0 flex-col border-r transition-[width] duration-200 ease-out motion-reduce:transition-none',
         collapsed ? 'w-14' : 'w-56',
       )}
     >
-      {/* Same height and rule as the top bar, so the two halves of the shell read as
-          one header line across the top of the screen. */}
-      <Link
-        href={APP_HOME}
-        title={collapsed ? 'ERP — home' : undefined}
-        className={cn(
-          'flex h-12 shrink-0 items-center gap-2 border-b text-sm font-semibold tracking-tight',
-          collapsed ? 'justify-center' : 'px-4',
-        )}
-      >
-        <span className="bg-primary size-2 shrink-0 rounded-full" />
-        <span className={cn('whitespace-nowrap', collapsed && 'sr-only')}>ERP</span>
-      </Link>
+      {/*
+        Brand and toggle share the header row.
 
-      {/* The toggle straddles the divider, halfway down. Sitting on the seam it is the
-          same target in both states — it does not move when the rail narrows, so the
-          way back out is exactly where the way in was. */}
-      <button
-        type="button"
-        onClick={toggle}
-        aria-expanded={!collapsed}
-        aria-controls="main-nav"
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        title={`${collapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl or ⌘ + B)`}
-        className="bg-card border-border text-muted-foreground hover:text-primary hover:border-primary/40 focus-visible:ring-ring/50 absolute top-1/2 right-0 z-20 flex size-6 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border shadow-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-      >
-        {collapsed ? (
-          <ChevronRight className="size-3.5" aria-hidden />
-        ) : (
-          <ChevronLeft className="size-3.5" aria-hidden />
+        The toggle used to be absolutely positioned on the seam, vertically centred
+        — which put it on top of whichever nav link happened to sit at the midpoint,
+        stealing clicks meant for that destination. Here it is in normal flow, still
+        in the same place in both states, and over nothing.
+
+        Same height and rule as the top bar, so the two halves of the shell read as
+        one header line across the top of the screen.
+      */}
+      <div
+        className={cn(
+          'flex h-12 shrink-0 items-center border-b',
+          collapsed ? 'justify-center' : 'gap-2 px-3',
         )}
-      </button>
+      >
+        {!collapsed && (
+          <Link
+            href={APP_HOME}
+            className="flex min-w-0 items-center gap-2 text-sm font-semibold tracking-tight"
+          >
+            <BrandMark />
+            <span className="whitespace-nowrap">ERP</span>
+          </Link>
+        )}
+
+        {!collapsed && <span className="flex-1" />}
+
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={!collapsed}
+          aria-controls="main-nav"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={`${collapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl or ⌘ + B)`}
+          className="text-muted-foreground hover:text-primary hover:bg-accent focus-visible:ring-ring/50 flex size-7 shrink-0 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        >
+          {collapsed ? (
+            <ChevronRight className="size-4" aria-hidden />
+          ) : (
+            <ChevronLeft className="size-4" aria-hidden />
+          )}
+        </button>
+      </div>
+
+      {/* Collapsed, the mark moves below the toggle rather than competing with it
+          for a 56px row — and stays a link home, which is the only navigation the
+          header itself offers. */}
+      {collapsed && (
+        <Link
+          href={APP_HOME}
+          title="ERP — home"
+          className="flex h-10 shrink-0 items-center justify-center border-b"
+        >
+          <BrandMark />
+          <span className="sr-only">ERP — home</span>
+        </Link>
+      )}
 
       <nav id="main-nav" aria-label="Main" className="flex-1 overflow-y-auto py-2">
         {groups.map((group, index) => (
@@ -136,7 +165,7 @@ function SidebarLink({
   const Icon = item.icon;
 
   const shared = cn(
-    'relative flex items-center gap-2.5 py-1.5 text-[13px]',
+    'group/nav relative flex items-center gap-2.5 py-1.5 text-[13px]',
     collapsed ? 'justify-center px-0' : 'px-4',
   );
 
@@ -146,11 +175,11 @@ function SidebarLink({
     return (
       <span
         className={cn(shared, 'text-muted-foreground/55 cursor-default')}
-        title={collapsed ? `${item.label} — not built yet` : 'Not built yet'}
         aria-disabled="true"
       >
         <Icon className="size-4 shrink-0 opacity-60" aria-hidden />
         <span className={cn('whitespace-nowrap', collapsed && 'sr-only')}>{item.label}</span>
+        {collapsed && <CollapsedTip>{item.label} — not built yet</CollapsedTip>}
         {!collapsed && (
           <span className="border-border text-muted-foreground/70 ml-auto rounded border px-1 font-mono text-[9px] leading-[13px]">
             soon
@@ -164,7 +193,6 @@ function SidebarLink({
     <Link
       href={item.href}
       aria-current={active ? 'page' : undefined}
-      title={collapsed ? item.label : undefined}
       className={cn(
         shared,
         'hover:text-foreground hover:bg-accent/60 text-muted-foreground transition-colors',
@@ -174,12 +202,37 @@ function SidebarLink({
     >
       <Icon className="size-4 shrink-0 opacity-75" aria-hidden />
       <span className={cn('whitespace-nowrap', collapsed && 'sr-only')}>{item.label}</span>
+      {!collapsed && <span className="flex-1" />}
+      <NavPending />
+      {collapsed && <CollapsedTip>{item.label}</CollapsedTip>}
     </Link>
   );
 }
 
+/**
+ * The label for a collapsed rail, as a real element rather than a `title`.
+ *
+ * `title` has a delay of roughly a second and a half, never appears for a
+ * keyboard user, and cannot be styled — on a rail where the label is the only way
+ * to tell two icons apart, that is the whole affordance behind an attribute most
+ * people never see. This shows on hover *and* on focus, immediately.
+ *
+ * `sr-only` stays on the label itself, so screen readers still read the name from
+ * the link and this is purely visual.
+ */
+function CollapsedTip({ children }: { children: ReactNode }) {
+  return (
+    <span
+      aria-hidden
+      className="bg-popover text-popover-foreground border-border pointer-events-none absolute left-full z-50 ml-1 hidden rounded-md border px-2 py-1 text-xs whitespace-nowrap shadow-md group-hover/nav:block group-focus-visible/nav:block"
+    >
+      {children}
+    </span>
+  );
+}
+
 /** Home matches exactly; every other section matches its subtree. */
-function isActive(pathname: string, href: string): boolean {
+export function isActive(pathname: string, href: string): boolean {
   return href === APP_HOME
     ? pathname === href
     : pathname === href || pathname.startsWith(`${href}/`);

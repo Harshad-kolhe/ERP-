@@ -5,6 +5,7 @@ import { Building2 } from 'lucide-react';
 import { useSession } from '@/components/permission/session-provider';
 import { ThemeToggle } from '@/components/theme-toggle';
 
+import { Breadcrumbs } from './breadcrumbs';
 import { UserMenu } from './user-menu';
 
 export function Topbar() {
@@ -12,6 +13,8 @@ export function Topbar() {
 
   return (
     <header className="bg-card flex h-12 shrink-0 items-center gap-2.5 border-b px-4">
+      <Breadcrumbs />
+
       {/*
         The business unit scopes every query below it, enforced by a database query
         filter that no handler can skip. It is shown permanently because scope that

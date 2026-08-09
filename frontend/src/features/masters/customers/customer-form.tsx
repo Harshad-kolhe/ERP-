@@ -59,7 +59,7 @@ const schema = z.object({
 export function CustomerForm({ customer }: { customer?: CustomerDetail }) {
   const router = useRouter();
   const isNew = !customer;
-  const { lookups } = useLookups(CUSTOMER_LOOKUPS);
+  const { lookups, isError: lookupsFailed } = useLookups(CUSTOMER_LOOKUPS);
 
   const save = useSaveMasterRecord<CustomerFormValues>({
     resource: 'customers',
@@ -122,6 +122,7 @@ export function CustomerForm({ customer }: { customer?: CustomerDetail }) {
       submitLabel={isNew ? 'Create customer' : 'Save changes'}
       onCancel={() => router.push('/masters/customers')}
       lookups={lookups}
+      lookupsFailed={lookupsFailed}
       title={isNew ? 'New customer' : 'Edit customer'}
       backLabel="Customers"
       identityCode={customer?.customerCode}

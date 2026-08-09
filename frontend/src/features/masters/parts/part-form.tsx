@@ -92,7 +92,7 @@ export function PartForm({ part }: { part?: PartDetail }) {
   const router = useRouter();
   const save = useSavePart(part);
   const isNew = !part;
-  const { lookups } = useLookups(PART_LOOKUPS);
+  const { lookups, isError: lookupsFailed } = useLookups(PART_LOOKUPS);
 
   const sections = useMemo(() => partFormSections(isNew), [isNew]);
 
@@ -117,6 +117,7 @@ export function PartForm({ part }: { part?: PartDetail }) {
       submitLabel={isNew ? 'Create part' : 'Save changes'}
       onCancel={() => router.push('/masters/parts')}
       lookups={lookups}
+      lookupsFailed={lookupsFailed}
       title={isNew ? 'New part' : 'Edit part'}
       backLabel="Parts"
       identityCode={part?.partNumber}

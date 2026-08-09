@@ -89,12 +89,12 @@ export function MasterFilters({
   const pending = JSON.stringify(normalise(draft, fields)) !== JSON.stringify(normalise(values, fields));
 
   return (
-    <section aria-labelledby="master-filters-heading" className="border-line border-t">
-      <div className="border-line flex items-center gap-2 border-b px-4 py-2">
-        <Filter className="text-ink-3 h-3.5 w-3.5" />
+    <section aria-labelledby="master-filters-heading" className="border-border border-t">
+      <div className="border-border flex items-center gap-2 border-b px-4 py-2">
+        <Filter className="text-ink-faint h-3.5 w-3.5" />
         <h2
           id="master-filters-heading"
-          className="text-ink-2 text-[11px] font-semibold tracking-wide uppercase"
+          className="text-muted-foreground text-[11px] font-semibold tracking-wide uppercase"
         >
           {noun} filters
         </h2>
@@ -106,7 +106,7 @@ export function MasterFilters({
         )}
 
         {pending && (
-          <span className="rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300">
+          <span className="border-warning/40 bg-warning/15 text-warning-foreground rounded-full border px-2 py-0.5 text-[11px] font-medium">
             Unapplied changes
           </span>
         )}
@@ -117,7 +117,7 @@ export function MasterFilters({
           type="button"
           aria-label="Hide filters"
           onClick={onClose}
-          className="text-ink-3 hover:text-ink rounded p-1"
+          className="text-ink-faint hover:text-foreground rounded p-1"
         >
           <ChevronRight className="h-4 w-4 -rotate-90" />
         </button>
@@ -137,7 +137,7 @@ export function MasterFilters({
 
           return (
             <div key={field.field} className="grid gap-1.5">
-              <label htmlFor={id} className="text-ink-2 text-xs font-medium">
+              <label htmlFor={id} className="text-muted-foreground text-xs font-medium">
                 {field.label}
               </label>
 
@@ -181,7 +181,7 @@ export function MasterFilters({
             Reset
           </Button>
 
-          <span className="text-ink-3 text-xs">
+          <span className="text-ink-faint text-xs">
             {/* Says where the work happens. These screens exist because the system
                 they replace pulled whole tables into the browser to search them. */}
             Filtering runs in the database, across every page — not just the rows on screen.
@@ -208,8 +208,8 @@ export function MasterFiltersTrigger({
       aria-expanded={open}
       aria-controls="master-filters-panel"
       onClick={onToggle}
-      className={`border-line hover:border-line-strong focus-visible:ring-primary inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 ${
-        appliedCount > 0 ? 'border-primary/30 bg-primary/10 text-primary' : 'bg-surface text-ink-2'
+      className={`border-border hover:border-line-strong focus-visible:ring-primary inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 ${
+        appliedCount > 0 ? 'border-primary/30 bg-primary/10 text-primary' : 'bg-card text-muted-foreground'
       }`}
     >
       <Filter className="h-3.5 w-3.5" />
@@ -237,4 +237,21 @@ function normalise(
 /** The lookup lists a panel needs, so the page can fetch them in one request. */
 export function filterLookups(fields: readonly MasterFilterField[]): string[] {
   return [...new Set(fields.map((field) => field.lookup).filter((name): name is string => Boolean(name)))];
+}
+
+/**
+ * What a chip shows for an applied filter: the option's name, not the code stored
+ * in the query string. A chip reading "Status: APPR" asks the user to know the
+ * codebook; the dropdown they picked from said "Approved".
+ *
+ * Falls back to the raw value, so a code whose option list has not loaded — or no
+ * longer contains it — still appears rather than showing an empty chip.
+ */
+export function displayValue(
+  field: MasterFilterField,
+  value: string,
+  lookups: LookupSet,
+): string {
+  if (!field.lookup) return value;
+  return lookups[field.lookup]?.find((option) => option.code === value)?.name ?? value;
 }

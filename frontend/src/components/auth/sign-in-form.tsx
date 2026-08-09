@@ -27,14 +27,7 @@ type Credentials = z.infer<typeof schema>;
  * the API and passes the resulting Set-Cookie back. No token is ever visible to
  * script — the session cookie is HttpOnly and same-origin.
  */
-export function SignInForm({
-  returnUrl,
-  onSwitchToRegister,
-}: {
-  returnUrl: string;
-  /** Provided when the form is hosted in a dialog, which swaps panels rather than navigating. */
-  onSwitchToRegister?: () => void;
-}) {
+export function SignInForm({ returnUrl }: { returnUrl: string }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -44,6 +37,9 @@ export function SignInForm({
   } = useForm<Credentials>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
+    // Checked on blur and then live — see the note in `useApiForm`, which sets the
+    // same mode for every other form in the app.
+    mode: 'onTouched',
   });
 
   const signIn = useMutation({
@@ -86,9 +82,16 @@ export function SignInForm({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
+          {/* aria-pressed and a real label: "Show" on its own announces a button
+              with no object, and the visible word changes to "Hide" once pressed,
+              which leaves a screen reader describing the action rather than the
+              state. */}
           <button
             type="button"
-            className="text-muted-foreground hover:text-foreground text-xs"
+            aria-pressed={showPassword}
+            aria-controls="password"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded text-xs focus-visible:ring-2 focus-visible:outline-none"
             onClick={() => setShowPassword((shown) => !shown)}
           >
             {showPassword ? 'Hide' : 'Show'}
@@ -123,22 +126,9 @@ export function SignInForm({
 
       <p className="text-muted-foreground text-center text-sm">
         New here?{' '}
-        {onSwitchToRegister ? (
-          <button
-            type="button"
-            onClick={onSwitchToRegister}
-            className="text-primary font-medium underline-offset-4 hover:underline"
-          >
-            Create an account
-          </button>
-        ) : (
-          <Link
-            className="text-primary font-medium underline-offset-4 hover:underline"
-            href={{ pathname: '/register', query: { returnUrl } }}
-          >
-            Create an account
-          </Link>
-        )}
+        <Link className="text-primary font-medium underline-offset-4 hover:underline" href="/register">
+          How to get an account
+        </Link>
       </p>
     </form>
   );

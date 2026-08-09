@@ -1,7 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { X } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { FieldPath, FieldValues } from 'react-hook-form';
 
 import {
@@ -106,7 +108,7 @@ export function ReferenceField<TValues extends FieldValues>({
     <FormField<TValues>
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem hasDescription={Boolean(description)}>
           <FormLabel>
             {label}
             {required ? <span className="text-destructive ml-0.5">*</span> : null}
@@ -174,6 +176,7 @@ export function ReferencePicker({
    */
   const [picked, setPicked] = useState<{ value: string; label: string } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const chosenLabel = picked?.value === value ? picked.label : (initialLabel ?? null);
 
@@ -182,13 +185,48 @@ export function ReferencePicker({
     return () => clearTimeout(timer);
   }, [search]);
 
+  /**
+   * Where to draw the list, in viewport coordinates.
+   *
+   * The list is portalled to the body rather than positioned inside this
+   * component, because the component is used inside the parent-part component
+   * grid, whose `overflow-x-auto` wrapper clips absolutely-positioned descendants
+   * on *both* axes — `overflow-x: auto` computes `overflow-y` to `auto` too. The
+   * effect was that the primary control on that screen dropped a list that was cut
+   * off a few pixels below the input.
+   *
+   * Re-measured on scroll with capture, so a scroll in any ancestor moves it and
+   * not just a scroll of the window.
+   */
+  const [anchor, setAnchor] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const measure = () => setAnchor(containerRef.current?.getBoundingClientRect() ?? null);
+
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('scroll', measure, true);
+
+    return () => {
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', measure, true);
+    };
+  }, [open]);
+
   // Clicking anywhere else closes the list. Blur alone is not enough: moving from
   // the input to an option is a blur, and closing on it would cancel the click.
+  // The list is checked separately from the container — portalled, it is no longer
+  // a descendant, so `container.contains` alone would treat every click on an
+  // option as a click outside and tear the list down before it landed.
   useEffect(() => {
     if (!open) return;
 
     const onPointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (containerRef.current?.contains(target) || listRef.current?.contains(target)) return;
+      setOpen(false);
     };
 
     document.addEventListener('pointerdown', onPointerDown);
@@ -283,25 +321,36 @@ export function ReferencePicker({
             type="button"
             onClick={clear}
             aria-label="Clear selection"
-            className="text-ink-3 hover:text-ink shrink-0 rounded-md px-1.5 py-1 text-xs"
+            className="text-ink-faint hover:text-foreground focus-visible:ring-ring shrink-0 rounded-md px-1.5 py-1 focus-visible:ring-2 focus-visible:outline-none"
           >
-            ✕
+            <X className="size-3.5" aria-hidden />
           </button>
         ) : null}
       </div>
 
-      {open ? (
-        <ul
-          id={listId}
-          role="listbox"
-          className="border-line bg-surface absolute z-50 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border p-1 shadow-lg"
-        >
-          {query.isFetching && options.length === 0 ? (
-            <li className="text-ink-3 px-2 py-1.5 text-sm">Searching…</li>
+      {open && anchor
+        ? createPortal(
+            <ul
+              ref={listRef}
+              id={listId}
+              role="listbox"
+              // Fixed, in viewport coordinates, outside every clipping ancestor.
+              // ponytail: no viewport flip. Add when a picker lands within ~280px
+              // of the fold; that needs a bottom-space check, not a library.
+              style={{
+                position: 'fixed',
+                top: anchor.bottom + 4,
+                left: anchor.left,
+                width: anchor.width,
+              }}
+              className="border-border bg-card z-50 max-h-64 overflow-y-auto rounded-lg border p-1 shadow-lg"
+            >
+              {query.isFetching && options.length === 0 ? (
+            <li className="text-ink-faint px-2 py-1.5 text-sm">Searching…</li>
           ) : null}
 
           {!query.isFetching && options.length === 0 ? (
-            <li className="text-ink-3 px-2 py-1.5 text-sm">{emptyHint}</li>
+            <li className="text-ink-faint px-2 py-1.5 text-sm">{emptyHint}</li>
           ) : null}
 
           {options.map((option, index) => (
@@ -319,24 +368,26 @@ export function ReferencePicker({
                 onMouseEnter={() => setActiveIndex(index)}
                 className={cn(
                   'flex w-full flex-col items-start gap-0.5 rounded-md px-2 py-1.5 text-left text-sm',
-                  index === activeIndex ? 'bg-surface-3 text-ink' : 'text-ink-2',
+                  index === activeIndex ? 'bg-accent text-foreground' : 'text-muted-foreground',
                 )}
               >
                 <span className="font-medium">{option.label}</span>
-                {option.hint ? <span className="text-ink-3 text-xs">{option.hint}</span> : null}
+                {option.hint ? <span className="text-ink-faint text-xs">{option.hint}</span> : null}
               </button>
             </li>
           ))}
 
           {/* Says so when there is more, rather than silently showing the first
               twenty as if they were all of them. */}
-          {total > options.length ? (
-            <li className="text-ink-3 border-line mt-1 border-t px-2 py-1.5 text-xs">
-              Showing {options.length} of {total}. Type to narrow it down.
-            </li>
-          ) : null}
-        </ul>
-      ) : null}
+              {total > options.length ? (
+                <li className="text-ink-faint border-border mt-1 border-t px-2 py-1.5 text-xs">
+                  Showing {options.length} of {total}. Type to narrow it down.
+                </li>
+              ) : null}
+            </ul>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

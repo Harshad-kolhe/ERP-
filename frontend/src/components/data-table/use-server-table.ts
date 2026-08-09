@@ -49,8 +49,17 @@ export function useServerTable(initial?: Partial<ServerTableState>) {
     };
   }, [searchParams, initial]);
 
+  /**
+   * Writes the patch to the query string.
+   *
+   * `push` by default, so Back undoes one filter rather than leaving the screen —
+   * which is what makes the "the back button works" promise above true. The
+   * exception is a control that writes on every keystroke: the column filter row
+   * does, and pushing there would put one history entry per character. Those two
+   * callers pass `'replace'` explicitly.
+   */
   const apply = useCallback(
-    (patch: Partial<ServerTableState>) => {
+    (patch: Partial<ServerTableState>, history: 'push' | 'replace' = 'push') => {
       const next = new URLSearchParams(searchParams.toString());
       const merged = { ...state, ...patch };
 
@@ -74,7 +83,7 @@ export function useServerTable(initial?: Partial<ServerTableState>) {
       }
 
       const query = next.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      router[history](query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams, state],
   );

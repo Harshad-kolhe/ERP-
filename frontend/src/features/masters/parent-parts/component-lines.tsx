@@ -1,5 +1,6 @@
 'use client';
 
+import { X } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { ReferencePicker, referenceSource } from '@/components/form/reference-field';
@@ -127,7 +128,7 @@ export function ComponentLines({
   return (
     <div className="flex min-h-0 flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-ink-2 text-sm">
+        <p className="text-muted-foreground text-sm">
           {lines.length === 0
             ? 'No components yet. A build can be saved empty and filled in later.'
             : `${lines.length} component line${lines.length === 1 ? '' : 's'}.`}
@@ -144,10 +145,18 @@ export function ComponentLines({
         </Button>
       </div>
 
+      {/* One polite summary for the whole table, so a duplicate is announced once
+          when it appears rather than on every keystroke that recomputes it. */}
+      <p aria-live="polite" className="sr-only">
+        {duplicateKeys.size > 0
+          ? `${duplicateKeys.size} lines use a part that is already on this build.`
+          : ''}
+      </p>
+
       {lines.length > 0 ? (
-        <div className="border-line overflow-x-auto rounded-lg border">
+        <div className="border-border overflow-x-auto rounded-lg border">
           <table className="w-full min-w-[1100px] text-sm">
-            <thead className="bg-surface-2 text-ink-2">
+            <thead className="bg-muted text-muted-foreground">
               <tr className="[&>th]:px-3 [&>th]:py-2 [&>th]:text-left [&>th]:font-medium">
                 <th className="w-10">#</th>
                 <th className="min-w-[260px]">Component part</th>
@@ -172,11 +181,11 @@ export function ComponentLines({
                 return (
                   <tr
                     key={line.key}
-                    className={`border-line border-t align-top [&>td]:px-3 [&>td]:py-2 ${
+                    className={`border-border border-t align-top [&>td]:px-3 [&>td]:py-2 ${
                       isDuplicate ? 'bg-destructive/5' : ''
                     }`}
                   >
-                    <td className="text-ink-3 pt-4 tabular-nums">{index + 1}</td>
+                    <td className="text-ink-faint pt-4 tabular-nums">{index + 1}</td>
 
                     <td>
                       <ReferencePicker
@@ -194,8 +203,12 @@ export function ComponentLines({
                           })
                         }
                       />
+                      {/* Visible, but not a live region. `duplicateKeys` recomputes
+                          on every keystroke, so a per-row alert re-announced itself
+                          on each one — and two duplicate rows produced two alerts at
+                          once. The single polite summary above the table says it. */}
                       {isDuplicate ? (
-                        <p role="alert" className="text-destructive mt-1 text-xs">
+                        <p className="text-destructive mt-1 text-xs">
                           This part is on the build twice. Change its quantity instead.
                         </p>
                       ) : null}
@@ -236,10 +249,10 @@ export function ComponentLines({
 
                     {/* Computed, and shown as such: no input, no border, nothing to
                         type into. The server recomputes them on save regardless. */}
-                    <td className="text-ink-2 pt-4 text-right tabular-nums">
+                    <td className="text-muted-foreground pt-4 text-right tabular-nums">
                       {format(lineWeight, 4)}
                     </td>
-                    <td className="text-ink-2 pt-4 text-right tabular-nums">
+                    <td className="text-muted-foreground pt-4 text-right tabular-nums">
                       {format(amount, 2)}
                     </td>
 
@@ -259,9 +272,13 @@ export function ComponentLines({
                         disabled={disabled}
                         onClick={() => remove(line.key)}
                         aria-label={`Remove line ${index + 1}`}
-                        className="text-ink-3 hover:text-destructive rounded-md px-1.5 py-1 text-sm disabled:opacity-40"
+                        // focus-visible matters more here than on most buttons:
+                        // a 20-line build is 20 identical delete targets, and
+                        // without a ring a keyboard user cannot tell which one
+                        // Enter is about to remove.
+                        className="text-ink-faint hover:text-destructive focus-visible:ring-destructive rounded-md px-1.5 py-1 disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
                       >
-                        ✕
+                        <X className="size-3.5" aria-hidden />
                       </button>
                     </td>
                   </tr>
@@ -269,9 +286,9 @@ export function ComponentLines({
               })}
             </tbody>
 
-            <tfoot className="border-line bg-surface-2 border-t">
+            <tfoot className="border-border bg-muted border-t">
               <tr className="[&>td]:px-3 [&>td]:py-2">
-                <td colSpan={6} className="text-ink-2 text-right font-medium">
+                <td colSpan={6} className="text-muted-foreground text-right font-medium">
                   Totals
                 </td>
                 <td className="text-right font-medium tabular-nums">{format(totals.weight, 4)}</td>

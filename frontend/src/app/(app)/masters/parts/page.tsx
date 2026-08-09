@@ -20,7 +20,7 @@ export default function PartsPage() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* useSearchParams and the count queries both need a boundary during prerender. */}
-      <Suspense fallback={<div className="border-line h-[57px] shrink-0 border-b" />}>
+      <Suspense fallback={<div className="border-border h-[57px] shrink-0 border-b" />}>
         <PartsPageHeader />
       </Suspense>
 

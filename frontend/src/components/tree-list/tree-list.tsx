@@ -14,19 +14,20 @@ import {
   type UIEvent,
 } from 'react';
 
-import Popover from '@/components/tree-list/popover';
 import {
   Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Close,
-  Columns,
+  Columns3,
   Download,
   Filter,
-  Rows,
+  Rows3,
   Search,
-} from '@/components/tree-list/icons';
+  X,
+} from 'lucide-react';
+
+import Popover from '@/components/tree-list/popover';
 
 export type RowKey = string | number;
 export type SortDirection = 'asc' | 'desc';
@@ -119,7 +120,17 @@ export type TreeListProps<T extends Record<string, unknown>> = {
   searchScope?: 'visible' | 'all';
   /** Filter pills owned by the page, rendered in TreeList's active-filter bar. */
   externalFilterChips?: ReactNode;
-  onClearExternalFilters?: () => void;
+  /**
+   * Replaces "Clear all" outright rather than running after it.
+   *
+   * A controlled grid has to clear in one write. The uncontrolled path below calls
+   * three setters in a row, and each one routes to the page's own state; where that
+   * state is a URL, all three rebuild it from the same render's snapshot and the
+   * last write restores what the first two cleared. So a controlled caller owns the
+   * whole action, and the three-setter path is only used when the grid owns its own
+   * state and the setters are plain `useState`.
+   */
+  onClearAll?: () => void;
   /** dataField of the column that absorbs leftover horizontal space. */
   stretchColumn?: string;
   /** Appended to the root section — used with fillHeight to size within a flex page. */
@@ -174,6 +185,16 @@ export type TreeListProps<T extends Record<string, unknown>> = {
   footerBar?: ReactNode;
 
   /**
+   * The rows on screen answer the *previous* query — a filter or page change is in
+   * flight and the old page is being held to avoid a flash of empty grid.
+   *
+   * Worth saying out loud: without it the user types a filter, the rows sit there
+   * unchanged for a moment, and the grid looks like it ignored them rather than
+   * like it is still working.
+   */
+  isStale?: boolean;
+
+  /**
    * A panel between the controls band and the grid — the page's own filters,
    * typically. A slot rather than a prop bag because what goes here belongs to
    * the screen, not to the grid: TreeList should not learn what a master filter
@@ -209,8 +230,8 @@ function textAlignFor(align: TreeColumn<never>['align']): CSSProperties['textAli
  * unless the caller opts into dimming it too.
  */
 function cellTone(muted: boolean | undefined, frozen: boolean, mutedIncludesFrozen: boolean): string {
-  if (muted && (mutedIncludesFrozen || !frozen)) return 'text-ink-3';
-  return frozen ? 'text-ink' : 'text-ink-2';
+  if (muted && (mutedIncludesFrozen || !frozen)) return 'text-ink-faint';
+  return frozen ? 'text-foreground' : 'text-muted-foreground';
 }
 
 function compareValues(a: unknown, b: unknown): number {
@@ -276,7 +297,7 @@ export default function TreeList<T extends Record<string, unknown>>({
   exportLabel = 'Export',
   searchScope = 'visible',
   externalFilterChips,
-  onClearExternalFilters,
+  onClearAll,
   stretchColumn,
   className,
   baseSort = NO_SORT,
@@ -298,6 +319,7 @@ export default function TreeList<T extends Record<string, unknown>>({
   serverDriven = false,
   footerBar,
   panel,
+  isStale = false,
 }: TreeListProps<T>) {
   const domId = useId().replace(/[^a-zA-Z0-9-]/g, '');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -454,7 +476,7 @@ export default function TreeList<T extends Record<string, unknown>>({
     const sorted = new Map<RowKey, T[]>();
     for (const [parentId, children] of childrenByParent) sorted.set(parentId, [...children].sort(compare));
     return sorted;
-  }, [childrenByParent, columnByField, sorts, baseSort]);
+  }, [childrenByParent, columnByField, sorts, baseSort, serverDriven]);
 
   /* ---------------- search + filter row ---------------- */
 
@@ -508,6 +530,7 @@ export default function TreeList<T extends Record<string, unknown>>({
     isGroupRow,
     cellText,
     keyExpr,
+    serverDriven,
   ]);
 
   /** Matches plus their ancestors, mirroring DevExtreme's "withAncestors" filter mode. */
@@ -661,34 +684,51 @@ export default function TreeList<T extends Record<string, unknown>>({
     [expandedKeys, onExpandedKeysChange],
   );
 
-  const toggleSort = useCallback((field: string, additive: boolean) => {
-    setSorts((previous) => {
-      const existing = previous.find((s) => s.dataField === field);
-      const direction: SortDirection | null = !existing ? 'asc' : existing.direction === 'asc' ? 'desc' : null;
-      if (!additive) return direction ? [{ dataField: field, direction }] : [];
-      const rest = previous.filter((s) => s.dataField !== field);
-      return direction ? [...rest, { dataField: field, direction }] : rest;
-    });
-  }, []);
+  // `setSorts` must be in the deps. Controlled, it closes over `sortValue`, so an
+  // empty array here froze this callback on the first render's sorts — which are
+  // always none. Every header click then read "nothing is sorted" and answered
+  // `asc`, and a column could never reach `desc` on a server-driven grid.
+  const toggleSort = useCallback(
+    (field: string, additive: boolean) => {
+      setSorts((previous) => {
+        const existing = previous.find((s) => s.dataField === field);
+        const direction: SortDirection | null = !existing ? 'asc' : existing.direction === 'asc' ? 'desc' : null;
+        if (!additive) return direction ? [{ dataField: field, direction }] : [];
+        const rest = previous.filter((s) => s.dataField !== field);
+        return direction ? [...rest, { dataField: field, direction }] : rest;
+      });
+    },
+    [setSorts],
+  );
 
-  // Clears every layer the user can see in the active bar, including the page's
-  // own filters — otherwise "Clear all" leaves the grid still filtered.
+  // Clears every layer the user can see in the active bar, including the page's own
+  // filters — otherwise "Clear all" leaves the grid still filtered.
   const clearFilters = useCallback(() => {
+    if (onClearAll) {
+      onClearAll();
+      return;
+    }
+
     setSearchText('');
     setFilters(() => ({}));
-    onClearExternalFilters?.();
-  }, [onClearExternalFilters, setFilters, setSearchText]);
+  }, [onClearAll, setFilters, setSearchText]);
 
-  const toggleColumn = useCallback((field: string) => {
-    setHiddenColumns((previous) => {
-      const next = new Set(previous);
-      if (next.has(field)) next.delete(field);
-      else next.add(field);
-      return next;
-    });
-    // A hidden column must not keep filtering silently.
-    setFilters((previous) => ({ ...previous, [field]: '' }));
-  }, []);
+  // Same stale-closure trap as `toggleSort`: without `setFilters` in the deps this
+  // held the first render's filter values, so hiding a column reset every other
+  // column's filter back to whatever was applied when the grid first mounted.
+  const toggleColumn = useCallback(
+    (field: string) => {
+      setHiddenColumns((previous) => {
+        const next = new Set(previous);
+        if (next.has(field)) next.delete(field);
+        else next.add(field);
+        return next;
+      });
+      // A hidden column must not keep filtering silently.
+      setFilters((previous) => ({ ...previous, [field]: '' }));
+    },
+    [setFilters],
+  );
 
   const startResize = useCallback(
     (column: TreeColumn<T>, event: ReactPointerEvent<HTMLSpanElement>) => {
@@ -832,14 +872,14 @@ export default function TreeList<T extends Record<string, unknown>>({
 
   return (
     <section
-      className={`border-line bg-surface overflow-hidden rounded-2xl border shadow-sm ${
+      className={`border-border bg-card overflow-hidden rounded-2xl border shadow-sm ${
         fillHeight ? 'flex min-h-0 flex-col' : ''
       } ${className ?? ''}`}
     >
       {/* ---------- toolbar ---------- */}
-      <div className="border-line bg-surface-2 flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2.5">
+      <div className="border-border bg-muted flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2.5">
         <div className="relative">
-          <Search className="text-ink-3 pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2" />
+          <Search className="text-ink-faint pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2" />
           <input
             ref={searchInputRef}
             value={searchText}
@@ -853,15 +893,15 @@ export default function TreeList<T extends Record<string, unknown>>({
             }}
             placeholder={searchPlaceholder}
             aria-label="Search"
-            className="border-line bg-surface text-ink placeholder:text-ink-3 focus:border-brand focus:ring-brand/25 h-8 w-64 rounded-lg border pr-16 pl-8 text-sm outline-none focus:ring-2"
+            className="border-border bg-card text-foreground placeholder:text-ink-faint focus:border-primary focus:ring-primary/25 h-8 w-64 rounded-lg border pr-16 pl-8 text-sm outline-none focus:ring-2"
           />
-          <kbd className="text-ink-3 border-line bg-surface-2 pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded border px-1 py-0.5 text-[10px] font-medium">
+          <kbd className="text-ink-faint border-border bg-muted pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded border px-1 py-0.5 text-[10px] font-medium">
             Ctrl K
           </kbd>
         </div>
 
         {search && (
-          <div className="text-ink-2 flex items-center gap-1 text-xs">
+          <div className="text-muted-foreground flex items-center gap-1 text-xs">
             <span className="tabular-nums">
               {matchIndexes.length ? `${activeMatch + 1} / ${matchIndexes.length}` : 'no matches'}
             </span>
@@ -870,7 +910,7 @@ export default function TreeList<T extends Record<string, unknown>>({
               aria-label="Previous match"
               onClick={() => goToMatch(-1)}
               disabled={!matchIndexes.length}
-              className="border-line hover:bg-surface-3 rounded-md border p-1 disabled:opacity-40"
+              className="border-border hover:bg-accent rounded-md border p-1 disabled:opacity-40"
             >
               <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
             </button>
@@ -879,7 +919,7 @@ export default function TreeList<T extends Record<string, unknown>>({
               aria-label="Next match"
               onClick={() => goToMatch(1)}
               disabled={!matchIndexes.length}
-              className="border-line hover:bg-surface-3 rounded-md border p-1 disabled:opacity-40"
+              className="border-border hover:bg-accent rounded-md border p-1 disabled:opacity-40"
             >
               <ChevronRight className="h-3.5 w-3.5 rotate-90" />
             </button>
@@ -902,8 +942,8 @@ export default function TreeList<T extends Record<string, unknown>>({
             onClick={() => setShowFilterRow((value) => !value)}
             aria-pressed={showFilterRow}
             title={`Toggle the ${filterRowLabel.toLowerCase()} row`}
-            className={`border-line hover:border-line-strong focus-visible:ring-brand inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 ${
-              showFilterRow ? 'bg-brand-soft text-brand-strong border-brand/30' : 'bg-surface text-ink-2'
+            className={`border-border hover:border-line-strong focus-visible:ring-primary inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 ${
+              showFilterRow ? 'bg-accent text-brand-strong border-primary/30' : 'bg-card text-muted-foreground'
             }`}
           >
             <Filter className="h-3.5 w-3.5" />
@@ -915,9 +955,9 @@ export default function TreeList<T extends Record<string, unknown>>({
           title="Choose columns"
           label={
             <>
-              <Columns className="h-3.5 w-3.5" />
+              <Columns3 className="h-3.5 w-3.5" />
               Columns
-              <span className="text-ink-3 tabular-nums">
+              <span className="text-ink-faint tabular-nums">
                 {visibleColumns.length}/{chooserColumns.length}
               </span>
             </>
@@ -926,12 +966,12 @@ export default function TreeList<T extends Record<string, unknown>>({
         >
           {() => (
             <div>
-              <div className="text-ink-3 flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold tracking-wide uppercase">
+              <div className="text-ink-faint flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold tracking-wide uppercase">
                 Visible columns
                 <button
                   type="button"
                   onClick={() => setHiddenColumns(new Set())}
-                  className="text-brand hover:text-brand-strong text-[11px] font-medium normal-case"
+                  className="text-primary hover:text-brand-strong text-[11px] font-medium normal-case"
                 >
                   Show all
                 </button>
@@ -947,17 +987,17 @@ export default function TreeList<T extends Record<string, unknown>>({
                       disabled={locked}
                       aria-pressed={shown}
                       onClick={() => toggleColumn(column.dataField)}
-                      className="hover:bg-surface-3 focus-visible:ring-brand flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs outline-none focus-visible:ring-2 disabled:opacity-50"
+                      className="hover:bg-accent focus-visible:ring-primary flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs outline-none focus-visible:ring-2 disabled:opacity-50"
                     >
                       <span
                         className={`flex h-4 w-4 items-center justify-center rounded border ${
-                          shown ? 'bg-brand border-brand text-white' : 'border-line-strong'
+                          shown ? 'bg-primary border-primary text-primary-foreground' : 'border-line-strong'
                         }`}
                       >
                         {shown && <Check className="h-3 w-3" strokeWidth={3} />}
                       </span>
-                      <span className="text-ink flex-1 truncate">{column.caption}</span>
-                      {locked && <span className="text-ink-3 text-[10px]">pinned</span>}
+                      <span className="text-foreground flex-1 truncate">{column.caption}</span>
+                      {locked && <span className="text-ink-faint text-[10px]">pinned</span>}
                     </button>
                   );
                 })}
@@ -970,7 +1010,7 @@ export default function TreeList<T extends Record<string, unknown>>({
           title="Row density"
           label={
             <>
-              <Rows className="h-3.5 w-3.5" />
+              <Rows3 className="h-3.5 w-3.5" />
               Density
             </>
           }
@@ -988,16 +1028,16 @@ export default function TreeList<T extends Record<string, unknown>>({
                     setDensity(option);
                     close();
                   }}
-                  className="hover:bg-surface-3 focus-visible:ring-brand flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs capitalize outline-none focus-visible:ring-2"
+                  className="hover:bg-accent focus-visible:ring-primary flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs capitalize outline-none focus-visible:ring-2"
                 >
                   <span
                     className={`flex h-4 w-4 items-center justify-center rounded-full border ${
-                      density === option ? 'bg-brand border-brand text-white' : 'border-line-strong'
+                      density === option ? 'bg-primary border-primary text-primary-foreground' : 'border-line-strong'
                     }`}
                   >
                     {density === option && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
                   </span>
-                  <span className="text-ink">{option}</span>
+                  <span className="text-foreground">{option}</span>
                 </button>
               ))}
             </div>
@@ -1008,7 +1048,7 @@ export default function TreeList<T extends Record<string, unknown>>({
           type="button"
           onClick={exportCsv}
           title="Export the rows currently in view to CSV"
-          className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors"
+          className="border-border bg-card text-muted-foreground hover:border-line-strong hover:text-foreground inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors"
         >
           <Download className="h-3.5 w-3.5" />
           {exportLabel}
@@ -1017,8 +1057,8 @@ export default function TreeList<T extends Record<string, unknown>>({
 
       {/* ---------- active filter chips ---------- */}
       {(isFiltering || externalFilterChips) && (
-        <div className="border-line bg-surface flex shrink-0 flex-wrap items-center gap-1.5 border-b px-3 py-2">
-          <span className="text-ink-3 text-[11px] font-semibold tracking-wide uppercase">Active</span>
+        <div className="border-border bg-card flex shrink-0 flex-wrap items-center gap-1.5 border-b px-3 py-2">
+          <span className="text-ink-faint text-[11px] font-semibold tracking-wide uppercase">Active</span>
           {externalFilterChips}
           {search && (
             <FilterChip label="Search" value={searchText} onClear={() => setSearchText('')} />
@@ -1034,11 +1074,11 @@ export default function TreeList<T extends Record<string, unknown>>({
           <button
             type="button"
             onClick={clearFilters}
-            className="text-ink-3 hover:text-ink ml-1 text-[11px] font-medium underline underline-offset-2"
+            className="text-ink-faint hover:text-foreground ml-1 text-[11px] font-medium underline underline-offset-2"
           >
             Clear all
           </button>
-          <span className="text-ink-3 ml-auto text-xs tabular-nums">
+          <span className="text-ink-faint ml-auto text-xs tabular-nums">
             {isGroupRow ? flatRows.filter((entry) => !isGroupRow(entry.row)).length : flatRows.length} of{' '}
             {isGroupRow ? dataSource.filter((row) => !isGroupRow(row)).length : dataSource.length} rows
           </span>
@@ -1059,7 +1099,11 @@ export default function TreeList<T extends Record<string, unknown>>({
         tabIndex={0}
         onKeyDown={onGridKeyDown}
         aria-activedescendant={focusedKey !== null ? `${domId}-row-${focusedKey}` : undefined}
-        className={`focus-visible:ring-brand/40 overflow-auto outline-none focus-visible:ring-2 focus-visible:ring-inset ${
+        aria-busy={isStale || undefined}
+        // The dimming is one CSS rule keyed off this attribute rather than a class
+        // threaded down through the row renderer — see globals.css.
+        data-stale={isStale || undefined}
+        className={`focus-visible:ring-primary/40 overflow-auto outline-none focus-visible:ring-2 focus-visible:ring-inset ${
           fillHeight ? 'min-h-0 flex-1' : ''
         }`}
         style={{ height: fillHeight ? undefined : height }}
@@ -1077,7 +1121,7 @@ export default function TreeList<T extends Record<string, unknown>>({
           <div
             role="row"
             aria-rowindex={1}
-            className="bg-surface-2 sticky top-0 z-20 flex"
+            className="bg-muted sticky top-0 z-20 flex"
             style={{ height: HEADER_HEIGHT }}
           >
             {visibleColumns.map((column, index) => {
@@ -1095,9 +1139,9 @@ export default function TreeList<T extends Record<string, unknown>>({
                   aria-colindex={index + 1}
                   tabIndex={sortable ? 0 : -1}
                   aria-sort={ariaSort}
-                  className={`border-line group/head focus-visible:ring-brand relative flex items-center gap-1 border-r border-b px-2.5 text-[11.5px] font-semibold tracking-wide outline-none select-none focus-visible:ring-2 focus-visible:ring-inset ${
-                    sortable ? 'hover:bg-surface-3 cursor-pointer' : ''
-                  } ${frozen ? 'bg-surface-2 sticky left-0 z-30' : ''} ${sort ? 'text-brand-strong' : 'text-ink-2'}`}
+                  className={`border-border group/head focus-visible:ring-primary relative flex items-center gap-1 border-r border-b px-2.5 text-[11.5px] font-semibold tracking-wide outline-none select-none focus-visible:ring-2 focus-visible:ring-inset ${
+                    sortable ? 'hover:bg-accent cursor-pointer' : ''
+                  } ${frozen ? 'bg-muted sticky left-0 z-30' : ''} ${sort ? 'text-brand-strong' : 'text-muted-foreground'}`}
                   style={{
                     flex: flexFor(column),
                     width: widthOf(column),
@@ -1122,7 +1166,7 @@ export default function TreeList<T extends Record<string, unknown>>({
                 >
                   <span className="truncate uppercase">{column.caption}</span>
                   {sort && (
-                    <span className="text-brand flex shrink-0 items-center text-[10px]">
+                    <span className="text-primary flex shrink-0 items-center text-[10px]">
                       <ChevronDown
                         className={`h-3 w-3 transition-transform ${sort.direction === 'asc' ? 'rotate-180' : ''}`}
                       />
@@ -1134,7 +1178,7 @@ export default function TreeList<T extends Record<string, unknown>>({
                       role="presentation"
                       onPointerDown={(event) => startResize(column, event)}
                       onClick={(event) => event.stopPropagation()}
-                      className="hover:bg-brand/60 absolute top-0 right-0 z-10 h-full w-1.5 cursor-col-resize"
+                      className="hover:bg-primary/60 absolute top-0 right-0 z-10 h-full w-1.5 cursor-col-resize"
                     />
                   )}
                 </div>
@@ -1145,7 +1189,7 @@ export default function TreeList<T extends Record<string, unknown>>({
               <div
                 role="columnheader"
                 aria-colindex={visibleColumns.length + 1}
-                className="border-line bg-surface-2 text-ink-2 sticky right-0 z-30 flex items-center justify-center border-b border-l px-2.5 text-[11.5px] font-semibold tracking-wide uppercase"
+                className="border-border bg-muted text-muted-foreground sticky right-0 z-30 flex items-center justify-center border-b border-l px-2.5 text-[11.5px] font-semibold tracking-wide uppercase"
                 style={{ flex: `0 0 ${actionsWidth}px`, width: actionsWidth, boxShadow: actionShadow }}
               >
                 {rowActions.caption}
@@ -1158,7 +1202,7 @@ export default function TreeList<T extends Record<string, unknown>>({
             <div
               role="row"
               aria-rowindex={2}
-              className="bg-surface sticky z-20 flex"
+              className="bg-card sticky z-20 flex"
               style={{ top: HEADER_HEIGHT, height: FILTER_HEIGHT }}
             >
               {visibleColumns.map((column, index) => {
@@ -1168,8 +1212,8 @@ export default function TreeList<T extends Record<string, unknown>>({
                     key={column.dataField}
                     role="gridcell"
                     aria-colindex={index + 1}
-                    className={`border-line flex items-center border-r border-b px-1.5 ${
-                      frozen ? 'bg-surface sticky left-0 z-30' : ''
+                    className={`border-border flex items-center border-r border-b px-1.5 ${
+                      frozen ? 'bg-card sticky left-0 z-30' : ''
                     }`}
                     style={{
                       flex: flexFor(column),
@@ -1185,7 +1229,7 @@ export default function TreeList<T extends Record<string, unknown>>({
                         }
                         placeholder="Filter…"
                         aria-label={`Filter ${column.caption}`}
-                        className="text-ink placeholder:text-ink-3/70 focus:border-brand focus:bg-surface focus:ring-brand/40 hover:border-line w-full rounded-md border border-transparent bg-transparent px-1.5 py-1 text-[12px] outline-none focus:ring-2 focus:ring-inset"
+                        className="text-foreground placeholder:text-ink-faint/70 focus:border-primary focus:bg-card focus:ring-primary/40 hover:border-border w-full rounded-md border border-transparent bg-transparent px-1.5 py-1 text-[12px] outline-none focus:ring-2 focus:ring-inset"
                         style={{ textAlign: textAlignFor(column.align) }}
                       />
                     )}
@@ -1197,7 +1241,7 @@ export default function TreeList<T extends Record<string, unknown>>({
                 <div
                   role="gridcell"
                   aria-colindex={visibleColumns.length + 1}
-                  className="border-line bg-surface sticky right-0 z-30 border-b border-l"
+                  className="border-border bg-card sticky right-0 z-30 border-b border-l"
                   style={{ flex: `0 0 ${actionsWidth}px`, width: actionsWidth, boxShadow: actionShadow }}
                 />
               )}
@@ -1207,7 +1251,17 @@ export default function TreeList<T extends Record<string, unknown>>({
 
           {/* body */}
           {flatRows.length === 0 ? (
-            <EmptyState onClear={clearFilters} title={emptyTitle} hint={emptyHint} action={emptyAction} />
+            <EmptyState
+              onClear={clearFilters}
+              // A master with no records at all is not a filtered-to-nothing grid.
+              // `isFiltering` covers this component's own surfaces; the chips cover
+              // the page's, which on a server-driven grid is where the filter that
+              // emptied it usually lives.
+              isFiltering={isFiltering || Boolean(externalFilterChips)}
+              title={emptyTitle}
+              hint={emptyHint}
+              action={emptyAction}
+            />
           ) : (
             <div role="rowgroup">
               <div role="presentation" aria-hidden="true" style={{ height: startIndex * rowHeight }} />
@@ -1293,7 +1347,7 @@ export default function TreeList<T extends Record<string, unknown>>({
                                 <span
                                   key={depth}
                                   aria-hidden="true"
-                                  className="bg-line pointer-events-none absolute top-0 h-full w-px"
+                                  className="bg-border pointer-events-none absolute top-0 h-full w-px"
                                   style={{ left: 17 + depth * INDENT }}
                                 />
                               ))}
@@ -1313,7 +1367,7 @@ export default function TreeList<T extends Record<string, unknown>>({
                                   event.stopPropagation();
                                   if (hasChildren) toggleRow(key);
                                 }}
-                                className={`text-ink-3 hover:text-ink hover:bg-surface-3 mr-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md transition-colors ${
+                                className={`text-ink-faint hover:text-foreground hover:bg-accent mr-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md transition-colors ${
                                   hasChildren ? '' : 'pointer-events-none opacity-0'
                                 }`}
                               >
@@ -1357,7 +1411,7 @@ export default function TreeList<T extends Record<string, unknown>>({
                     {focused && (
                       <span
                         aria-hidden="true"
-                        className="ring-brand/70 pointer-events-none absolute inset-0 z-[15] rounded-sm ring-2 ring-inset"
+                        className="ring-primary/70 pointer-events-none absolute inset-0 z-[15] rounded-sm ring-2 ring-inset"
                       />
                     )}
                   </div>
@@ -1376,7 +1430,7 @@ export default function TreeList<T extends Record<string, unknown>>({
       {/* ---------- summary bar ---------- */}
       {renderFooter && (
         <div
-          className="border-line bg-surface-2 shrink-0 border-t px-3 py-2"
+          className="border-border bg-muted shrink-0 border-t px-3 py-2"
           style={{ paddingLeft: Math.min(frozenWidth, 24) + 8 }}
         >
           {renderFooter(footerRows, { matchedRows, total: dataSource.length })}
@@ -1385,7 +1439,7 @@ export default function TreeList<T extends Record<string, unknown>>({
 
       {/* ---------- pager ---------- */}
       {footerBar && (
-        <div className="border-line bg-surface-2 shrink-0 border-t px-3 py-2">{footerBar}</div>
+        <div className="border-border bg-muted shrink-0 border-t px-3 py-2">{footerBar}</div>
       )}
     </section>
   );
@@ -1397,16 +1451,16 @@ export function FilterChip({
   onClear,
 }: Readonly<{ label: string; value: string; onClear: () => void }>) {
   return (
-    <span className="border-brand/30 bg-brand-soft text-brand-strong inline-flex items-center gap-1 rounded-full border py-0.5 pr-1 pl-2 text-[11px] font-medium">
-      <span className="text-ink-3">{label}:</span>
+    <span className="border-primary/30 bg-accent text-brand-strong inline-flex items-center gap-1 rounded-full border py-0.5 pr-1 pl-2 text-[11px] font-medium">
+      <span className="text-ink-faint">{label}:</span>
       <span className="max-w-32 truncate">{value}</span>
       <button
         type="button"
         aria-label={`Clear ${label} filter`}
         onClick={onClear}
-        className="hover:bg-brand/20 rounded-full p-0.5"
+        className="hover:bg-primary/20 rounded-full p-0.5"
       >
-        <Close className="h-2.5 w-2.5" strokeWidth={2.6} />
+        <X className="h-2.5 w-2.5" strokeWidth={2.6} />
       </button>
     </span>
   );
@@ -1414,26 +1468,38 @@ export function FilterChip({
 
 function EmptyState({
   onClear,
+  isFiltering,
   title,
   hint,
   action,
-}: Readonly<{ onClear: () => void; title: string; hint: string; action?: ReactNode }>) {
+}: Readonly<{
+  onClear: () => void;
+  isFiltering: boolean;
+  title: string;
+  hint: string;
+  action?: ReactNode;
+}>) {
   // sticky+clamped so it stays on screen instead of centring across the full scroll width
   return (
     <div className="sticky left-0 flex h-56 w-[min(100%,44rem)] flex-col items-center justify-center gap-2">
-      <div className="bg-surface-3 text-ink-3 flex h-11 w-11 items-center justify-center rounded-full">
+      <div className="bg-accent text-ink-faint flex h-11 w-11 items-center justify-center rounded-full">
         <Search className="h-5 w-5" />
       </div>
-      <p className="text-ink text-sm font-medium">{title}</p>
-      <p className="text-ink-3 text-xs">{hint}</p>
+      <p className="text-foreground text-sm font-medium">{title}</p>
+      <p className="text-ink-faint text-xs">{hint}</p>
       <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
-        <button
-          type="button"
-          onClick={onClear}
-          className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-3 py-1.5 text-xs font-medium"
-        >
-          Clear all filters
-        </button>
+        {/* Only when there is something to clear. Offered unconditionally it was a
+            button that did nothing on an empty master, which teaches people that
+            the control does not work rather than that the master is empty. */}
+        {isFiltering && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="border-border bg-card text-muted-foreground hover:border-line-strong hover:text-foreground rounded-lg border px-3 py-1.5 text-xs font-medium"
+          >
+            Clear all filters
+          </button>
+        )}
         {action}
       </div>
     </div>

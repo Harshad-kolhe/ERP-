@@ -103,5 +103,9 @@ export function countActive(values: Record<string, string>): number {
  * worse than a slightly widened one.
  */
 function sanitize(value: string): string {
-  return value.trim().replaceAll(/[;:]/g, ' ');
+  // Collapse and trim *after* substituting, not before. Trimming first left the
+  // replacements behind as stray whitespace — "ACME: Ltd;" became "ACME  Ltd "
+  // — and a doubled or trailing space makes a `contains` match nothing at all,
+  // which is the silent-empty-result this stripping exists to avoid.
+  return value.replaceAll(/[;:]/g, ' ').replaceAll(/\s+/g, ' ').trim();
 }

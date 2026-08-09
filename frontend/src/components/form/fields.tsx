@@ -48,17 +48,25 @@ export function TextField<TValues extends FieldValues>({
   placeholder,
   autoComplete,
   className,
+  inputMode,
 }: BaseProps<TValues> & {
   type?: 'text' | 'email' | 'password' | 'number' | 'date';
   placeholder?: string;
   autoComplete?: string;
   className?: string;
+  /**
+   * Which on-screen keyboard a touch device should offer. Numeric fields here are
+   * `type="text"` on purpose — a number input silently discards what it cannot
+   * parse, so a half-typed "1." vanishes — which means the keyboard has to be
+   * asked for separately rather than coming with the type.
+   */
+  inputMode?: React.ComponentProps<'input'>['inputMode'];
 }) {
   return (
     <FormField<TValues>
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
+        <FormItem className={className} hasDescription={Boolean(description)}>
           <FormLabel>
             {label}
             <RequiredMark required={required} />
@@ -68,6 +76,7 @@ export function TextField<TValues extends FieldValues>({
               type={type}
               placeholder={placeholder}
               autoComplete={autoComplete}
+              inputMode={inputMode}
               disabled={disabled}
               {...field}
               value={field.value ?? ''}
@@ -93,7 +102,7 @@ export function TextareaField<TValues extends FieldValues>({
     <FormField<TValues>
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem hasDescription={Boolean(description)}>
           <FormLabel>
             {label}
             <RequiredMark required={required} />
@@ -125,7 +134,7 @@ export function SelectField<TValues extends FieldValues>({
     <FormField<TValues>
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem hasDescription={Boolean(description)}>
           <FormLabel>
             {label}
             <RequiredMark required={required} />
@@ -148,6 +157,19 @@ export function SelectField<TValues extends FieldValues>({
   );
 }
 
+/**
+ * What an empty dropdown should say.
+ *
+ * Three states, not two: options present, options still coming, and options that
+ * are never coming because the request failed. Collapsing the last two leaves a
+ * form full of selects reading "Loading…" indefinitely, which sends the user
+ * looking for reference data rather than telling them the call broke.
+ */
+export function selectPlaceholder(options: unknown[], failed: boolean): string {
+  if (options.length > 0) return 'Select…';
+  return failed ? 'Options unavailable' : 'Loading…';
+}
+
 export function CheckboxField<TValues extends FieldValues>({
   name,
   label,
@@ -158,7 +180,7 @@ export function CheckboxField<TValues extends FieldValues>({
     <FormField<TValues>
       name={name}
       render={({ field }) => (
-        <FormItem className="flex-row items-start gap-2.5 space-y-0">
+        <FormItem className="flex-row items-start gap-2.5 space-y-0" hasDescription={Boolean(description)}>
           <FormControl>
             <Checkbox
               checked={!!field.value}

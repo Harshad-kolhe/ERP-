@@ -31,5 +31,11 @@ export function useMasterCount(resource: string, filter?: string) {
   return {
     count: query.data?.totalCount ?? null,
     isLoading: query.isPending,
+    /**
+     * Distinguishes "counting" from "the count failed". Both render an em dash —
+     * never a confident 0 — but only one of them is going to resolve, and the
+     * header says which.
+     */
+    isError: query.isError,
   };
 }

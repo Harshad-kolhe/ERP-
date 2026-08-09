@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { usePermissions } from '@/components/permission/session-provider';
 import type { AssemblyNodeListItem } from '@/lib/api/types';
@@ -9,7 +8,7 @@ import type { AssemblyNodeListItem } from '@/lib/api/types';
 import { ASSEMBLY_NODE_FILTERS } from '../shared/master-filter-fields';
 import { MasterTreeList } from '../shared/master-tree-list';
 import { assemblyNodeColumns } from './assembly-node-columns';
-import type { AssemblyLevelScreen } from './assembly-node-level';
+import { sentenceCase, type AssemblyLevelScreen } from './assembly-node-level';
 
 /**
  * The grid behind all three assembly-node screens.
@@ -19,17 +18,11 @@ import type { AssemblyLevelScreen } from './assembly-node-level';
  * `MasterTreeList` exactly as it does for every other master.
  */
 export function AssemblyNodesTable({ screen }: { screen: AssemblyLevelScreen }) {
-  const router = useRouter();
   const { can } = usePermissions();
 
   // The endpoint enforces the same permission, so this is about not offering a
   // row action that would fail — not about security.
   const canEdit = can(screen.permissions.update);
-
-  const open = useCallback(
-    (row: AssemblyNodeListItem) => router.push(`/masters/${screen.resource}/${row.id}`),
-    [router, screen.resource],
-  );
 
   const columns = useMemo(
     () =>
@@ -59,28 +52,8 @@ export function AssemblyNodesTable({ screen }: { screen: AssemblyLevelScreen }) 
       emptyTitle={`No ${screen.plural.toLowerCase()}`}
       emptyHint={`No ${screen.plural.toLowerCase()} match the current filters.`}
       exportFileName={screen.plural}
-      rowActions={
-        canEdit
-          ? {
-              caption: '',
-              width: 72,
-              render: (row) => (
-                <button
-                  type="button"
-                  className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-2 py-0.5 text-xs font-medium"
-                  onClick={() => open(row)}
-                >
-                  Edit
-                </button>
-              ),
-            }
-          : undefined
-      }
+      editHref={(row) => `/masters/${screen.resource}/${row.id}`}
+      canEdit={canEdit}
     />
   );
-}
-
-/** "sub-assembly" → "Sub-assembly", so the panel heading reads as a title. */
-function sentenceCase(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
 }

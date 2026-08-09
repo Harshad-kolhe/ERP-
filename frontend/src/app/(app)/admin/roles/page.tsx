@@ -5,15 +5,19 @@ import { Can } from '@/components/permission/can';
 import { PageHeader } from '@/components/shell/page-header';
 import { Button } from '@/components/ui/button';
 import { RolesTable } from '@/features/admin/roles/roles-table';
+import { GridSkeleton } from '@/features/masters/shared/master-list-screen';
 
-export const metadata = { title: 'Roles · ERP' };
+// Named apart from Masters › Roles deliberately. The two are different tables
+// behind different permissions, and both used to title this tab "Roles · ERP",
+// so two open tabs were indistinguishable.
+export const metadata = { title: 'Roles & permissions · ERP' };
 
-export default function RolesPage() {
+export default function AdminRolesPage() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <PageHeader
-        title="Roles"
-        description="What each role may do. This is the only place the permission mapping is made — nothing is hardcoded in the application."
+        title="Roles & permissions"
+        description="What each role may do. This is the only place the permission mapping is made — nothing is hardcoded in the application. Distinct from Masters › Roles, which is the reference table."
         actions={
           <Can permission="admin.role.create">
             <Button size="sm" asChild>
@@ -23,8 +27,8 @@ export default function RolesPage() {
         }
       />
 
-      <div className="flex min-h-0 flex-1 flex-col p-6">
-        <Suspense fallback={<p className="text-muted-foreground text-sm">Loading…</p>}>
+      <div className="flex min-h-0 flex-1 flex-col p-4">
+        <Suspense fallback={<GridSkeleton />}>
           <RolesTable />
         </Suspense>
       </div>

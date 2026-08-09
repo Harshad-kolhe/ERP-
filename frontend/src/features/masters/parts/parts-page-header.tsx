@@ -1,10 +1,20 @@
 'use client';
 
-import { Download, FileText, Layers, MapPin, SendHorizontal, Upload } from 'lucide-react';
+import {
+  Download,
+  FileText,
+  Layers,
+  MapPin,
+  MoreHorizontal,
+  Plus,
+  SendHorizontal,
+  Upload,
+} from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { Can } from '@/components/permission/can';
+import { Button } from '@/components/ui/button';
 import Popover from '@/components/tree-list/popover';
 import { MasterPageHeader } from '../shared/master-page-header';
 
@@ -38,21 +48,18 @@ export function PartsPageHeader() {
       actions={
         <>
       <Can permission="masters.part.create">
-        <Link
-          href="/masters/parts/new"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground inline-flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[13px] font-semibold shadow-sm"
-        >
-          <span aria-hidden="true" className="-mt-px text-base leading-none">
-            +
-          </span>
-          New Part
-        </Link>
+        <Button size="sm" asChild>
+          <Link href="/masters/parts/new">
+            <Plus className="size-4" aria-hidden />
+            New Part
+          </Link>
+        </Button>
       </Can>
 
       <Can permission="masters.part.import">
         <Link
           href="/api/v1/masters/parts/import-template"
-          className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors max-sm:hidden"
+          className="border-border bg-card text-muted-foreground hover:border-line-strong hover:text-foreground inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors max-sm:hidden"
           title="An empty workbook whose headings are exactly what the importer expects"
         >
           <Download className="h-3.5 w-3.5" />
@@ -60,7 +67,12 @@ export function PartsPageHeader() {
         </Link>
       </Can>
 
-      <Popover align="right" width={252} title="More actions" label={<span aria-hidden="true">···</span>}>
+      <Popover
+        align="right"
+        width={252}
+        title="More actions"
+        label={<MoreHorizontal className="size-4" aria-hidden />}
+      >
         {() => (
           <div>
             <Can permission="masters.part.import">
@@ -105,7 +117,7 @@ function MenuLink({ href, icon, children }: { href: string; icon: ReactNode; chi
   return (
     <Link
       href={href}
-      className="hover:bg-surface-3 text-ink flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs"
+      className="hover:bg-accent text-foreground flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs"
     >
       {icon}
       {children}
@@ -126,7 +138,7 @@ function MenuItemDisabled({
     <span
       title={reason}
       aria-disabled="true"
-      className="text-ink-3 flex w-full cursor-default items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs"
+      className="text-ink-faint flex w-full cursor-default items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs"
     >
       {icon}
       {children}

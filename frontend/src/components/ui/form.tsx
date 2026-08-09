@@ -53,7 +53,7 @@ const useFormField = () => {
     throw new Error("useFormField should be used within <FormField>")
   }
 
-  const { id } = itemContext
+  const { id, hasDescription } = itemContext
 
   return {
     id,
@@ -61,23 +61,42 @@ const useFormField = () => {
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
+    hasDescription,
     ...fieldState,
   }
 }
 
 type FormItemContextValue = {
   id: string
+  hasDescription: boolean
 }
 
 const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue
 )
 
-function FormItem({ className, ...props }: React.ComponentProps<"div">) {
+/**
+ * `hasDescription` says whether this item actually renders a `FormDescription`.
+ *
+ * Stock shadcn points every control's `aria-describedby` at the description id
+ * unconditionally, but the field vocabulary in `components/form/fields.tsx`
+ * renders that element only when the field declares one — so most inputs in the
+ * app shipped a reference to an element that does not exist. A dangling IDREF is
+ * a real defect for a screen reader, not just an audit finding: the control ends
+ * up described by nothing rather than by its error.
+ *
+ * Carried on the context so the fix lives here rather than in five call sites,
+ * and destructured before the spread so it never lands on the DOM node.
+ */
+function FormItem({
+  className,
+  hasDescription = false,
+  ...props
+}: React.ComponentProps<"div"> & { hasDescription?: boolean }) {
   const id = React.useId()
 
   return (
-    <FormItemContext.Provider value={{ id }}>
+    <FormItemContext.Provider value={{ id, hasDescription }}>
       <div
         data-slot="form-item"
         className={cn("grid gap-2", className)}
@@ -105,17 +124,22 @@ function FormLabel({
 }
 
 function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  const { error, formItemId, formDescriptionId, formMessageId, hasDescription } =
+    useFormField()
+
+  // Built from what is actually on the page, so it never names a missing element.
+  // Undefined rather than an empty string when there is nothing to point at: an
+  // empty aria-describedby is itself invalid.
+  const describedBy =
+    [hasDescription && formDescriptionId, error && formMessageId]
+      .filter(Boolean)
+      .join(" ") || undefined
 
   return (
     <Slot
       data-slot="form-control"
       id={formItemId}
-      aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
+      aria-describedby={describedBy}
       aria-invalid={!!error}
       {...props}
     />

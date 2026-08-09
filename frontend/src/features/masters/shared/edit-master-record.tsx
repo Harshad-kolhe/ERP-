@@ -31,7 +31,7 @@ export function EditMasterRecord<TDetail>({
 
   if (isPending) {
     return (
-      <div className="text-ink-2 flex items-center gap-2 p-6 text-sm">
+      <div role="status" className="text-muted-foreground flex items-center gap-2 p-6 text-sm">
         <Spinner className="size-4" />
         Loading {noun}…
       </div>

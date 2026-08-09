@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 
 import { Card, Section, StatusPill } from '@/components/landing/primitives';
+import { BrandMark } from '@/components/shell/brand-mark';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import {
@@ -46,9 +47,9 @@ export default async function LandingPage() {
   return (
     <div className="flex min-h-svh flex-col">
       <header className="bg-background/85 sticky top-0 z-20 border-b backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-6">
+        <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-6">
           <span className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-            <span className="bg-primary size-2 rounded-full" />
+            <BrandMark />
             {PROJECT.name}
           </span>
           <div className="ml-auto flex items-center gap-1.5">
@@ -63,7 +64,7 @@ export default async function LandingPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-6">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6">
         <Hero />
 
         <Section
@@ -103,7 +104,12 @@ export default async function LandingPage() {
           title="By department"
           lede="The full scope of the system, area by area. Each one is marked with whether it is ready today, being built now, or still planned — so nothing here promises a screen you cannot find."
         >
-          <div className="grid gap-4 sm:grid-cols-2">
+          {/* A third column past 1280px. The container widened from max-w-5xl,
+              which left ~450px of dead margin on each side of a 1080p screen; two
+              columns at the new width would just be two very wide cards. Prose
+              blocks keep their own max-w-3xl, which is the real reason the page
+              is not simply full-bleed. */}
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {AREAS.map((area) => {
               const Icon = area.icon;
 
@@ -204,7 +210,7 @@ export default async function LandingPage() {
       </main>
 
       <footer className="border-t py-8">
-        <div className="text-muted-foreground mx-auto max-w-5xl px-6 text-[12px]">
+        <div className="text-muted-foreground mx-auto max-w-7xl px-6 text-[12px]">
           <p>
             {PROJECT.name} — internal system for engineer-to-order machine manufacturing. Technical
             documentation lives in <code className="font-mono">docs/</code>.

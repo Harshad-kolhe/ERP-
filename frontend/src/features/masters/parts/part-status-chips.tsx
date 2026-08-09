@@ -2,8 +2,8 @@
 
 import { useServerTable } from '@/components/data-table/use-server-table';
 import { replaceOwnedTerms, valuesFor } from '../shared/filter-terms';
+import { STATUS_DOT } from '../shared/master-columns';
 import { usePartCounts } from '@/features/dashboard/use-dashboard';
-import type { PartStatus } from '@/lib/api/types';
 
 /**
  * The status band above the Part Master grid: how many parts are in each state,
@@ -37,12 +37,12 @@ export function PartStatusChips() {
     });
 
   const chips: { id: string; label: string; count: number; dot: string }[] = [
-    { id: '', label: 'All parts', count: total, dot: 'bg-ink-3' },
+    { id: '', label: 'All parts', count: total, dot: 'bg-ink-faint' },
     ...counts.map((entry) => ({
       id: entry.status,
       label: entry.label,
       count: entry.count,
-      dot: DOT[entry.status],
+      dot: STATUS_DOT[entry.status] ?? 'bg-ink-faint',
     })),
   ];
 
@@ -50,7 +50,7 @@ export function PartStatusChips() {
     <div
       role="group"
       aria-label="Filter by status"
-      className="border-line bg-surface-2 inline-flex shrink-0 gap-0.5 overflow-x-auto rounded-xl border p-1"
+      className="border-border bg-muted inline-flex shrink-0 gap-0.5 overflow-x-auto rounded-xl border p-1"
     >
       {chips.map((chip) => {
         const isOn = chip.id === active;
@@ -64,16 +64,16 @@ export function PartStatusChips() {
             onClick={() => select(chip.id)}
             className={`flex h-11 items-center gap-2 rounded-lg px-3 text-left transition-colors ${
               isOn
-                ? 'bg-surface text-ink ring-line-strong shadow-sm ring-1 ring-inset'
-                : 'text-ink-2 hover:bg-surface-3 bg-transparent'
+                ? 'bg-card text-foreground ring-line-strong shadow-sm ring-1 ring-inset'
+                : 'text-muted-foreground hover:bg-accent bg-transparent'
             }`}
           >
             <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${chip.dot}`} />
             <span className="flex flex-col">
-              <span className="text-ink-3 text-[11px] leading-tight whitespace-nowrap">
+              <span className="text-ink-faint text-[11px] leading-tight whitespace-nowrap">
                 {chip.label}
               </span>
-              <span className="text-ink text-base leading-tight font-semibold tabular-nums">
+              <span className="text-foreground text-base leading-tight font-semibold tabular-nums">
                 {/* An em dash while loading, not 0. Zero is a fact about the data
                     and would send someone looking for parts that are simply not
                     counted yet. */}
@@ -86,12 +86,3 @@ export function PartStatusChips() {
     </div>
   );
 }
-
-/** One source for the status colours, so a chip cannot disagree with the grid's pill. */
-const DOT: Record<PartStatus, string> = {
-  Draft: 'bg-ink-3',
-  PendingApproval: 'bg-amber-500',
-  Approved: 'bg-emerald-500',
-  Rejected: 'bg-rose-500',
-  Hold: 'bg-sky-500',
-};

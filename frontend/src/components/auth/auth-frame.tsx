@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { BrandMark } from '@/components/shell/brand-mark';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 /**
@@ -23,10 +24,6 @@ export function AuthFrame({
 }) {
   return (
     <div className="auth-canvas relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden p-6">
-      <div className="absolute top-4 right-4 z-10">
-        <ThemeToggle />
-      </div>
-
       <main className="relative z-10 w-full max-w-sm">
         <div className="bg-card/85 rounded-xl border p-8 shadow-lg backdrop-blur-sm">
           <header className="mb-6 space-y-1.5">
@@ -34,7 +31,7 @@ export function AuthFrame({
               href="/"
               className="text-primary mb-4 flex items-center gap-2 text-sm font-medium hover:underline"
             >
-              <span className="bg-primary size-2 rounded-full" />
+              <BrandMark />
               ERP
             </Link>
             <h1 className="text-2xl font-semibold tracking-tight">{heading}</h1>
@@ -46,6 +43,14 @@ export function AuthFrame({
 
         {footer ? <p className="text-muted-foreground mt-6 text-center text-sm">{footer}</p> : null}
       </main>
+
+      {/* Visually top-right, but last in the DOM on purpose. Placed first it was
+          the first thing Tab reached on the sign-in screen — a theme switcher
+          standing between the user and the email field. Order and position are
+          allowed to disagree in this direction for a decorative control. */}
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
     </div>
   );
 }

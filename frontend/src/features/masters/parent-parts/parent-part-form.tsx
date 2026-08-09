@@ -5,7 +5,13 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { CheckboxField, FormError, SelectField, TextField } from '@/components/form/fields';
+import {
+  CheckboxField,
+  FormError,
+  SelectField,
+  TextField,
+  selectPlaceholder,
+} from '@/components/form/fields';
 import { ReferenceField, referenceSource } from '@/components/form/reference-field';
 import { useApiForm } from '@/components/form/use-api-form';
 import { Button } from '@/components/ui/button';
@@ -49,7 +55,7 @@ type ParentPartFormValues = z.infer<typeof schema>;
 export function ParentPartForm({ parentPart }: { parentPart?: ParentPartDetail }) {
   const router = useRouter();
   const isNew = !parentPart;
-  const { lookups } = useLookups(LOOKUPS);
+  const { lookups, isError: lookupsFailed } = useLookups(LOOKUPS);
 
   /**
    * The lines live outside react-hook-form.
@@ -148,9 +154,13 @@ export function ParentPartForm({ parentPart }: { parentPart?: ParentPartDetail }
     <Form {...form}>
       <form onSubmit={onSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
-          <section className="max-w-4xl">
-            <h2 className="text-ink mb-1 text-sm font-semibold">Build</h2>
-            <p className="text-ink-2 mb-4 text-sm">
+          {/* One rule for form width: a screen-filling data-entry grid gets
+              max-w-[1400px] (MasterForm), a short list of fields gets max-w-3xl.
+              This section is seven fields. The components table below is
+              deliberately outside it — a ten-column editable grid needs the room. */}
+          <section className="max-w-3xl">
+            <h2 className="text-foreground mb-1 text-sm font-semibold">Build</h2>
+            <p className="text-muted-foreground mb-4 text-sm">
               {isNew
                 ? 'Choose the part being built. A part may have one build; if it already has one you will be told.'
                 : 'The part being built cannot be changed — that would re-point the whole build at something else.'}
@@ -167,8 +177,8 @@ export function ParentPartForm({ parentPart }: { parentPart?: ParentPartDetail }
                 />
               ) : (
                 <div className="sm:col-span-2">
-                  <p className="text-ink-2 text-xs font-medium">Parent part</p>
-                  <p className="text-ink font-mono text-sm">{partLabel}</p>
+                  <p className="text-muted-foreground text-xs font-medium">Parent part</p>
+                  <p className="text-foreground font-mono text-sm">{partLabel}</p>
                 </div>
               )}
 
@@ -190,12 +200,14 @@ export function ParentPartForm({ parentPart }: { parentPart?: ParentPartDetail }
                 name="unitOfMeasureCode"
                 label="Unit of measure"
                 options={optionsOf(lookups, 'uom')}
+                placeholder={selectPlaceholder(optionsOf(lookups, 'uom'), lookupsFailed)}
               />
 
               <SelectField<ParentPartFormValues>
                 name="category"
                 label="Category"
                 options={optionsOf(lookups, 'part.categoryCode')}
+                placeholder={selectPlaceholder(optionsOf(lookups, 'part.categoryCode'), lookupsFailed)}
               />
 
               <TextField<ParentPartFormValues> name="drawingNumber" label="Drawing number" />
@@ -205,8 +217,8 @@ export function ParentPartForm({ parentPart }: { parentPart?: ParentPartDetail }
           </section>
 
           <section className="mt-8">
-            <h2 className="text-ink mb-1 text-sm font-semibold">Components</h2>
-            <p className="text-ink-2 mb-4 max-w-3xl text-sm">
+            <h2 className="text-foreground mb-1 text-sm font-semibold">Components</h2>
+            <p className="text-muted-foreground mb-4 max-w-3xl text-sm">
               Line weight and amount are computed from the quantity — the figures below are a
               preview of what the server stores, and the totals on the grid come from the same
               calculation rather than from anything typed in.
@@ -216,7 +228,7 @@ export function ParentPartForm({ parentPart }: { parentPart?: ParentPartDetail }
           </section>
         </div>
 
-        <div className="border-line bg-surface flex items-center justify-between gap-3 border-t px-6 py-3">
+        <div className="border-border bg-card flex items-center justify-between gap-3 border-t px-6 py-3">
           <div className="min-w-0 flex-1">
             <FormError message={lineError ?? formError} />
           </div>

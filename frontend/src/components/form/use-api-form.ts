@@ -41,6 +41,20 @@ export function useApiForm<TValues extends FieldValues, TResult = unknown>({
   const form = useForm<TValues, unknown, TValues>({
     resolver: zodResolver(schema),
     defaultValues,
+    /*
+     * Validate a field once the user has left it, then keep it live.
+     *
+     * The default is `onSubmit`, which on a form this size means filling in forty
+     * fields and being told about the third one at the end. `onChange` is the
+     * other extreme — it marks a required field invalid while you are still typing
+     * the first character of it.
+     *
+     * `onTouched` over `onBlur` for what happens *after* the first error: both
+     * first check on blur, but `onBlur` leaves the message sitting there while the
+     * user corrects the field and only clears it when they leave again, so the
+     * screen contradicts what is in the box.
+     */
+    mode: 'onTouched',
   });
 
   const mutation = useMutation({

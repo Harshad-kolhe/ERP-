@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 import { usePermissions } from '@/components/permission/session-provider';
 import type { TreeColumn } from '@/components/tree-list/tree-list';
-import type { PartListItem, PartStatus } from '@/lib/api/types';
+import type { PartListItem } from '@/lib/api/types';
 import { PART_FILTERS } from '../shared/master-filter-fields';
 import { MasterTreeList } from '../shared/master-tree-list';
 import {
@@ -12,24 +12,9 @@ import {
   dateColumn,
   numberColumn,
   serialNumberColumn,
+  statusColumn,
   textColumn,
 } from '../shared/master-columns';
-
-const STATUS_STYLES: Record<PartStatus, string> = {
-  Draft: 'bg-surface-3 text-ink-2',
-  PendingApproval: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
-  Approved: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
-  Rejected: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
-  Hold: 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
-};
-
-const STATUS_LABELS: Record<PartStatus, string> = {
-  Draft: 'Draft',
-  PendingApproval: 'Pending approval',
-  Approved: 'Approved',
-  Rejected: 'Rejected',
-  Hold: 'On hold',
-};
 
 /**
  * The Part Master grid.
@@ -58,28 +43,19 @@ export function PartsTable() {
    * not on that allow-list is rejected with 400 rather than concatenated into SQL,
    * so the sortable set is finite and deliberate.
    *
-   * Parts keeps its own status pill rather than the shared one: `PartStatus` is a
-   * separate wire contract from `MasterStatus`, and collapsing them here would
-   * hide the day one of them gains a member the other does not have.
+   * The status pill comes from `statusColumn` like every other master's. It used to
+   * be rebuilt here, on the grounds that `PartStatus` is a separate wire contract
+   * from `MasterStatus` — true, but the copy also dropped `filterOperator: 'eq'`,
+   * and that is not cosmetic: clicking a status chip writes `status:eq:Approved`,
+   * and typing in any other column filter then re-derived the operator, silently
+   * rewriting it to `status:contains:Approved`. The shared builder keys off the
+   * value rather than the enum type, so the two contracts stay separate.
    */
   const columns = useMemo<TreeColumn<PartListItem>[]>(
     () => [
       serialNumberColumn<PartListItem>(),
       activeColumn<PartListItem>(),
-      {
-        dataField: 'status',
-        caption: 'Status',
-        width: 150,
-        minWidth: 120,
-        calculateCellValue: (row) => STATUS_LABELS[row.status] ?? '',
-        cellRender: (row) => (
-          <span
-            className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLES[row.status] ?? ''}`}
-          >
-            {STATUS_LABELS[row.status] ?? row.status}
-          </span>
-        ),
-      },
+      statusColumn<PartListItem>(),
       textColumn('partNumber', 'System part number', 170, { mono: true }),
 
       // Not a legacy grid column. Off by default, but here because it is the only

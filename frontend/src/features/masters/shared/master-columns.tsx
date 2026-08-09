@@ -1,15 +1,38 @@
 import type { TreeColumn } from '@/components/tree-list/tree-list';
 import type { MasterStatus } from '@/lib/api/types';
 
-const STATUS_STYLES: Record<MasterStatus, string> = {
-  Draft: 'bg-surface-3 text-ink-2',
-  PendingApproval: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
-  Approved: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
-  Rejected: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
-  Hold: 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
+/**
+ * The approval lifecycle, in one place.
+ *
+ * These were written out three times — here, in `parts-table`, and in
+ * `part-status-chips` — in two different shapes, which is how a status could be
+ * amber in the grid and a different amber on the chip above it. Anything that
+ * renders a status reads them from here.
+ *
+ * Keyed by plain string rather than `Record<MasterStatus, …>` on purpose:
+ * `PartStatus` and `MasterStatus` are separate wire contracts that happen to
+ * agree today, and typing these to one of them would force the other to cast.
+ * A member added to only one of them lands here as a lookup miss, which the
+ * callers already render as the raw value rather than as blank.
+ */
+export const STATUS_TONE: Record<string, string> = {
+  Draft: 'bg-accent text-muted-foreground',
+  PendingApproval: 'bg-warning/15 text-warning-foreground',
+  Approved: 'bg-success/15 text-success-foreground',
+  Rejected: 'bg-danger/15 text-danger-foreground',
+  Hold: 'bg-info/15 text-info-foreground',
 };
 
-const STATUS_LABELS: Record<MasterStatus, string> = {
+/** The same five states as a solid dot, for the status band above the grid. */
+export const STATUS_DOT: Record<string, string> = {
+  Draft: 'bg-ink-faint',
+  PendingApproval: 'bg-warning',
+  Approved: 'bg-success',
+  Rejected: 'bg-danger',
+  Hold: 'bg-info',
+};
+
+export const STATUS_LABEL: Record<string, string> = {
   Draft: 'Draft',
   PendingApproval: 'Pending approval',
   Approved: 'Approved',
@@ -108,14 +131,14 @@ export function statusColumn<T>(dataField = 'status'): TreeColumn<T> {
     filterOperator: 'eq',
     width: 150,
     minWidth: 120,
-    calculateCellValue: (row) => STATUS_LABELS[read(row, dataField) as MasterStatus] ?? '',
+    calculateCellValue: (row) => STATUS_LABEL[read(row, dataField) as MasterStatus] ?? '',
     cellRender: (row) => {
       const status = read(row, dataField) as MasterStatus;
       return (
         <span
-          className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLES[status] ?? ''}`}
+          className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_TONE[status] ?? ''}`}
         >
-          {STATUS_LABELS[status] ?? String(status)}
+          {STATUS_LABEL[status] ?? String(status)}
         </span>
       );
     },
@@ -290,8 +313,8 @@ function Pill({ tone, children }: { tone: 'ok' | 'muted'; children: React.ReactN
     <span
       className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
         tone === 'ok'
-          ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
-          : 'bg-surface-3 text-ink-3'
+          ? 'bg-success/15 text-success-foreground'
+          : 'bg-accent text-ink-faint'
       }`}
     >
       {children}

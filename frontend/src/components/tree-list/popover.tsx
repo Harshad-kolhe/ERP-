@@ -60,23 +60,34 @@ export default function Popover({ label, title, align = 'right', width = 260, ch
         type="button"
         title={title}
         aria-expanded={open}
-        aria-haspopup="dialog"
         aria-controls={open ? panelId : undefined}
         onClick={() => setOpen((value) => !value)}
-        className={`border-line text-ink-2 hover:border-line-strong hover:text-ink focus-visible:ring-brand inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 ${
-          open ? 'bg-surface-3 text-ink' : 'bg-surface'
+        className={`border-border text-muted-foreground hover:border-line-strong hover:text-foreground focus-visible:ring-primary inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 ${
+          open ? 'bg-accent text-foreground' : 'bg-card'
         }`}
       >
         {label}
       </button>
 
       {open && (
+        /*
+         * A plain container, not a `dialog`.
+         *
+         * It used to carry `role="dialog"` plus `aria-haspopup="dialog"`, which
+         * promise assistive tech a modal boundary with managed focus — the exact
+         * opposite of what this is, by design (see the Escape-only handler above:
+         * Tab must keep moving). `aria-label={title}` was also undefined for the
+         * column chooser, which passes no title, leaving an unnamed dialog.
+         *
+         * The trigger's `aria-expanded` and `aria-controls` already state the
+         * whole relationship, and they are honest about it.
+         */
         <div
           id={panelId}
-          role="dialog"
-          aria-label={title}
-          className="border-line bg-surface animate-pop-in absolute top-9 z-50 rounded-xl border p-1.5 shadow-xl shadow-black/10"
-          style={{ width, [align]: 0 }}
+          className="border-border bg-card animate-pop-in absolute top-9 z-50 rounded-xl border p-1.5 shadow-xl shadow-black/10"
+          // Clamped so a right-aligned panel next to a right-edge trigger cannot
+          // push the page sideways on a narrow viewport.
+          style={{ width, maxWidth: 'calc(100vw - 1rem)', [align]: 0 }}
         >
           {children(closeAndReturnFocus)}
         </div>

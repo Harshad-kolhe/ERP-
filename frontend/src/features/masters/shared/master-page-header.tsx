@@ -85,7 +85,7 @@ export function MasterPageHeader({
   const Icon = ICONS[icon];
 
   return (
-    <header className="border-line from-surface to-surface-2 relative flex shrink-0 flex-wrap items-center gap-x-4 gap-y-3 border-b bg-gradient-to-r px-4 py-3">
+    <header className="border-border from-card to-muted relative flex shrink-0 flex-wrap items-center gap-x-4 gap-y-3 border-b bg-gradient-to-r px-4 py-3">
       {/* A hairline of brand colour along the top. Enough to make the band read as
           a header rather than as the first row of the page. */}
       <span
@@ -98,7 +98,7 @@ export function MasterPageHeader({
       </span>
 
       <div className="min-w-0">
-        <h1 className="text-ink truncate text-[15px] leading-tight font-semibold tracking-tight">
+        <h1 className="text-foreground truncate text-[15px] leading-tight font-semibold tracking-tight">
           {title}
         </h1>
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -114,7 +114,7 @@ export function MasterPageHeader({
 }
 
 function Stat({ resource, stat }: { resource: string; stat: MasterStat }) {
-  const { count, isLoading } = useMasterCount(resource, stat.filter);
+  const { count, isLoading, isError } = useMasterCount(resource, stat.filter);
 
   // Emphasis only when there is something to act on. A queue badge that glows at
   // zero teaches people to ignore it on the day it is not zero.
@@ -122,22 +122,26 @@ function Stat({ resource, stat }: { resource: string; stat: MasterStat }) {
 
   return (
     <span
+      // The em dash means "counting" or "count failed"; the tooltip is the only
+      // thing that separates the two, and a stat that never resolves should not
+      // look identical to one that is about to.
+      title={isError ? 'Count unavailable' : undefined}
       className={`inline-flex items-baseline gap-1.5 rounded-md border px-2 py-0.5 ${
         live
-          ? 'border-amber-500/40 bg-amber-500/10'
-          : 'border-line bg-surface-2/60'
+          ? 'border-warning/40 bg-warning/10'
+          : 'border-border bg-muted/60'
       }`}
     >
       <span
         className={`text-[13px] leading-none font-semibold tabular-nums ${
-          live ? 'text-amber-700 dark:text-amber-300' : 'text-ink'
+          live ? 'text-warning-foreground' : 'text-foreground'
         }`}
       >
         {/* An em dash while counting, never 0 — zero is a fact about the data and
             would send somebody looking for records that are simply not counted yet. */}
         {isLoading || count === null ? '—' : count.toLocaleString('en-IN')}
       </span>
-      <span className="text-ink-3 text-[11px] leading-none">{stat.label}</span>
+      <span className="text-ink-faint text-[11px] leading-none">{stat.label}</span>
     </span>
   );
 }

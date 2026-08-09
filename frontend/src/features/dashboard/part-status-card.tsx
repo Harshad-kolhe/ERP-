@@ -8,7 +8,23 @@ import { usePartCounts } from './use-dashboard';
 
 /** Part master by lifecycle state. Every row opens the list filtered to that state. */
 export function PartStatusCard() {
-  const { counts, total, isLoading } = usePartCounts();
+  const { counts, total, isLoading, isError } = usePartCounts();
+
+  /*
+   * A failed request is not an empty master.
+   *
+   * `usePartCounts` coerces every count to 0 on failure, so without this branch
+   * the card rendered "No parts yet." over a dead API — a confident, wrong,
+   * reassuring answer, and the one failure mode worse than an error message.
+   * `QueueStrip` beside it has always handled this; the two read the same hook.
+   */
+  if (isError) {
+    return (
+      <p className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">
+        Could not read the part master. The API may be unavailable.
+      </p>
+    );
+  }
 
   return (
     <section className="bg-card rounded-md border">
@@ -40,7 +56,7 @@ export function PartStatusCard() {
 
       {!isLoading && total === 0 ? (
         <p className="text-muted-foreground border-t px-4 py-3 text-[13px]">
-          No parts yet. They arrive with the part create screen, or the Excel import.
+          No parts yet. Add one from the Part Master, or bring them in with the Excel import.
         </p>
       ) : null}
     </section>

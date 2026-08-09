@@ -59,7 +59,7 @@ const schema = z.object({
 export function BusinessUnitForm({ unit }: { unit?: BusinessUnitDetail }) {
   const router = useRouter();
   const isNew = !unit;
-  const { lookups } = useLookups(LOOKUPS);
+  const { lookups, isError: lookupsFailed } = useLookups(LOOKUPS);
 
   const save = useSaveMasterRecord<BusinessUnitFormValues>({
     resource: 'business-units',
@@ -154,6 +154,7 @@ export function BusinessUnitForm({ unit }: { unit?: BusinessUnitDetail }) {
       submitLabel={isNew ? 'Create business unit' : 'Save changes'}
       onCancel={() => router.push('/masters/business-units')}
       lookups={lookups}
+      lookupsFailed={lookupsFailed}
       title={isNew ? 'New business unit' : 'Edit business unit'}
       backLabel="Business units"
       identityCode={unit?.businessName}

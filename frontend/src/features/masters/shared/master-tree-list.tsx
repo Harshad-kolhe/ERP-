@@ -5,15 +5,16 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useServerTable, type ServerTableState } from '@/components/data-table/use-server-table';
 import TreeList, {
+  FilterChip,
   type SortDescriptor,
   type TreeColumn,
-  type TreeListProps,
 } from '@/components/tree-list/tree-list';
 import type { PagedResult } from '@/lib/api/types';
 import { countActive, replaceOwnedTerms, valuesFor, type FilterTerm } from './filter-terms';
 import {
   MasterFilters,
   MasterFiltersTrigger,
+  displayValue,
   filterLookups,
   type MasterFilterField,
 } from './master-filters';
@@ -27,7 +28,6 @@ import { useMasterList } from './use-master-list';
  * every row type in the app.
  */
 type Indexable<T> = T & Record<string, unknown>;
-type TreeListRowProps<T> = TreeListProps<Indexable<T>>;
 
 /**
  * Every master list screen.
@@ -56,16 +56,14 @@ export function MasterTreeList<TRow>({
   stretchColumn,
   exportFileName,
   toolbarExtras,
-  externalFilterChips,
-  onClearExternalFilters,
   onRowClick,
-  rowActions,
   editHref,
   canEdit = false,
   filters,
   filtersNoun,
+  basePath = '/masters',
 }: {
-  /** Path segment under `/masters`, e.g. `suppliers`. */
+  /** Path segment under `basePath`, e.g. `suppliers`. */
   resource: string;
   columns: TreeColumn<TRow>[];
   /** Field holding the row's unique id. */
@@ -78,10 +76,7 @@ export function MasterTreeList<TRow>({
   stretchColumn?: string;
   exportFileName: string;
   toolbarExtras?: React.ReactNode;
-  externalFilterChips?: React.ReactNode;
-  onClearExternalFilters?: () => void;
   onRowClick?: (row: TRow) => void;
-  rowActions?: TreeListRowProps<TRow>['rowActions'];
   /**
    * Where a row opens. Supplying this gives every grid the same Edit affordance —
    * a pinned button plus click-anywhere-on-the-row — instead of six grids each
@@ -98,6 +93,12 @@ export function MasterTreeList<TRow>({
   filters?: readonly MasterFilterField[];
   /** Names the panel: "Part" gives "Part filters". Defaults to the aria label. */
   filtersNoun?: string;
+  /**
+   * Endpoint prefix. Defaults to `/masters`; the identity screens live under
+   * `/admin`. It also separates the two in the query cache, which matters because
+   * `/masters/roles` and `/admin/roles` are different tables with the same name.
+   */
+  basePath?: string;
 }) {
   const router = useRouter();
   const { state, apply, queryString } = useServerTable();
@@ -110,7 +111,7 @@ export function MasterTreeList<TRow>({
     },
     [editHref, canEdit, router],
   );
-  const { data, isFetching } = useMasterList<TRow>(resource, queryString);
+  const { data, isPlaceholderData } = useMasterList<TRow>(resource, queryString, basePath);
 
   const rows = useMemo(() => data?.items ?? [], [data]);
 
@@ -142,8 +143,10 @@ export function MasterTreeList<TRow>({
     [apply],
   );
 
+  // `replace`: the search box writes on every keystroke, and pushing would put one
+  // history entry per character typed.
   const onSearchChange = useCallback(
-    (value: string) => apply({ search: value.trim() || null }),
+    (value: string) => apply({ search: value.trim() || null }, 'replace'),
     [apply],
   );
 
@@ -197,9 +200,10 @@ export function MasterTreeList<TRow>({
 
   const filterValues = useMemo(() => valuesFor(state.filter, columnOwned), [state.filter, columnOwned]);
 
+  // `replace`, for the same reason as the search box: this row writes per keystroke.
   const onFilterValuesChange = useCallback(
     (next: Record<string, string>) =>
-      apply({ filter: replaceOwnedTerms(state.filter, columnOwned, toTerms(next)) }),
+      apply({ filter: replaceOwnedTerms(state.filter, columnOwned, toTerms(next)) }, 'replace'),
     [apply, state.filter, columnOwned, toTerms],
   );
 
@@ -222,6 +226,42 @@ export function MasterTreeList<TRow>({
     () => apply({ filter: replaceOwnedTerms(state.filter, panelOwned, []) }),
     [apply, state.filter, panelOwned],
   );
+
+  /**
+   * The panel's applied filters, as chips in the grid's active bar.
+   *
+   * Without these the panel was the one filter surface with nothing to show for
+   * itself: the grid said "Active" and listed only the column row's terms, so a
+   * filter applied from the panel narrowed the rows invisibly. Worst after a
+   * reload, where the panel starts closed and the only clue was a count on a
+   * button.
+   */
+  const panelChips = useMemo(
+    () =>
+      panelFields
+        .filter((field) => (panelValues[field.field] ?? '').trim() !== '')
+        .map((field) => (
+          <FilterChip
+            key={field.field}
+            label={field.label}
+            value={displayValue(field, panelValues[field.field] ?? '', lookups)}
+            onClear={() => applyPanel({ ...panelValues, [field.field]: '' })}
+          />
+        )),
+    [panelFields, panelValues, lookups, applyPanel],
+  );
+
+  /**
+   * One write that clears everything the user can see.
+   *
+   * It has to be one. Clearing used to be three sequential calls — search, then
+   * the column row, then the page's own filters — and each rebuilt the URL from
+   * the render it was queued in, so the last one restored what the first two had
+   * removed and "Clear all" left the grid filtered. Setting both keys to null in a
+   * single patch also reaches the status chips above the grid, whose term lives in
+   * the same string but belongs to no filter surface at all.
+   */
+  const clearAll = useCallback(() => apply({ search: null, filter: null }), [apply]);
 
   return (
     <TreeList<Indexable<TRow>>
@@ -274,8 +314,9 @@ export function MasterTreeList<TRow>({
       stretchColumn={stretchColumn}
       exportLabel="Export page"
       exportFileName={exportFileName}
-      externalFilterChips={externalFilterChips}
-      onClearExternalFilters={onClearExternalFilters}
+      externalFilterChips={panelChips.length > 0 ? panelChips : undefined}
+      onClearAll={clearAll}
+      isStale={isPlaceholderData}
       /*
        * Navigating is the Edit button's job and nothing else's.
        *
@@ -290,28 +331,30 @@ export function MasterTreeList<TRow>({
        */
       onRowClick={onRowClick}
       rowActions={
-        rowActions ??
-        (editHref && canEdit
+        editHref && canEdit
           ? {
-              caption: '',
-              width: 72,
+              // Named rather than blank: an empty caption renders a column header
+              // with no accessible name, which a screen reader reads as nothing at
+              // all where every other column announces itself.
+              caption: 'Actions',
+              width: 88,
               render: (row) => (
                 <button
                   type="button"
-                  className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-2 py-0.5 text-xs font-medium"
+                  className="border-border bg-card text-muted-foreground hover:border-line-strong hover:text-foreground focus-visible:ring-ring rounded-lg border px-2 py-0.5 text-xs font-medium focus-visible:ring-2 focus-visible:outline-none"
                   onClick={() => openRow(row)}
                 >
                   Edit
                 </button>
               ),
             }
-          : undefined)
+          : undefined
       }
       // Flat list: nothing to expand, so the state is a constant.
       expandedKeys={NO_EXPANDED}
       onExpandedKeysChange={noop}
       className="min-h-0 flex-1"
-      footerBar={<Pager page={data} state={state} apply={apply} isFetching={isFetching} />}
+      footerBar={<Pager page={data} state={state} apply={apply} isStale={isPlaceholderData} />}
     />
   );
 }
@@ -320,22 +363,26 @@ function Pager<TRow>({
   page,
   state,
   apply,
-  isFetching,
+  isStale,
 }: {
   page: PagedResult<TRow> | undefined;
   state: ServerTableState;
   apply: (patch: Partial<ServerTableState>) => void;
-  isFetching: boolean;
+  /** The rows on screen belong to the previous query, not the current one. */
+  isStale: boolean;
 }) {
   return (
-    <div className="text-ink-2 flex items-center justify-between text-xs">
+    <div className="text-muted-foreground flex items-center justify-between text-xs">
       <span className="tabular-nums">
         {page ? (
           <>
             Page {page.page} of {Math.max(page.totalPages ?? 0, 1)} · {page.totalCount} records
             {/* The grid keeps the previous page on screen while the next one loads,
-                so without this the pager looks frozen rather than busy. */}
-            {isFetching ? ' · updating…' : ''}
+                so without this the pager looks frozen rather than busy. Keyed to
+                `isPlaceholderData` and not `isFetching`: a background refetch of
+                the query already on screen is not stale, and saying so on every
+                revalidation trains people to ignore the word. */}
+            {isStale ? ' · updating…' : ''}
           </>
         ) : (
           'Loading…'
@@ -345,7 +392,7 @@ function Pager<TRow>({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-2.5 py-1 font-medium disabled:opacity-40"
+          className="border-border bg-card text-muted-foreground hover:border-line-strong hover:text-foreground rounded-lg border px-2.5 py-1 font-medium disabled:opacity-40"
           disabled={!page?.hasPreviousPage}
           onClick={() => apply({ page: state.page - 1 })}
         >
@@ -353,7 +400,7 @@ function Pager<TRow>({
         </button>
         <button
           type="button"
-          className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-2.5 py-1 font-medium disabled:opacity-40"
+          className="border-border bg-card text-muted-foreground hover:border-line-strong hover:text-foreground rounded-lg border px-2.5 py-1 font-medium disabled:opacity-40"
           disabled={!page?.hasNextPage}
           onClick={() => apply({ page: state.page + 1 })}
         >

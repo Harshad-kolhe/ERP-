@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { usePermissions } from '@/components/permission/session-provider';
 import type { TreeColumn } from '@/components/tree-list/tree-list';
@@ -26,15 +25,9 @@ import {
  * belong.
  */
 export function ParentPartsTable() {
-  const router = useRouter();
   const { can } = usePermissions();
 
   const canEdit = can('masters.parentpart.update');
-
-  const open = useCallback(
-    (row: ParentPartListItem) => router.push(`/masters/parent-parts/${row.id}`),
-    [router],
-  );
 
   /**
    * `dataField` must match a field on the server's `ListParentPartsHandler.Map`.
@@ -97,23 +90,8 @@ export function ParentPartsTable() {
       emptyTitle="No parent parts"
       emptyHint="No parent parts match the current filters."
       exportFileName="Parent parts"
-      rowActions={
-        canEdit
-          ? {
-              caption: '',
-              width: 72,
-              render: (row) => (
-                <button
-                  type="button"
-                  className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-2 py-0.5 text-xs font-medium"
-                  onClick={() => open(row)}
-                >
-                  Edit
-                </button>
-              ),
-            }
-          : undefined
-      }
+      editHref={(row) => `/masters/parent-parts/${row.id}`}
+      canEdit={canEdit}
     />
   );
 }

@@ -37,36 +37,37 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-destructive-foreground: var(--destructive-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-}
 
-/* Grid surface scale.
-   `TreeList` is written against these names. Aliasing them onto the palette
-   above — rather than hand-substituting class names through 1300 lines — keeps
-   the component close to its reviewed original, lets it re-tint with the theme,
-   and means the next grid we build inherits the same look without a second
-   translation pass. Every name here resolves to a token defined above; none is
-   an independent colour. */
-@theme inline {
-  --color-canvas: var(--background);
-  --color-surface: var(--card);
-  --color-surface-2: var(--muted);
-  --color-surface-3: var(--accent);
-
-  --color-line: var(--border);
+  /* Grid extras. No shadcn equivalent, so these are the only colour names in the
+     app that are not shadcn's: a 15-column grid needs a row hairline quieter than
+     its outer frame and a resize handle louder than it, and `--border` is an alpha
+     in dark mode that vanishes wherever two rows overlap. */
   --color-line-soft: var(--line-soft);
   --color-line-strong: var(--line-strong);
-
-  --color-ink: var(--foreground);
-  --color-ink-2: var(--muted-foreground);
-  --color-ink-3: var(--ink-faint);
-
-  --color-brand: var(--primary);
+  --color-ink-faint: var(--ink-faint);
   --color-brand-strong: var(--brand-strong);
-  --color-brand-soft: var(--accent);
+
+  /* Status, as meaning rather than as hue. Without these every author reached for
+     a raw `amber-500`, which is how the same five statuses ended up written out
+     three times in two different shapes. The `-foreground` half carries the
+     light/dark split, so a status pill needs no `dark:` variant. */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* The master form's identity bar. */
+  --color-form-bar: var(--form-bar);
+  --color-form-bar-foreground: var(--form-bar-foreground);
 }
 
 /* Brand: cool steel blue, hue 250. Buttons, focus rings, links, sidebar and
@@ -91,9 +92,29 @@
   --accent: oklch(0.955 0.014 250);
   --accent-foreground: oklch(0.32 0.07 252);
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.915 0.006 250);
   --input: oklch(0.915 0.006 250);
   --ring: oklch(0.48 0.13 252);
+
+  /* Status. Seeded from Tailwind's own emerald/amber/rose/sky so the move off raw
+     palette classes was a rename and not a re-colour. The base is the -500 in both
+     themes; only the foreground shifts, -700 on light and -300 on dark, because a
+     -700 label on a dark surface is unreadable and a -300 one on white is worse. */
+  --success: oklch(69.6% 0.17 162.48);
+  --success-foreground: oklch(50.8% 0.118 165.612);
+  --warning: oklch(76.9% 0.188 70.08);
+  --warning-foreground: oklch(55.5% 0.163 48.998);
+  --danger: oklch(64.5% 0.246 16.439);
+  --danger-foreground: oklch(51.4% 0.222 16.935);
+  --info: oklch(68.5% 0.169 237.323);
+  --info-foreground: oklch(50% 0.134 242.749);
+
+  /* The master form's identity bar: a fixed dark navy in both themes, carried over
+     from the approved prototype. Deliberately not --primary — it holds white text,
+     and the brand lightens in dark mode, which would drop that text to about 2:1. */
+  --form-bar: oklch(0.3233 0.1025 253.89);
+  --form-bar-foreground: oklch(0.985 0.005 250);
   /* Categorical ramp: steel -> cyan -> ochre -> violet -> clay. Held to a similar
      lightness/chroma band so a multi-series chart reads as one family. */
   --chart-1: oklch(0.48 0.13 252);
@@ -156,9 +177,24 @@
   --accent: oklch(0.295 0.016 250);
   --accent-foreground: oklch(0.96 0.015 250);
   --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.6 0.11 252);
+
+  /* Same base, lifted foreground — see the note in :root. */
+  --success: oklch(69.6% 0.17 162.48);
+  --success-foreground: oklch(84.5% 0.143 164.978);
+  --warning: oklch(76.9% 0.188 70.08);
+  --warning-foreground: oklch(87.9% 0.169 91.605);
+  --danger: oklch(64.5% 0.246 16.439);
+  --danger-foreground: oklch(81% 0.117 11.638);
+  --info: oklch(68.5% 0.169 237.323);
+  --info-foreground: oklch(82.8% 0.111 230.318);
+
+  /* Unchanged in dark: it is a fixed navy that already reads as a header there. */
+  --form-bar: oklch(0.3233 0.1025 253.89);
+  --form-bar-foreground: oklch(0.985 0.005 250);
   --chart-1: oklch(0.72 0.14 252);
   --chart-2: oklch(0.75 0.11 210);
   --chart-3: oklch(0.8 0.12 85);
@@ -227,6 +263,50 @@
   .dark mark.tl-hit[data-active='true'] {
     background: oklch(0.8 0.15 95);
     color: oklch(0.19 0.02 250);
+  }
+
+  /* The pending dot on a sidebar link. Always rendered at a fixed size and only
+     faded in, so it can never move the label it sits beside — an indicator that
+     reflows the nav on every slow click is worse than no indicator. The delay
+     means a fast navigation completes before anything appears. */
+  .nav-hint {
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0;
+    flex-shrink: 0;
+  }
+
+  .nav-hint.is-pending {
+    animation: nav-hint-in 150ms ease-out 100ms forwards;
+  }
+
+  @keyframes nav-hint-in {
+    to {
+      opacity: 0.7;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-hint.is-pending {
+      animation: none;
+      opacity: 0.7;
+    }
+  }
+
+  /* Rows that answer the previous query, held on screen while the next page loads.
+     Dimming the body rather than blanking it keeps the row positions stable, so the
+     grid reads as "still working" instead of flashing empty and re-filling. */
+  [data-stale='true'] [role='rowgroup'] {
+    opacity: 0.55;
+    transition: opacity 120ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-stale='true'] [role='rowgroup'] {
+      transition: none;
+    }
   }
 
   /* Slim scrollbars, so a 15-column grid does not look like it has a toolbar

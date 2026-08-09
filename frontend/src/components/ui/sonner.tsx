@@ -17,6 +17,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      // A toast here is often the only report of a failed save, and the default
+      // timing takes it away before a long message can be read twice. Longer, plus
+      // a way to dismiss it deliberately rather than waiting it out.
+      closeButton
+      duration={6000}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,

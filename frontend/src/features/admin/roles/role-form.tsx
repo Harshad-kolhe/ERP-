@@ -54,15 +54,17 @@ export function RoleForm({ role }: { role?: AdminRoleDetail }) {
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} noValidate className="max-w-3xl space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <TextField<RoleFormValues>
-            name="name"
-            label="Role name"
-            required
-            placeholder="Purchase Officer"
-            disabled={isSubmitting}
-          />
-        </div>
+        {/* Constrained rather than dropped into a two-column grid holding one
+            field: the grid left an empty right half that read as a field somebody
+            had forgotten to add. */}
+        <TextField<RoleFormValues>
+          name="name"
+          label="Role name"
+          required
+          placeholder="Purchase Officer"
+          disabled={isSubmitting}
+          className="sm:max-w-sm"
+        />
 
         <TextareaField<RoleFormValues>
           name="description"
@@ -104,6 +106,7 @@ export function RoleForm({ role }: { role?: AdminRoleDetail }) {
                   <PermissionPicker
                     catalogue={catalogue.data?.items ?? []}
                     isLoading={catalogue.isLoading}
+                    isError={catalogue.isError}
                     value={field.value}
                     onChange={field.onChange}
                     disabled={isSubmitting}

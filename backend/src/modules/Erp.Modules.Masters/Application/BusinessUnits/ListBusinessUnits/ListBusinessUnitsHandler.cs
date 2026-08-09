@@ -20,7 +20,7 @@ namespace Erp.Modules.Masters.Application.BusinessUnits.ListBusinessUnits;
 internal sealed class ListBusinessUnitsHandler(ErpDbContext db)
     : IQueryHandler<ListBusinessUnitsQuery, PagedResult<BusinessUnitListItemDto>>
 {
-    private static readonly QueryMap<BusinessUnitListRow> Map = QueryMap<BusinessUnitListRow>.Create()
+    private static readonly QueryMap<BusinessUnitListItemDto> Map = QueryMap<BusinessUnitListItemDto>.Create()
         .Field("businessUnitId", x => x.BusinessUnitId)
         .Field("businessName", x => x.BusinessName, searchable: true)
         .Field("address", x => x.Address)
@@ -47,7 +47,7 @@ internal sealed class ListBusinessUnitsHandler(ErpDbContext db)
 
         var rows = db.BusinessUnits
             .AsNoTracking()
-            .Select(b => new BusinessUnitListRow
+            .Select(b => new BusinessUnitListItemDto
             {
                 Id = b.Id,
                 BusinessUnitId = b.BusinessUnitId,
@@ -63,35 +63,6 @@ internal sealed class ListBusinessUnitsHandler(ErpDbContext db)
                 CreatedAtUtc = b.CreatedAtUtc,
             });
 
-        var page = await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
-
-        if (page.IsFailure)
-        {
-            return Result.Failure<PagedResult<BusinessUnitListItemDto>>(page.Error);
-        }
-
-        var items = page.Value.Items.Select(ToDto).ToList();
-
-        return Result.Success(new PagedResult<BusinessUnitListItemDto>(
-            items,
-            page.Value.Page,
-            page.Value.PageSize,
-            page.Value.TotalCount));
+        return await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
     }
-
-    private static BusinessUnitListItemDto ToDto(BusinessUnitListRow row) => new()
-    {
-        Id = row.Id,
-        BusinessUnitId = row.BusinessUnitId,
-        BusinessName = row.BusinessName,
-        Address = row.Address,
-        ContactNumber = row.ContactNumber,
-        Email = row.Email,
-        Website = row.Website,
-        Cin = row.Cin,
-        Gstn = row.Gstn,
-        StateName = row.StateName,
-        IsActive = row.IsActive,
-        CreatedAtUtc = row.CreatedAtUtc,
-    };
 }

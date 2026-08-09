@@ -82,8 +82,27 @@ public static class TestUsers
         BusinessUnitOne,
         [MastersPermissions.SectionRead, MastersPermissions.SectionCreate]);
 
+    /// <summary>
+    /// Business unit 1, maintains the code lists.
+    /// <para>
+    /// Carries part create as well, because the point of the reference-data screens
+    /// is what happens downstream: an option added here has to become one a part
+    /// will accept, and a user who could not save a part could not show that.
+    /// </para>
+    /// </summary>
+    public static readonly TestUser Librarian = new(
+        "librarian@erp.test",
+        BusinessUnitOne,
+        [
+            MastersPermissions.ReferenceDataRead,
+            MastersPermissions.ReferenceDataCreate,
+            MastersPermissions.ReferenceDataUpdate,
+            MastersPermissions.PartRead,
+            MastersPermissions.PartCreate,
+        ]);
+
     public static IReadOnlyList<TestUser> All { get; } =
-        [Author, Approver, Reader, OtherUnit, Engineer, SectionOnly];
+        [Author, Approver, Reader, OtherUnit, Engineer, SectionOnly, Librarian];
 }
 
 public sealed record TestUser(string UserName, int BusinessUnitId, IReadOnlyList<string> Permissions)

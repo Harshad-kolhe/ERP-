@@ -28,6 +28,19 @@ internal sealed class UpdatePartHandler(ErpDbContext db) : ICommandHandler<Updat
             return Result.Failure<Unit>(PartErrors.StaleRowVersion);
         }
 
+        // Checked on update as well as create, not only on create. An edit can
+        // introduce a code the masters have never heard of just as easily as a new
+        // record can, and a rule enforced on one path is not a rule.
+        var unknownCode = await PartCodedFields.FindUnknownAsync(
+            db,
+            new PartCodes(command.UnitOfMeasureCode, command.HsnCode, command.Attributes),
+            cancellationToken);
+
+        if (unknownCode is not null)
+        {
+            return Result.Failure<Unit>(unknownCode);
+        }
+
         var partId = new PartId(command.Id);
 
         var part = await db.Parts.FirstOrDefaultAsync(p => p.Id == partId, cancellationToken);

@@ -14,6 +14,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
+using Respawn.Graph;
 using Testcontainers.MsSql;
 
 namespace Erp.IntegrationTests;
@@ -33,6 +34,25 @@ public sealed class ErpApiFactory : WebApplicationFactory<Program>, IAsyncLifeti
 {
     private readonly MsSqlContainer _sqlServer =
         new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest").Build();
+
+    /// <summary>
+    /// Reference data, which the reset must leave alone.
+    /// <para>
+    /// These tables are filled by a migration and are part of what the schema
+    /// means, not data a test created: a part cannot be saved with a unit of
+    /// measure the master has never heard of, so wiping the units between tests
+    /// makes every subsequent create fail with a validation error that has nothing
+    /// to do with the test. Respawn deletes by table, and reference data is exactly
+    /// the case its <c>TablesToIgnore</c> exists for.
+    /// </para>
+    /// </summary>
+    private static readonly Table[] ReferenceTables =
+    [
+        new("masters", "LookupValue"),
+        new("masters", "UnitOfMeasure"),
+        new("masters", "HsnCode"),
+        new("masters", "HsnGstRate"),
+    ];
 
     private Respawner? _respawner;
     private DbConnection? _resetConnection;
@@ -59,6 +79,7 @@ public sealed class ErpApiFactory : WebApplicationFactory<Program>, IAsyncLifeti
             {
                 DbAdapter = DbAdapter.SqlServer,
                 SchemasToInclude = ["masters"],
+                TablesToIgnore = ReferenceTables,
             });
     }
 

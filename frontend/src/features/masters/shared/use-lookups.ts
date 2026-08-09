@@ -1,6 +1,7 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 import { apiFetch } from '@/lib/api/fetcher';
 
@@ -48,6 +49,27 @@ export function useLookups(types: readonly string[]) {
      */
     isError: query.isError,
   };
+}
+
+/**
+ * Drops the cached option lists.
+ *
+ * For the reference-data screens, which are the one place those lists change. The
+ * five-minute cache above is a good trade everywhere else and a bad one here: an
+ * administrator who adds a material and walks straight to the part form would not
+ * see it, conclude the save failed, and add it again.
+ *
+ * It lives beside the query rather than in the forms so both refer to the same
+ * key. A hand-written `['masters', 'lookups']` in three form files is three
+ * chances to invalidate a key nothing is stored under.
+ */
+export function useInvalidateLookups() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    () => queryClient.invalidateQueries({ queryKey: ['masters', 'lookups'] }),
+    [queryClient],
+  );
 }
 
 const EMPTY: LookupSet = {};

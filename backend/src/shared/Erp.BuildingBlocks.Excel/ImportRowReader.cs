@@ -84,6 +84,25 @@ public sealed class ImportRowReader(ExcelRow row)
     /// </summary>
     public string RequiredText(ImportColumn column) => Text(column) ?? string.Empty;
 
+    /// <summary>
+    /// The cell as typed, recording nothing.
+    /// <para>
+    /// For a caller that needs to look at a column a <em>second</em> time — checking
+    /// a code against a master, say, after <see cref="Text"/> already read it into an
+    /// entity. Going through <see cref="Text"/> again would record a blank-required
+    /// or over-length error twice for one cell, which is the duplicate-reporting
+    /// problem this class exists to avoid.
+    /// </para>
+    /// </summary>
+    public string? Cell(ImportColumn column)
+    {
+        ArgumentNullException.ThrowIfNull(column);
+
+        var raw = Raw(column);
+
+        return string.IsNullOrWhiteSpace(raw) ? null : raw.Trim();
+    }
+
     /// <summary>A number, possibly fractional. Named <c>Number</c> rather than <c>Decimal</c> per CA1720.</summary>
     public decimal? Number(ImportColumn column)
     {

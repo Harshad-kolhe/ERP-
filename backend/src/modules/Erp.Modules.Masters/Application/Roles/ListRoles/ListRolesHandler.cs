@@ -20,7 +20,7 @@ namespace Erp.Modules.Masters.Application.Roles.ListRoles;
 internal sealed class ListRolesHandler(ErpDbContext db)
     : IQueryHandler<ListRolesQuery, PagedResult<RoleMasterListItemDto>>
 {
-    private static readonly QueryMap<RoleListRow> Map = QueryMap<RoleListRow>.Create()
+    private static readonly QueryMap<RoleMasterListItemDto> Map = QueryMap<RoleMasterListItemDto>.Create()
         .Field("rolesName", x => x.RolesName, searchable: true)
         .Field("roleId", x => x.RoleId)
         .Field("isActive", x => x.IsActive)
@@ -41,7 +41,7 @@ internal sealed class ListRolesHandler(ErpDbContext db)
 
         var rows = db.MasterRoles
             .AsNoTracking()
-            .Select(r => new RoleListRow
+            .Select(r => new RoleMasterListItemDto
             {
                 Id = r.Id,
                 RolesName = r.RolesName,
@@ -51,29 +51,6 @@ internal sealed class ListRolesHandler(ErpDbContext db)
                 CreatedAtUtc = r.CreatedAtUtc,
             });
 
-        var page = await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
-
-        if (page.IsFailure)
-        {
-            return Result.Failure<PagedResult<RoleMasterListItemDto>>(page.Error);
-        }
-
-        var items = page.Value.Items.Select(ToDto).ToList();
-
-        return Result.Success(new PagedResult<RoleMasterListItemDto>(
-            items,
-            page.Value.Page,
-            page.Value.PageSize,
-            page.Value.TotalCount));
+        return await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
     }
-
-    private static RoleMasterListItemDto ToDto(RoleListRow row) => new()
-    {
-        Id = row.Id,
-        RolesName = row.RolesName,
-        RoleId = row.RoleId,
-        IsActive = row.IsActive,
-        BypassBusinessUnit = row.BypassBusinessUnit,
-        CreatedAtUtc = row.CreatedAtUtc,
-    };
 }

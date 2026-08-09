@@ -29,8 +29,13 @@ import type {
   CustomerListItemDto,
   EmployeeDetailDto,
   EmployeeListItemDto,
+  HsnCodeDetailDto,
+  HsnCodeListItemDto,
+  HsnGstRateDto,
   ImportResultDto,
   ImportRowErrorDto,
+  LookupValueDetailDto,
+  LookupValueListItemDto,
   MasterStatusDto,
   PagedResultOfPartListItemDto,
   ParentPartComponentDto,
@@ -47,6 +52,8 @@ import type {
   RoleMasterListItemDto,
   SupplierDetailDto,
   SupplierListItemDto,
+  UnitOfMeasureDetailDto,
+  UnitOfMeasureListItemDto,
 } from './generated/erp';
 
 /**
@@ -102,3 +109,19 @@ export type AssemblyNodeDetail = AssemblyNodeDetailDto;
 export type ParentPartComponent = ParentPartComponentDto;
 export type ParentPartListItem = ParentPartListItemDto;
 export type ParentPartDetail = ParentPartDetailDto;
+
+/**
+ * Reference data — the option lists, units and HSN codes every other master picks
+ * from. `LookupOption` is what a *form* receives when it fills a dropdown;
+ * `LookupValueListItem` is the stored row an administrator maintains. Two views of
+ * the same table, and they are not interchangeable.
+ */
+export type LookupValueListItem = LookupValueListItemDto;
+export type LookupValueDetail = LookupValueDetailDto;
+
+export type UnitOfMeasureListItem = UnitOfMeasureListItemDto;
+export type UnitOfMeasureDetail = UnitOfMeasureDetailDto;
+
+export type HsnCodeListItem = HsnCodeListItemDto;
+export type HsnCodeDetail = HsnCodeDetailDto;
+export type HsnGstRate = HsnGstRateDto;

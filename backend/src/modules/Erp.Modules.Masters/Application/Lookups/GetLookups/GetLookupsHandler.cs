@@ -67,6 +67,22 @@ internal sealed class GetLookupsHandler(ErpDbContext db)
             ];
         }
 
+        // Units of measure and HSN codes answer under their old list names but come
+        // from their own tables — see ReferenceCodes. Handled here, next to the
+        // status list, so a client asking for 'uom' is unaware anything moved.
+        foreach (var type in requested.ToList())
+        {
+            var ownMaster = ReferenceCodes.OwnMaster(db, type);
+
+            if (ownMaster is null)
+            {
+                continue;
+            }
+
+            result[type] = await ownMaster.ToListAsync(cancellationToken);
+            requested.Remove(type);
+        }
+
         if (requested.Count > 0)
         {
             var rows = await db.LookupValues

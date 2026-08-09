@@ -11,7 +11,10 @@ import {
   IdCard,
   KeyRound,
   Layers,
+  ListTree,
   Package,
+  Percent,
+  Ruler,
   ShieldCheck,
   ShoppingCart,
   Truck,
@@ -155,6 +158,30 @@ export const NAV: NavGroup[] = [
         href: '/masters/business-units',
         icon: Building2,
         permission: 'masters.businessunit.read',
+        status: 'ready',
+      },
+      {
+        // The lists every screen above picks from. Last in the group because it is
+        // the least-visited and the most consequential: editing an option here
+        // changes what every other master will accept.
+        label: 'Reference data',
+        href: '/masters/lookup-values',
+        icon: ListTree,
+        permission: 'masters.referencedata.read',
+        status: 'ready',
+      },
+      {
+        label: 'Units of measure',
+        href: '/masters/units-of-measure',
+        icon: Ruler,
+        permission: 'masters.referencedata.read',
+        status: 'ready',
+      },
+      {
+        label: 'HSN codes',
+        href: '/masters/hsn-codes',
+        icon: Percent,
+        permission: 'masters.referencedata.read',
         status: 'ready',
       },
     ],

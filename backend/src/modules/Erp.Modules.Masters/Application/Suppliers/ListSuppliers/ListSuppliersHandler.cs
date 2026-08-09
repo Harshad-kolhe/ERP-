@@ -29,7 +29,7 @@ internal sealed class ListSuppliersHandler(ErpDbContext db)
     /// searches suppliers by shipping city.
     /// </para>
     /// </summary>
-    private static readonly QueryMap<SupplierListRow> Map = QueryMap<SupplierListRow>.Create()
+    private static readonly QueryMap<SupplierListItemDto> Map = QueryMap<SupplierListItemDto>.Create()
         .Field("supplierCode", x => x.SupplierCode, searchable: true)
         .Field("supplierName", x => x.SupplierName, searchable: true)
         .Field("supplierType", x => x.SupplierType)
@@ -88,7 +88,7 @@ internal sealed class ListSuppliersHandler(ErpDbContext db)
         // convention in ErpDbContextBase, not requested here.
         var rows = db.Suppliers
             .AsNoTracking()
-            .Select(s => new SupplierListRow
+            .Select(s => new SupplierListItemDto
             {
                 Id = s.Id,
                 SupplierCode = s.SupplierCode,
@@ -127,7 +127,7 @@ internal sealed class ListSuppliersHandler(ErpDbContext db)
                 Sgst = s.Sgst,
                 ActiveStatus = s.ActiveStatus,
                 IsActive = s.IsActive,
-                Status = s.Status,
+                Status = (MasterStatusDto)s.Status,
                 CreatedBy = db.Users
                     .Where(u => u.Id == s.CreatedByUserId)
                     .Select(u => u.DisplayName)
@@ -140,65 +140,6 @@ internal sealed class ListSuppliersHandler(ErpDbContext db)
                 ModifiedAtUtc = s.ModifiedAtUtc,
             });
 
-        var page = await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
-
-        if (page.IsFailure)
-        {
-            return Result.Failure<PagedResult<SupplierListItemDto>>(page.Error);
-        }
-
-        var items = page.Value.Items.Select(ToDto).ToList();
-
-        return Result.Success(new PagedResult<SupplierListItemDto>(
-            items,
-            page.Value.Page,
-            page.Value.PageSize,
-            page.Value.TotalCount));
+        return await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
     }
-
-    private static SupplierListItemDto ToDto(SupplierListRow row) => new()
-    {
-        Id = row.Id,
-        SupplierCode = row.SupplierCode,
-        SupplierName = row.SupplierName,
-        SupplierType = row.SupplierType,
-        PrimaryContact = row.PrimaryContact,
-        SecondaryContact = row.SecondaryContact,
-        Phone = row.Phone,
-        AltPhone = row.AltPhone,
-        Email = row.Email,
-        AltEmail = row.AltEmail,
-        Website = row.Website,
-        BillingAddress = row.BillingAddress,
-        BillingCity = row.BillingCity,
-        BillingState = row.BillingState,
-        BillingCountry = row.BillingCountry,
-        BillingZipCode = row.BillingZipCode,
-        ShippingAddress = row.ShippingAddress,
-        ShippingCity = row.ShippingCity,
-        ShippingState = row.ShippingState,
-        ShippingCountry = row.ShippingCountry,
-        ShippingZipCode = row.ShippingZipCode,
-        Pan = row.Pan,
-        TaxId = row.TaxId,
-        GstNo = row.GstNo,
-        BankName = row.BankName,
-        AccountNumber = row.AccountNumber,
-        Ifsc = row.Ifsc,
-        Swift = row.Swift,
-        PaymentTerms = row.PaymentTerms,
-        Currency = row.Currency,
-        TaxCode = row.TaxCode,
-        QualityCompliance = row.QualityCompliance,
-        Igst = row.Igst,
-        Cgst = row.Cgst,
-        Sgst = row.Sgst,
-        ActiveStatus = row.ActiveStatus,
-        IsActive = row.IsActive,
-        Status = (MasterStatusDto)row.Status,
-        CreatedBy = row.CreatedBy,
-        CreatedAtUtc = row.CreatedAtUtc,
-        ModifiedBy = row.ModifiedBy,
-        ModifiedAtUtc = row.ModifiedAtUtc,
-    };
 }

@@ -26,6 +26,18 @@ internal sealed class CreatePartHandler(ErpDbContext db) : ICommandHandler<Creat
             return Result.Failure<Guid>(PartErrors.DuplicatePartNumber(partNumber));
         }
 
+        // The validator checks shape; this checks existence. A code the masters have
+        // never heard of passes every length and format rule there is.
+        var unknownCode = await PartCodedFields.FindUnknownAsync(
+            db,
+            new PartCodes(command.UnitOfMeasureCode, command.HsnCode, command.Attributes),
+            cancellationToken);
+
+        if (unknownCode is not null)
+        {
+            return Result.Failure<Guid>(unknownCode);
+        }
+
         var part = Part.Create(
             command.PartNumber,
             command.Description,

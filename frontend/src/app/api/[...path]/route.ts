@@ -23,7 +23,14 @@ import { API_BASE_URL, SESSION_COOKIE } from '@/lib/api/server';
 const FORWARDED_REQUEST_HEADERS = ['content-type', 'accept', 'accept-language', 'idempotency-key'];
 
 /** Response headers permitted back to the browser. */
-const FORWARDED_RESPONSE_HEADERS = ['content-type', 'cache-control', 'location'];
+const FORWARDED_RESPONSE_HEADERS = [
+  'content-type',
+  'cache-control',
+  'location',
+  // Without it a downloaded template arrives as an unnamed blob the browser
+  // renders instead of saving.
+  'content-disposition',
+];
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
@@ -52,7 +59,9 @@ async function proxy(request: NextRequest, context: RouteContext): Promise<Respo
     upstream = await fetch(target, {
       method: request.method,
       headers,
-      body: hasBody ? await request.text() : undefined,
+      // Bytes, not text: `request.text()` decodes as UTF-8, which silently
+      // mangles every multipart upload passing through here.
+      body: hasBody ? await request.arrayBuffer() : undefined,
       // Never follow a redirect on the server: an upstream 302 is a signal for
       // the client to act on, not something to resolve invisibly.
       redirect: 'manual',

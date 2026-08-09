@@ -11,6 +11,7 @@ export default function BusinessUnitsPage() {
       resource="business-units"
       noun="Business Unit"
       createPermission="masters.businessunit.create"
+      importPermission="masters.businessunit.import"
       stats={[
         { label: 'business units' },
         { label: 'inactive', filter: 'isActive:eq:false' },

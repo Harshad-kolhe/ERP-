@@ -1,21 +1,13 @@
 'use client';
 
-import {
-  Download,
-  FileText,
-  Layers,
-  MapPin,
-  MoreHorizontal,
-  Plus,
-  SendHorizontal,
-  Upload,
-} from 'lucide-react';
+import { FileText, MapPin, MoreHorizontal, Plus, SendHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { Can } from '@/components/permission/can';
 import { Button } from '@/components/ui/button';
 import Popover from '@/components/tree-list/popover';
+import { MasterImportAction } from '../shared/master-import';
 import { MasterPageHeader } from '../shared/master-page-header';
 
 /**
@@ -30,9 +22,15 @@ import { MasterPageHeader } from '../shared/master-page-header';
  * `Can`, so the same decision is made from the permission catalogue instead — and
  * the server re-checks on every request regardless of what is drawn.
  *
- * Two actions are primary because they are the two people arrive to do; the rest
- * live behind "More actions" rather than competing for the same row. The legacy
+ * Create and import are the two people arrive to do, so they are the two buttons.
+ * What is left in "More actions" is only what has not been built yet. The legacy
  * page put all seven side by side and the important one was not findable.
+ *
+ * There is no "Approval list" item, and no counts on the band: the status chips
+ * above the grid already carry all six figures, lit so it is obvious which state is
+ * showing, and clicking one writes `status:eq:…`. Repeating three of them up here
+ * put the same number on screen twice — once as a control, once as a label — and
+ * arrived at it by different arithmetic, so the two could disagree.
  */
 export function PartsPageHeader() {
   return (
@@ -40,11 +38,6 @@ export function PartsPageHeader() {
       icon="part"
       title="Part Master"
       resource="parts"
-      stats={[
-        { label: 'parts' },
-        { label: 'awaiting approval', filter: 'status:eq:PendingApproval', emphasise: true },
-        { label: 'on hold', filter: 'status:eq:Hold', emphasise: true },
-      ]}
       actions={
         <>
       <Can permission="masters.part.create">
@@ -56,15 +49,12 @@ export function PartsPageHeader() {
         </Button>
       </Can>
 
+      {/* Beside New Part, not inside the menu, and the same button the other five
+          masters draw. It went in the menu first and was simply not found; the
+          template it used to sit next to now lives inside the dialog, next to the
+          file picker that needs it. */}
       <Can permission="masters.part.import">
-        <Link
-          href="/api/v1/masters/parts/import-template"
-          className="border-border bg-card text-muted-foreground hover:border-line-strong hover:text-foreground inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors max-sm:hidden"
-          title="An empty workbook whose headings are exactly what the importer expects"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Import template
-        </Link>
+        <MasterImportAction resource="parts" title="Part Master" />
       </Can>
 
       <Popover
@@ -75,18 +65,6 @@ export function PartsPageHeader() {
       >
         {() => (
           <div>
-            <Can permission="masters.part.import">
-              <MenuLink href="/masters/parts/import" icon={<Upload className="h-3.5 w-3.5" />}>
-                Import from Excel
-              </MenuLink>
-            </Can>
-
-            <Can permission="masters.part.approve">
-              <MenuLink href="/masters/parts?filter=status:eq:PendingApproval" icon={<Layers className="h-3.5 w-3.5" />}>
-                Approval list
-              </MenuLink>
-            </Can>
-
             {/*
               Rendered disabled rather than omitted, exactly as the navigation
               marks a planned screen. Hiding them would make the legacy feature set
@@ -110,18 +88,6 @@ export function PartsPageHeader() {
         </>
       }
     />
-  );
-}
-
-function MenuLink({ href, icon, children }: { href: string; icon: ReactNode; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="hover:bg-accent text-foreground flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs"
-    >
-      {icon}
-      {children}
-    </Link>
   );
 }
 

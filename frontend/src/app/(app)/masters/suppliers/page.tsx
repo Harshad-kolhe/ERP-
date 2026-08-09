@@ -11,10 +11,8 @@ export default function SuppliersPage() {
       resource="suppliers"
       noun="Supplier"
       createPermission="masters.supplier.create"
-      stats={[
-        { label: 'suppliers' },
-        { label: 'awaiting approval', filter: 'status:eq:PendingApproval', emphasise: true },
-      ]}
+      importPermission="masters.supplier.import"
+      statusChips
     >
       <SuppliersTable />
     </MasterListScreen>

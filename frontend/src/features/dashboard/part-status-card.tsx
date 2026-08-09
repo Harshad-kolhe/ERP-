@@ -4,11 +4,11 @@ import Link from 'next/link';
 
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { usePartCounts } from './use-dashboard';
+import { useStatusCounts } from '@/features/masters/shared/use-status-counts';
 
 /** Part master by lifecycle state. Every row opens the list filtered to that state. */
 export function PartStatusCard() {
-  const { counts, total, isLoading, isError } = usePartCounts();
+  const { counts, total, isLoading, isError } = useStatusCounts('parts');
 
   /*
    * A failed request is not an empty master.

@@ -11,10 +11,8 @@ export default function CustomersPage() {
       resource="customers"
       noun="Customer"
       createPermission="masters.customer.create"
-      stats={[
-        { label: 'customers' },
-        { label: 'awaiting approval', filter: 'status:eq:PendingApproval', emphasise: true },
-      ]}
+      importPermission="masters.customer.import"
+      statusChips
     >
       <CustomersTable />
     </MasterListScreen>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
-import { usePartCounts } from './use-dashboard';
+import { useStatusCounts } from '@/features/masters/shared/use-status-counts';
 
 /**
  * "Awaiting you" — the first thing on the dashboard, because it is the only block
@@ -15,7 +15,7 @@ import { usePartCounts } from './use-dashboard';
  * you cannot act on is a figure nobody reads after week two.
  */
 export function QueueStrip() {
-  const { counts, isLoading, isError } = usePartCounts();
+  const { counts, isLoading, isError } = useStatusCounts('parts');
 
   const pending = counts.find((entry) => entry.status === 'PendingApproval');
   const drafts = counts.find((entry) => entry.status === 'Draft');

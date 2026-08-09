@@ -6,7 +6,9 @@ import { Can } from '@/components/permission/can';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import { MasterImportAction } from './master-import';
 import { MasterPageHeader, type MasterIconName, type MasterStat } from './master-page-header';
+import { MasterStatusChips } from './master-status-chips';
 
 /**
  * The page body every master list screen shares.
@@ -28,6 +30,8 @@ export function MasterListScreen({
   resource,
   noun,
   createPermission,
+  importPermission,
+  statusChips,
   stats,
   children,
 }: {
@@ -39,7 +43,18 @@ export function MasterListScreen({
   /** Singular, title case — "Customer" gives "New Customer". */
   noun: string;
   createPermission: string;
-  stats: MasterStat[];
+  /** Omit for a master the API has no import endpoint for — parent parts. */
+  importPermission?: string;
+  /**
+   * The clickable status band above the grid, as Part Master has.
+   *
+   * Only for a master with an approval lifecycle: roles and business units have an
+   * active flag and nothing else, and their list endpoints answer 400 to the
+   * `status:eq:` filter every chip writes.
+   */
+  statusChips?: boolean;
+  /** Omit on a screen with `statusChips` — the band already carries every count. */
+  stats?: MasterStat[];
   /** This master's grid. */
   children: ReactNode;
 }) {
@@ -55,23 +70,42 @@ export function MasterListScreen({
           resource={resource}
           stats={stats}
           actions={
-            <Can permission={createPermission}>
-              {/* `Button asChild` rather than a hand-styled link: the six copies of
-                  that link all omitted the focus-visible ring this variant carries,
-                  so the primary action on every master list was invisible to a
-                  keyboard. */}
-              <Button size="sm" asChild>
-                <Link href={`/masters/${resource}/new`}>
-                  <Plus className="size-4" aria-hidden />
-                  New {noun}
-                </Link>
-              </Button>
-            </Can>
+            <>
+              <Can permission={createPermission}>
+                {/* `Button asChild` rather than a hand-styled link: the six copies of
+                    that link all omitted the focus-visible ring this variant carries,
+                    so the primary action on every master list was invisible to a
+                    keyboard. */}
+                <Button size="sm" asChild>
+                  <Link href={`/masters/${resource}/new`}>
+                    <Plus className="size-4" aria-hidden />
+                    New {noun}
+                  </Link>
+                </Button>
+              </Can>
+
+              {/* After the create button, matching Part Master. The order is the
+                  thing being kept consistent here, not just the button. */}
+              {importPermission && (
+                <Can permission={importPermission}>
+                  <MasterImportAction resource={resource} title={title} />
+                </Can>
+              )}
+            </>
           }
         />
       </Suspense>
 
-      <div className="flex min-h-0 flex-1 flex-col p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
+        {statusChips && (
+          // Its own boundary, so the counts resolving does not hold the grid back.
+          // The fallback is the band's real height — a chip row that appears late
+          // and shoves the grid down is worse than one that arrives blank.
+          <Suspense fallback={<div className="h-[52px]" />}>
+            <MasterStatusChips resource={resource} />
+          </Suspense>
+        )}
+
         {/* useSearchParams needs a Suspense boundary during prerender. */}
         <Suspense fallback={<GridSkeleton />}>{children}</Suspense>
       </div>

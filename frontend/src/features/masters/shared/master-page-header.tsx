@@ -79,7 +79,13 @@ export function MasterPageHeader({
   title: string;
   /** Path segment under `/masters`, used to count. */
   resource: string;
-  stats: MasterStat[];
+  /**
+   * Omit on a screen that already counts itself. Part Master has the status chips
+   * directly above its grid, which carry all six figures and filter on click; the
+   * band repeating three of them put the same number on screen twice, once as a
+   * control and once as a label, and counted it a second way to do so.
+   */
+  stats?: MasterStat[];
   actions?: ReactNode;
 }) {
   const Icon = ICONS[icon];
@@ -101,11 +107,13 @@ export function MasterPageHeader({
         <h1 className="text-foreground truncate text-[15px] leading-tight font-semibold tracking-tight">
           {title}
         </h1>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          {stats.map((stat) => (
-            <Stat key={stat.label} resource={resource} stat={stat} />
-          ))}
-        </div>
+        {stats && stats.length > 0 && (
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            {stats.map((stat) => (
+              <Stat key={stat.label} resource={resource} stat={stat} />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-wrap items-center justify-end gap-2">{actions}</div>

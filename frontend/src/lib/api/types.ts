@@ -29,6 +29,8 @@ import type {
   CustomerListItemDto,
   EmployeeDetailDto,
   EmployeeListItemDto,
+  ImportResultDto,
+  ImportRowErrorDto,
   MasterStatusDto,
   PagedResultOfPartListItemDto,
   ParentPartComponentDto,
@@ -89,6 +91,9 @@ export type AdminRoleDetail = RoleDetailDto;
 export type PermissionDefinition = PermissionDefinitionDto;
 
 export type CurrentUser = CurrentUserDto;
+
+export type ImportResult = ImportResultDto;
+export type ImportRowError = ImportRowErrorDto;
 
 export type AssemblyNodeListItem = AssemblyNodeListItemDto;
 export type AssemblyNodeAttributes = AssemblyNodeAttributesDto;

@@ -11,6 +11,7 @@ export default function RolesPage() {
       resource="roles"
       noun="Role"
       createPermission="masters.role.create"
+      importPermission="masters.role.import"
       stats={[
         { label: 'roles' },
         { label: 'inactive', filter: 'isActive:eq:false' },

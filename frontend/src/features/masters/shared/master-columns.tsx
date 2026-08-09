@@ -23,13 +23,23 @@ export const STATUS_TONE: Record<string, string> = {
   Hold: 'bg-info/15 text-info-foreground',
 };
 
-/** The same five states as a solid dot, for the status band above the grid. */
-export const STATUS_DOT: Record<string, string> = {
-  Draft: 'bg-ink-faint',
-  PendingApproval: 'bg-warning',
-  Approved: 'bg-success',
-  Rejected: 'bg-danger',
-  Hold: 'bg-info',
+/**
+ * The same five states as text colour, for the counts in the status band.
+ *
+ * The `-foreground` variants rather than the solid ones the pills fill with:
+ * these are the pair that flips with the theme (dark on light, light on dark),
+ * which a number set directly on the page background needs and a chip of tinted
+ * background does not.
+ *
+ * Draft is deliberately not coloured. Five lit numbers in a row is five things
+ * competing, and draft is the state nobody needs alerting to.
+ */
+export const STATUS_TEXT: Record<string, string> = {
+  Draft: 'text-foreground',
+  PendingApproval: 'text-warning-foreground',
+  Approved: 'text-success-foreground',
+  Rejected: 'text-danger-foreground',
+  Hold: 'text-info-foreground',
 };
 
 export const STATUS_LABEL: Record<string, string> = {

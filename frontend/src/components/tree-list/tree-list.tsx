@@ -229,6 +229,24 @@ function textAlignFor(align: TreeColumn<never>['align']): CSSProperties['textAli
  * it is the one column guaranteed to be on screen at any horizontal offset —
  * unless the caller opts into dimming it too.
  */
+/**
+ * The row fills, in the raw tokens rather than the `--color-*` theme names.
+ *
+ * `@theme inline` does not put its names on `:root`; Tailwind emits one only when
+ * it spots that name in the source, which makes a runtime `var(--color-card)`
+ * depend on the scanner having noticed a string in a `.tsx` file. `--card` and
+ * `--primary` are written into `:root` and `.dark` directly, so they are simply
+ * there. `--tl-pin-shadow` above is read the same way for the same reason.
+ */
+const ROW_BG = 'var(--card)';
+
+/**
+ * The selected row's fill: the brand at twice the strength hover uses, so the two
+ * states are told apart by depth of tint rather than by hue. Opaque — a selected
+ * row's pinned columns have the same covering job as any other row's.
+ */
+const SELECTED_ROW_BG = 'color-mix(in srgb, var(--primary) 14%, var(--card))';
+
 function cellTone(muted: boolean | undefined, frozen: boolean, mutedIncludesFrozen: boolean): string {
   if (muted && (mutedIncludesFrozen || !frozen)) return 'text-ink-faint';
   return frozen ? 'text-foreground' : 'text-muted-foreground';
@@ -1103,13 +1121,18 @@ export default function TreeList<T extends Record<string, unknown>>({
         // The dimming is one CSS rule keyed off this attribute rather than a class
         // threaded down through the row renderer — see globals.css.
         data-stale={isStale || undefined}
-        className={`focus-visible:ring-primary/40 overflow-auto outline-none focus-visible:ring-2 focus-visible:ring-inset ${
+        // A column flex container so the empty state can be a sibling of the
+        // columns rather than a child of them — see the note where it is rendered.
+        className={`focus-visible:ring-primary/40 flex flex-col overflow-auto outline-none focus-visible:ring-2 focus-visible:ring-inset ${
           fillHeight ? 'min-h-0 flex-1' : ''
         }`}
         style={{ height: fillHeight ? undefined : height }}
         onScroll={onScroll}
       >
         <div
+          // `shrink-0` because this is now a flex item: without it the rows would
+          // be squeezed to fit the viewport instead of scrolling past it.
+          className="shrink-0"
           style={
             stretchColumn
               ? { width: `max(${Math.max(totalWidth, 0)}px, 100%)` }
@@ -1250,19 +1273,7 @@ export default function TreeList<T extends Record<string, unknown>>({
           </div>
 
           {/* body */}
-          {flatRows.length === 0 ? (
-            <EmptyState
-              onClear={clearFilters}
-              // A master with no records at all is not a filtered-to-nothing grid.
-              // `isFiltering` covers this component's own surfaces; the chips cover
-              // the page's, which on a server-driven grid is where the filter that
-              // emptied it usually lives.
-              isFiltering={isFiltering || Boolean(externalFilterChips)}
-              title={emptyTitle}
-              hint={emptyHint}
-              action={emptyAction}
-            />
-          ) : (
+          {flatRows.length > 0 && (
             <div role="rowgroup">
               <div role="presentation" aria-hidden="true" style={{ height: startIndex * rowHeight }} />
               {renderedRows.map(({ row, key, level, hasChildren, expanded }, renderIndex) => {
@@ -1280,7 +1291,19 @@ export default function TreeList<T extends Record<string, unknown>>({
                     ? kids.filter((child) => visibleKeys.has(child[keyExpr] as RowKey)).length
                     : kids.length,
                 };
-                const rowBackground = appearance.background ?? 'var(--color-surface)';
+                /*
+                 * The grid's own frame is `bg-card`, so an untinted row matching it
+                 * is what "no background" is supposed to look like.
+                 *
+                 * This used to say `--color-surface`, and `--color-brand-soft`
+                 * below, and neither has ever existed in the theme. An undefined
+                 * `var()` makes the whole `background-color` declaration invalid,
+                 * so every row resolved to transparent — indistinguishable from
+                 * correct until a pinned cell has to cover something, and then the
+                 * frozen first column and the actions column let the scrolled rows
+                 * show straight through.
+                 */
+                const rowBackground = appearance.background ?? ROW_BG;
 
                 return (
                   <div
@@ -1301,13 +1324,13 @@ export default function TreeList<T extends Record<string, unknown>>({
                         height: rowHeight,
                         fontWeight: appearance.fontWeight,
                         cursor: onRowClick ? 'pointer' : undefined,
-                        '--row-bg': selected ? 'var(--color-brand-soft)' : rowBackground,
+                        '--row-bg': selected ? SELECTED_ROW_BG : rowBackground,
                         // Blending against the row's own tint keeps a tinted group
                         // row distinguishable from a hovered data row.
                         '--row-hover': (() => {
-                          if (selected) return 'var(--color-brand-soft)';
-                          const base = hoverBlendsRowBackground ? rowBackground : 'var(--color-surface)';
-                          return `color-mix(in srgb, var(--color-brand) 7%, ${base})`;
+                          if (selected) return SELECTED_ROW_BG;
+                          const base = hoverBlendsRowBackground ? rowBackground : ROW_BG;
+                          return `color-mix(in srgb, var(--primary) 7%, ${base})`;
                         })(),
                       } as CSSProperties
                     }
@@ -1425,6 +1448,30 @@ export default function TreeList<T extends Record<string, unknown>>({
             </div>
           )}
         </div>
+
+        {/*
+          Outside the column container on purpose. In there its width resolved
+          against the full width of every column, so it centred itself across the
+          scroll extent and had to be clamped to stay on screen at all — which put
+          it a fixed distance from the left edge rather than in the middle of
+          anything. Out here it is a flex item of the scroll port, so `stretch`
+          gives it exactly the width the operator can see and `flex-1` gives it the
+          height left under the header. Still sticky, so scrolling sideways past
+          the header does not carry it off.
+        */}
+        {flatRows.length === 0 && (
+          <EmptyState
+            onClear={clearFilters}
+            // A master with no records at all is not a filtered-to-nothing grid.
+            // `isFiltering` covers this component's own surfaces; the chips cover
+            // the page's, which on a server-driven grid is where the filter that
+            // emptied it usually lives.
+            isFiltering={isFiltering || Boolean(externalFilterChips)}
+            title={emptyTitle}
+            hint={emptyHint}
+            action={emptyAction}
+          />
+        )}
       </div>
 
       {/* ---------- summary bar ---------- */}
@@ -1479,9 +1526,8 @@ function EmptyState({
   hint: string;
   action?: ReactNode;
 }>) {
-  // sticky+clamped so it stays on screen instead of centring across the full scroll width
   return (
-    <div className="sticky left-0 flex h-56 w-[min(100%,44rem)] flex-col items-center justify-center gap-2">
+    <div className="sticky left-0 flex min-h-56 flex-1 flex-col items-center justify-center gap-2 px-4 text-center">
       <div className="bg-accent text-ink-faint flex h-11 w-11 items-center justify-center rounded-full">
         <Search className="h-5 w-5" />
       </div>

@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { PartStatusChips } from '@/features/masters/parts/part-status-chips';
+import { MasterStatusChips } from '@/features/masters/shared/master-status-chips';
 import { PartsPageHeader } from '@/features/masters/parts/parts-page-header';
 import { PartsTable } from '@/features/masters/parts/parts-table';
 
@@ -26,7 +26,7 @@ export default function PartsPage() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
         <Suspense fallback={<div className="h-[52px]" />}>
-          <PartStatusChips />
+          <MasterStatusChips resource="parts" />
         </Suspense>
 
         <Suspense fallback={<p className="text-muted-foreground text-sm">Loading…</p>}>

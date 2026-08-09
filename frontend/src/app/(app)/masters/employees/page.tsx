@@ -11,10 +11,8 @@ export default function EmployeesPage() {
       resource="employees"
       noun="Employee"
       createPermission="masters.employee.create"
-      stats={[
-        { label: 'employees' },
-        { label: 'awaiting approval', filter: 'status:eq:PendingApproval', emphasise: true },
-      ]}
+      importPermission="masters.employee.import"
+      statusChips
     >
       <EmployeesTable />
     </MasterListScreen>

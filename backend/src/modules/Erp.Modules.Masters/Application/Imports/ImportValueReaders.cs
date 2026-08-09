@@ -32,7 +32,7 @@ internal static class MasterStatusReader
         }
 
         reader.AddError(
-            $"'{text}' is not a status. Use Draft, PendingApproval, Approved or Inactive.",
+            $"'{text}' is not a status. Use Draft, PendingApproval, Approved, Rejected or Hold.",
             column);
 
         return MasterStatus.Draft;

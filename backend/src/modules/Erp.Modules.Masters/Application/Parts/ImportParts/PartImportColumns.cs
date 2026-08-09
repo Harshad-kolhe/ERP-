@@ -100,7 +100,7 @@ internal static class PartImportColumns
 
     public static readonly ImportColumn Status = new(
         "Status",
-        Note: "Draft, PendingApproval, Approved or Inactive. Blank counts as Draft.");
+        Note: "Draft, PendingApproval, Approved, Rejected or Hold. Blank counts as Draft.");
 
     /// <summary>Sheet order. The template writes them in this order and the grid shows them in it.</summary>
     public static readonly IReadOnlyList<ImportColumn> All =

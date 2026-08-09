@@ -22,9 +22,6 @@ export interface PartFormValues {
   leadTimeDays: string;
   minimumStockLevel: string;
   reorderPoint: string;
-  revisionRemark: string;
-  holdRemark: string;
-  inactiveRemark: string;
 }
 
 /**
@@ -158,15 +155,6 @@ export function partFormSections(isNew: boolean): MasterFormSection<PartFormValu
           span: S,
           description: '4, 6 or 8 digits.',
         },
-      ],
-    },
-    {
-      id: 'remarks',
-      label: 'Remarks',
-      fields: [
-        { name: 'revisionRemark', label: 'Revision Remark', kind: 'textarea', rows: 2 },
-        { name: 'holdRemark', label: 'Hold Remark', kind: 'textarea', rows: 2 },
-        { name: 'inactiveRemark', label: 'Inactive Remark', kind: 'textarea', rows: 2 },
       ],
     },
   ];

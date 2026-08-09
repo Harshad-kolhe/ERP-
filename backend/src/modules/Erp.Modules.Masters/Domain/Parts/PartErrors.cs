@@ -31,6 +31,18 @@ internal static class PartErrors
         "part.cannot_approve",
         $"Only a part awaiting approval can be approved; this one is {status}.");
 
+    public static Error CannotRejectFromStatus(PartStatus status) => Error.Conflict(
+        "part.cannot_reject",
+        $"Only a part awaiting approval can be rejected; this one is {status}.");
+
+    public static Error CannotHoldFromStatus(PartStatus status) => Error.Conflict(
+        "part.cannot_hold",
+        $"Only an approved part can be put on hold; this one is {status}.");
+
+    public static Error CannotReleaseFromStatus(PartStatus status) => Error.Conflict(
+        "part.cannot_release",
+        $"Only a part on hold can be released; this one is {status}.");
+
     public static Error ApproverCannotBeAuthor => Error.Conflict(
         "part.approver_is_author",
         "A part cannot be approved by the person who created it.");

@@ -75,7 +75,7 @@ internal static class CustomerImportColumns
 
     public static readonly ImportColumn Status = new(
         "Status",
-        Note: "Draft, PendingApproval, Approved or Inactive. Blank counts as Draft.");
+        Note: "Draft, PendingApproval, Approved, Rejected or Hold. Blank counts as Draft.");
 
     public static readonly IReadOnlyList<ImportColumn> All =
     [

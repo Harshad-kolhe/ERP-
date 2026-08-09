@@ -70,9 +70,22 @@ export function useSavePart(part?: PartDetail) {
           leadTimeDays: blankToNumber(values.leadTimeDays),
           minimumStockLevel: blankToNumber(values.minimumStockLevel),
           reorderPoint: blankToNumber(values.reorderPoint),
-          revisionRemark: blankToNull(values.revisionRemark),
-          holdRemark: blankToNull(values.holdRemark),
-          inactiveRemark: blankToNull(values.inactiveRemark),
+          /*
+           * Echoed back untouched, not edited here.
+           *
+           * These three are the reason a part was revised, held or withdrawn —
+           * they belong to a status change, not to this form, so the form no
+           * longer shows them. But the update endpoint takes `attributes` whole
+           * and clears anything omitted, which is what makes a field deletable at
+           * all. Leaving them out would therefore not "not edit" them: it would
+           * wipe the reason every time somebody corrected a description.
+           *
+           * They move to the status action once that exists, and disappear from
+           * here entirely.
+           */
+          revisionRemark: part?.attributes.revisionRemark ?? null,
+          holdRemark: part?.attributes.holdRemark ?? null,
+          inactiveRemark: part?.attributes.inactiveRemark ?? null,
         },
       };
 

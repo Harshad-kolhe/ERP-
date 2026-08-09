@@ -13,7 +13,7 @@ import type { PagedResult, PartListItem, PartStatus } from '@/lib/api/types';
  * endpoint per tile. When a block needs more than a count it gets a real endpoint;
  * until then this keeps the dashboard from becoming a reason to add API surface.
  */
-const STATUSES: PartStatus[] = ['Draft', 'PendingApproval', 'Approved', 'Inactive'];
+const STATUSES: PartStatus[] = ['Draft', 'PendingApproval', 'Approved', 'Rejected', 'Hold'];
 
 export interface StatusCount {
   status: PartStatus;
@@ -27,7 +27,8 @@ const LABELS: Record<PartStatus, string> = {
   Draft: 'Draft',
   PendingApproval: 'Awaiting approval',
   Approved: 'Approved',
-  Inactive: 'Inactive',
+  Rejected: 'Rejected',
+  Hold: 'On hold',
 };
 
 export function usePartCounts() {

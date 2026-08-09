@@ -19,14 +19,16 @@ const STATUS_STYLES: Record<PartStatus, string> = {
   Draft: 'bg-surface-3 text-ink-2',
   PendingApproval: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
   Approved: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
-  Inactive: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
+  Rejected: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
+  Hold: 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
 };
 
 const STATUS_LABELS: Record<PartStatus, string> = {
   Draft: 'Draft',
   PendingApproval: 'Pending approval',
   Approved: 'Approved',
-  Inactive: 'Inactive',
+  Rejected: 'Rejected',
+  Hold: 'On hold',
 };
 
 /**

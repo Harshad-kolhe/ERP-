@@ -6849,7 +6849,8 @@
           "Draft",
           "PendingApproval",
           "Approved",
-          "Inactive"
+          "Rejected",
+          "Hold"
         ]
       },
       "PagedResultOfAssemblyNodeListItemDto": {
@@ -8093,7 +8094,8 @@
           "Draft",
           "PendingApproval",
           "Approved",
-          "Inactive"
+          "Rejected",
+          "Hold"
         ]
       },
       "PermissionDefinition": {

@@ -18,7 +18,7 @@ export interface PagedResult<T> {
   hasNextPage: boolean;
 }
 
-export type PartStatus = 'Draft' | 'PendingApproval' | 'Approved' | 'Inactive';
+export type PartStatus = 'Draft' | 'PendingApproval' | 'Approved' | 'Rejected' | 'Hold';
 
 /**
  * One row of the parts grid — every column the legacy Part Master showed.
@@ -117,7 +117,7 @@ export interface PartDetail {
  * Approval lifecycle shared by the masters ported from the legacy system.
  * Distinct from `PartStatus` on the wire even though the members match today.
  */
-export type MasterStatus = 'Draft' | 'PendingApproval' | 'Approved' | 'Inactive';
+export type MasterStatus = 'Draft' | 'PendingApproval' | 'Approved' | 'Rejected' | 'Hold';
 
 export interface SupplierListItem {
   id: number;

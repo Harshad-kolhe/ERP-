@@ -92,5 +92,6 @@ const DOT: Record<PartStatus, string> = {
   Draft: 'bg-ink-3',
   PendingApproval: 'bg-amber-500',
   Approved: 'bg-emerald-500',
-  Inactive: 'bg-rose-500',
+  Rejected: 'bg-rose-500',
+  Hold: 'bg-sky-500',
 };

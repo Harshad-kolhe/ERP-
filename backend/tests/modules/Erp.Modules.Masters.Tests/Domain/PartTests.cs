@@ -143,6 +143,83 @@ public sealed class PartTests
         part.DrawingNumber.ShouldBeNull();
     }
 
+    /// <summary>
+    /// The rejection state the legacy flow could not express. It stored
+    /// RejectedBy/On/Reason and then set the status back to pending, so the grid
+    /// showed a part still waiting and the reason was invisible on screen.
+    /// </summary>
+    [Fact]
+    public void A_submitted_part_can_be_rejected_with_a_reason()
+    {
+        var part = NewPart();
+        part.SubmitForApproval();
+
+        var result = part.Reject("Drawing does not match the specification");
+
+        result.IsSuccess.ShouldBeTrue();
+        part.Status.ShouldBe(PartStatus.Rejected);
+        part.RevisionRemark.ShouldBe("Drawing does not match the specification");
+    }
+
+    [Fact]
+    public void Only_a_submitted_part_can_be_rejected()
+    {
+        var rejected = NewPart().Reject("No");
+
+        rejected.IsFailure.ShouldBeTrue();
+        rejected.Error.Code.ShouldBe("part.cannot_reject");
+    }
+
+    [Fact]
+    public void An_approved_part_can_be_held_and_released()
+    {
+        var part = NewPart();
+        part.SubmitForApproval();
+        part.Approve(Approver, Now);
+
+        part.Hold("Supplier quality issue").IsSuccess.ShouldBeTrue();
+        part.Status.ShouldBe(PartStatus.Hold);
+        part.HoldRemark.ShouldBe("Supplier quality issue");
+
+        // Releasing returns it to approved rather than through approval again —
+        // a hold pauses accepted work, it does not undo the acceptance.
+        part.Release().IsSuccess.ShouldBeTrue();
+        part.Status.ShouldBe(PartStatus.Approved);
+    }
+
+    [Fact]
+    public void Only_an_approved_part_can_be_held()
+    {
+        var held = NewPart().Hold("Too early");
+
+        held.IsFailure.ShouldBeTrue();
+        held.Error.Code.ShouldBe("part.cannot_hold");
+    }
+
+    /// <summary>
+    /// The whole reason Inactive was retired as a status: withdrawing a part used
+    /// to overwrite its approval state, so nothing recorded that it had ever been
+    /// approved and reactivating it meant guessing where to put it back.
+    /// </summary>
+    [Fact]
+    public void Withdrawing_a_part_leaves_its_approval_state_alone()
+    {
+        var part = NewPart();
+        part.SubmitForApproval();
+        part.Approve(Approver, Now);
+
+        part.Deactivate("Superseded by MTR-200");
+
+        part.IsActive.ShouldBeFalse();
+        part.Status.ShouldBe(PartStatus.Approved);
+        part.InactiveRemark.ShouldBe("Superseded by MTR-200");
+
+        part.Reactivate();
+
+        part.IsActive.ShouldBeTrue();
+        part.Status.ShouldBe(PartStatus.Approved);
+    }
+
     private static Part NewPart(string partNumber = "MTR-100", string unitOfMeasure = "NOS") =>
         Part.Create(partNumber, "Drive motor", null, unitOfMeasure, null, null);
 }

@@ -82,9 +82,6 @@ const schema = z.object({
   leadTimeDays: wholeNumber('Lead time'),
   minimumStockLevel: numeric('Minimum stock level', 9_999_999.9999),
   reorderPoint: wholeNumber('Reorder point'),
-  revisionRemark: z.string().max(500, 'Revision remark must be 500 characters or fewer.'),
-  holdRemark: z.string().max(500, 'Hold remark must be 500 characters or fewer.'),
-  inactiveRemark: z.string().max(500, 'Inactive remark must be 500 characters or fewer.'),
 }) satisfies z.ZodType<PartFormValues, PartFormValues>;
 
 /**
@@ -159,9 +156,6 @@ function toFormValues(part?: PartDetail): PartFormValues {
     leadTimeDays: numberToText(a?.leadTimeDays),
     minimumStockLevel: numberToText(a?.minimumStockLevel),
     reorderPoint: numberToText(a?.reorderPoint),
-    revisionRemark: a?.revisionRemark ?? '',
-    holdRemark: a?.holdRemark ?? '',
-    inactiveRemark: a?.inactiveRemark ?? '',
   };
 }
 

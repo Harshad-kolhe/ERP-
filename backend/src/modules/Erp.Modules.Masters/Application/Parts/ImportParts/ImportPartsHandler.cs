@@ -212,7 +212,7 @@ internal sealed class ImportPartsHandler(MastersDbContext db)
         }
 
         reader.AddError(
-            $"'{text}' is not a status. Use Draft, PendingApproval, Approved or Inactive.",
+            $"'{text}' is not a status. Use Draft, PendingApproval, Approved, Rejected or Hold.",
             PartImportColumns.Status);
 
         return PartStatus.Draft;

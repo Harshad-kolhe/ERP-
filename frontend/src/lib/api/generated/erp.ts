@@ -1373,7 +1373,8 @@ export const MasterStatusDto = {
   Draft: 'Draft',
   PendingApproval: 'PendingApproval',
   Approved: 'Approved',
-  Inactive: 'Inactive',
+  Rejected: 'Rejected',
+  Hold: 'Hold',
 } as const;
 
 /**
@@ -2066,7 +2067,8 @@ export const PartStatusDto = {
   Draft: 'Draft',
   PendingApproval: 'PendingApproval',
   Approved: 'Approved',
-  Inactive: 'Inactive',
+  Rejected: 'Rejected',
+  Hold: 'Hold',
 } as const;
 
 export interface PermissionDefinition {

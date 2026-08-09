@@ -268,6 +268,16 @@ internal sealed class Part : AggregateRoot<PartId>, IAuditable, ISoftDeletable, 
         return Result.Success();
     }
 
+    /// <summary>
+    /// Withdraws the part from new documents, leaving its approval state alone.
+    /// <para>
+    /// It used to also set the status to <c>Inactive</c>, which destroyed the very
+    /// thing the two fields exist to keep apart: after withdrawing an approved
+    /// part, nothing recorded that it had ever been approved, so reactivating it
+    /// meant guessing where it should go back to. Withdrawal and approval are
+    /// different questions, and this answers only one of them.
+    /// </para>
+    /// </summary>
     /// <param name="reason">
     /// Recorded against the part. The legacy grid has an "Inactive Remark" column
     /// that was filled in by hand and therefore often was not; taking it here means
@@ -275,9 +285,69 @@ internal sealed class Part : AggregateRoot<PartId>, IAuditable, ISoftDeletable, 
     /// </param>
     public Result Deactivate(string? reason = null)
     {
-        Status = PartStatus.Inactive;
         IsActive = false;
         InactiveRemark = Clean(reason) ?? InactiveRemark;
+
+        return Result.Success();
+    }
+
+    /// <summary>Puts a withdrawn part back into use. Its approval state is untouched.</summary>
+    public Result Reactivate()
+    {
+        IsActive = true;
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Sends a submitted part back, with the reason it was refused.
+    /// <para>
+    /// A state of its own rather than a return to <see cref="PartStatus.Draft"/>.
+    /// The legacy flow stored the rejection and then reset the status, so the grid
+    /// showed a part waiting for approval again and the reason was invisible unless
+    /// somebody read the table.
+    /// </para>
+    /// </summary>
+    public Result Reject(string reason)
+    {
+        if (Status != PartStatus.PendingApproval)
+        {
+            return Result.Failure(PartErrors.CannotRejectFromStatus(Status));
+        }
+
+        Status = PartStatus.Rejected;
+        RevisionRemark = Clean(reason) ?? RevisionRemark;
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Pauses an approved part — legacy status <c>10</c>. It stays approved work,
+    /// so releasing it returns it to <see cref="PartStatus.Approved"/> rather than
+    /// through the whole approval again.
+    /// </summary>
+    public Result Hold(string reason)
+    {
+        if (Status != PartStatus.Approved)
+        {
+            return Result.Failure(PartErrors.CannotHoldFromStatus(Status));
+        }
+
+        Status = PartStatus.Hold;
+        HoldRemark = Clean(reason) ?? HoldRemark;
+
+        return Result.Success();
+    }
+
+    /// <summary>Lifts a hold, returning the part to the approved state it was paused from.</summary>
+    public Result Release()
+    {
+        if (Status != PartStatus.Hold)
+        {
+            return Result.Failure(PartErrors.CannotReleaseFromStatus(Status));
+        }
+
+        Status = PartStatus.Approved;
 
         return Result.Success();
     }

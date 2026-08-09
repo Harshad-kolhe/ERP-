@@ -6,7 +6,11 @@ import { cn } from "@/lib/utils"
 function NativeSelect({ className, ...props }: React.ComponentProps<"select">) {
   return (
     <div
-      className="group/native-select relative w-fit has-[select:disabled]:opacity-50"
+      // w-full, not w-fit. The select inside asks for w-full, and inside a
+      // fit-content wrapper that resolves to the width of the longest option — so
+      // every dropdown on a form sat narrower than the text inputs beside it, and
+      // each one a different width.
+      className="group/native-select relative w-full has-[select:disabled]:opacity-50"
       data-slot="native-select-wrapper"
     >
       <select

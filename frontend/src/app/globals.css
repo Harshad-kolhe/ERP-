@@ -123,9 +123,22 @@
   --brand-strong: oklch(0.4 0.14 252);
   /* Cast by the pinned action column over cells sliding beneath it. */
   --tl-pin-shadow: oklch(0.145 0 0 / 0.28);
+
+  /*
+   * Tells the browser which palette its *own* widgets should use.
+   *
+   * The list a <select> drops down is drawn by the operating system, not by this
+   * stylesheet — no class, token or Tailwind utility reaches inside it. Without
+   * this declaration the browser assumes light, so in dark mode the app went dark
+   * and every dropdown opened a white panel with near-invisible text. The same
+   * applies to scrollbars, date pickers, spinners and autofill.
+   */
+  color-scheme: light;
 }
 
 .dark {
+  color-scheme: dark;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);

@@ -144,6 +144,11 @@ export function SupplierForm({ supplier }: { supplier?: SupplierDetail }) {
       submitLabel={isNew ? 'Create supplier' : 'Save changes'}
       onCancel={() => router.push('/masters/suppliers')}
       lookups={lookups}
+      title={isNew ? 'New supplier' : 'Edit supplier'}
+      backLabel="Suppliers"
+      identityCode={supplier?.supplierCode}
+      badges={supplier ? [{ label: supplier.isActive ? 'Active' : 'Inactive', tone: supplier.isActive ? 'ok' : 'neutral' }] : []}
+      auditLine={supplier ? `Created ${new Date(supplier.createdAtUtc).toLocaleDateString('en-IN')}${supplier.modifiedAtUtc ? ` · Modified ${new Date(supplier.modifiedAtUtc).toLocaleDateString('en-IN')}` : ''}` : null}
     />
   );
 }

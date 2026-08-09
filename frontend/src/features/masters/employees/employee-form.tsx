@@ -160,6 +160,11 @@ export function EmployeeForm({ employee }: { employee?: EmployeeDetail }) {
       submitLabel={isNew ? 'Create employee' : 'Save changes'}
       onCancel={() => router.push('/masters/employees')}
       lookups={lookups}
+      title={isNew ? 'New employee' : 'Edit employee'}
+      backLabel="Employees"
+      identityCode={employee?.employeeCode ? String(employee.employeeCode) : null}
+      badges={employee ? [{ label: employee.isActive ? 'Active' : 'Inactive', tone: employee.isActive ? 'ok' : 'neutral' }] : []}
+      auditLine={employee ? `Created ${new Date(employee.createdAtUtc).toLocaleDateString('en-IN')}${employee.modifiedAtUtc ? ` · Modified ${new Date(employee.modifiedAtUtc).toLocaleDateString('en-IN')}` : ''}` : null}
     />
   );
 }

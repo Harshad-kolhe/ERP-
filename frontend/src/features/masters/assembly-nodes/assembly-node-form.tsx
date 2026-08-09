@@ -142,6 +142,11 @@ export function AssemblyNodeForm({
       submitLabel={isNew ? `Create ${screen.noun}` : 'Save changes'}
       onCancel={() => router.push(listHref)}
       lookups={lookups}
+      title={isNew ? `New ${screen.noun}` : `Edit ${screen.noun}`}
+      backLabel={screen.plural}
+      identityCode={node?.code}
+      badges={node ? [{ label: node.isActive ? 'Active' : 'Inactive', tone: node.isActive ? 'ok' : 'neutral' }] : []}
+      auditLine={node ? `Created ${new Date(node.createdAtUtc).toLocaleDateString('en-IN')}${node.modifiedAtUtc ? ` · Modified ${new Date(node.modifiedAtUtc).toLocaleDateString('en-IN')}` : ''}` : null}
     />
   );
 }

@@ -120,6 +120,11 @@ export function PartForm({ part }: { part?: PartDetail }) {
       submitLabel={isNew ? 'Create part' : 'Save changes'}
       onCancel={() => router.push('/masters/parts')}
       lookups={lookups}
+      title={isNew ? 'New part' : 'Edit part'}
+      backLabel="Parts"
+      identityCode={part?.partNumber}
+      badges={part ? [{ label: part.status === 'Approved' ? 'Approved' : part.status === 'PendingApproval' ? 'Pending approval' : part.status, tone: part.status === 'Approved' ? 'ok' : part.status === 'PendingApproval' ? 'warn' : 'neutral' }, { label: part.isActive ? 'Active' : 'Inactive', tone: part.isActive ? 'ok' : 'neutral' }] : []}
+      auditLine={part ? `Created ${new Date(part.createdAtUtc).toLocaleDateString('en-IN')}${part.modifiedAtUtc ? ` · Modified ${new Date(part.modifiedAtUtc).toLocaleDateString('en-IN')}` : ''}` : null}
     />
   );
 }

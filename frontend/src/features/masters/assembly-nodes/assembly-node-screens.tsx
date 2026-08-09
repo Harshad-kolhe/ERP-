@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -53,20 +55,11 @@ export function AssemblyNodeListScreen({ screen }: { screen: AssemblyLevelScreen
 }
 
 export function NewAssemblyNodeScreen({ screen }: { screen: AssemblyLevelScreen }) {
+  // No PageHeader: the form renders the approved identity bar itself, and two
+  // headers stacked is what the tabbed layout used to look like.
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PageHeader
-        title={`New ${screen.noun}`}
-        description={
-          screen.parent
-            ? `The code must be unique across sections, assemblies and sub-assemblies, and the ${screen.parent.noun.toLowerCase()} is required.`
-            : 'The code must be unique across sections, assemblies and sub-assemblies.'
-        }
-      />
-      {/* The form owns its own scrolling and sticky action bar, so no padding here. */}
-      <div className="flex min-h-0 flex-1 flex-col">
-        <AssemblyNodeForm screen={screen} />
-      </div>
+      <AssemblyNodeForm screen={screen} />
     </div>
   );
 }
@@ -80,15 +73,9 @@ export function EditAssemblyNodeScreen({
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PageHeader
-        title={`Edit ${screen.noun}`}
-        description="Saving checks the version you loaded, so a colleague's concurrent edit is reported rather than overwritten."
-      />
-      <div className="flex min-h-0 flex-1 flex-col">
-        <EditMasterRecord<AssemblyNodeDetail> resource={screen.resource} id={id} noun={screen.noun}>
-          {(node) => <AssemblyNodeForm screen={screen} node={node} />}
-        </EditMasterRecord>
-      </div>
+      <EditMasterRecord<AssemblyNodeDetail> resource={screen.resource} id={id} noun={screen.noun}>
+        {(node) => <AssemblyNodeForm screen={screen} node={node} />}
+      </EditMasterRecord>
     </div>
   );
 }

@@ -122,6 +122,11 @@ export function CustomerForm({ customer }: { customer?: CustomerDetail }) {
       submitLabel={isNew ? 'Create customer' : 'Save changes'}
       onCancel={() => router.push('/masters/customers')}
       lookups={lookups}
+      title={isNew ? 'New customer' : 'Edit customer'}
+      backLabel="Customers"
+      identityCode={customer?.customerCode}
+      badges={customer ? [{ label: customer.isActive ? 'Active' : 'Inactive', tone: customer.isActive ? 'ok' : 'neutral' }] : []}
+      auditLine={customer ? `Created ${new Date(customer.createdAtUtc).toLocaleDateString('en-IN')}${customer.modifiedAtUtc ? ` · Modified ${new Date(customer.modifiedAtUtc).toLocaleDateString('en-IN')}` : ''}` : null}
     />
   );
 }

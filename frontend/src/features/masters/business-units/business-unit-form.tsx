@@ -154,6 +154,11 @@ export function BusinessUnitForm({ unit }: { unit?: BusinessUnitDetail }) {
       submitLabel={isNew ? 'Create business unit' : 'Save changes'}
       onCancel={() => router.push('/masters/business-units')}
       lookups={lookups}
+      title={isNew ? 'New business unit' : 'Edit business unit'}
+      backLabel="Business units"
+      identityCode={unit?.businessName}
+      badges={unit ? [{ label: unit.isActive ? 'Active' : 'Inactive', tone: unit.isActive ? 'ok' : 'neutral' }] : []}
+      auditLine={unit ? `Created ${new Date(unit.createdAtUtc).toLocaleDateString('en-IN')}${unit.modifiedAtUtc ? ` · Modified ${new Date(unit.modifiedAtUtc).toLocaleDateString('en-IN')}` : ''}` : null}
     />
   );
 }

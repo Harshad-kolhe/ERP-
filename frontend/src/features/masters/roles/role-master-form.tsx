@@ -114,6 +114,15 @@ export function RoleMasterForm({ role }: { role?: RoleMasterDetail }) {
       formError={formError}
       submitLabel={isNew ? 'Create role' : 'Save changes'}
       onCancel={() => router.push('/masters/roles')}
+      title={isNew ? 'New role' : 'Edit role'}
+      backLabel="Roles"
+      identityCode={role?.rolesName}
+      badges={role ? [{ label: role.isActive ? 'Active' : 'Inactive', tone: role.isActive ? 'ok' : 'neutral' }] : []}
+      auditLine={
+        role
+          ? `Created ${new Date(role.createdAtUtc).toLocaleDateString('en-IN')}${role.modifiedAtUtc ? ` · Modified ${new Date(role.modifiedAtUtc).toLocaleDateString('en-IN')}` : ''}`
+          : null
+      }
     />
   );
 }

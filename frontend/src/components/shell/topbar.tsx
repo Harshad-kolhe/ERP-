@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Search } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
 import { useSession } from '@/components/permission/session-provider';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -12,21 +12,6 @@ export function Topbar() {
 
   return (
     <header className="bg-card flex h-12 shrink-0 items-center gap-2.5 border-b px-4">
-      {/* Placeholder for the command palette. Rendered disabled rather than omitted,
-          because the keyboard hint teaches the shortcut before the feature lands. */}
-      <button
-        type="button"
-        disabled
-        title="Coming with the command palette"
-        className="text-muted-foreground/70 bg-background hover:border-border flex h-7 w-full max-w-sm cursor-default items-center gap-2 rounded-md border px-2.5 text-left text-[12.5px]"
-      >
-        <Search className="size-3.5" aria-hidden />
-        Search parts, orders, machines…
-        <kbd className="border-border text-muted-foreground/70 ml-auto rounded border px-1 font-mono text-[10px] leading-4">
-          ⌘K
-        </kbd>
-      </button>
-
       {/*
         The business unit scopes every query below it, enforced by a database query
         filter that no handler can skip. It is shown permanently because scope that

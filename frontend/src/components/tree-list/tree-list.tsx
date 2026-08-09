@@ -53,6 +53,17 @@ export type TreeColumn<T> = {
   defaultVisible?: boolean;
   allowSorting?: boolean;
   allowFiltering?: boolean;
+  /**
+   * How a server-driven grid compares this column — one of the operators
+   * `FilterOperator` declares on the server.
+   *
+   * Defaults to `contains`, which is right for the free text most of these
+   * columns hold and wrong for the rest: `contains` on a boolean asks SQL Server
+   * for `LIKE '%true%'` against a bit column, and on a status it would match
+   * "Approved" from a search for "rove". Columns that hold a code, a flag or a
+   * number set `eq`.
+   */
+  filterOperator?: 'contains' | 'eq' | 'startswith' | 'gte' | 'lte';
   allowHiding?: boolean;
   allowResizing?: boolean;
   mono?: boolean;
@@ -139,6 +150,14 @@ export type TreeListProps<T extends Record<string, unknown>> = {
   /** Controlled sort. Same contract as {@link searchValue}. */
   sortValue?: SortDescriptor[];
   onSortChange?: (sorts: SortDescriptor[]) => void;
+
+  /**
+   * Controlled per-column filters, keyed by `dataField`. Same contract as
+   * {@link searchValue}: supply both and the values travel to the server; leave
+   * them undefined and the grid filters its own rows in memory.
+   */
+  filterValues?: Record<string, string>;
+  onFilterValuesChange?: (next: Record<string, string>) => void;
 
   /**
    * The rows arrive already searched, filtered, sorted and paged.
@@ -266,6 +285,8 @@ export default function TreeList<T extends Record<string, unknown>>({
   onSearchChange,
   sortValue,
   onSortChange,
+  filterValues,
+  onFilterValuesChange,
   serverDriven = false,
   footerBar,
 }: TreeListProps<T>) {
@@ -273,8 +294,24 @@ export default function TreeList<T extends Record<string, unknown>>({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [internalSearchText, setInternalSearchText] = useState('');
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [internalFilters, setInternalFilters] = useState<Record<string, string>>({});
   const [internalSorts, setInternalSorts] = useState<SortDescriptor[]>([]);
+
+  // Controlled when the page supplies both halves, uncontrolled otherwise —
+  // the same arrangement as search and sort above.
+  const filters = filterValues ?? internalFilters;
+
+  const setFilters = useCallback(
+    (update: (previous: Record<string, string>) => Record<string, string>) => {
+      if (onFilterValuesChange) {
+        onFilterValuesChange(update(filterValues ?? {}));
+        return;
+      }
+
+      setInternalFilters(update);
+    },
+    [filterValues, onFilterValuesChange],
+  );
 
   // Controlled when the page passes a value, uncontrolled otherwise. A
   // server-driven grid routes both of these into the query string, so the search
@@ -629,9 +666,9 @@ export default function TreeList<T extends Record<string, unknown>>({
   // own filters — otherwise "Clear all" leaves the grid still filtered.
   const clearFilters = useCallback(() => {
     setSearchText('');
-    setFilters({});
+    setFilters(() => ({}));
     onClearExternalFilters?.();
-  }, [onClearExternalFilters]);
+  }, [onClearExternalFilters, setFilters, setSearchText]);
 
   const toggleColumn = useCallback((field: string) => {
     setHiddenColumns((previous) => {
@@ -844,11 +881,13 @@ export default function TreeList<T extends Record<string, unknown>>({
 
         {toolbarExtras}
 
-        {/* Per-column filters are an in-memory pass, so a server-driven grid does
-            not offer the control at all. Rendering an inert toggle would be worse
-            than not having it: the user types, nothing narrows, and the grid looks
+        {/* Offered whenever the filters can actually do something: in memory for a
+            local grid, and against the database for a server-driven one that has
+            supplied `filterValues`. A server-driven grid that has not is the one
+            case where the control stays hidden — an inert toggle is worse than no
+            toggle, because the user types, nothing narrows, and the grid looks
             broken rather than unfinished. */}
-        {!serverDriven && (
+        {(!serverDriven || Boolean(onFilterValuesChange)) && (
           <button
             type="button"
             onClick={() => setShowFilterRow((value) => !value)}

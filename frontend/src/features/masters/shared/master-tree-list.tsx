@@ -129,6 +129,46 @@ export function MasterTreeList<TRow>({
     [apply],
   );
 
+  /**
+   * The per-column filter row, wired to the database rather than to the page in
+   * the browser.
+   *
+   * The grid speaks `{ field: text }`; the API speaks
+   * `field:op:value;field:op:value`. Translating here rather than in TreeList
+   * keeps the grid ignorant of the query contract — it is also used for local,
+   * in-memory trees that have no server behind them at all.
+   *
+   * A field the server does not declare on its `QueryMap` is rejected with 400
+   * rather than ignored, which is deliberate: a filter that silently did nothing
+   * would show unfiltered data to someone who believes it is filtered. Columns
+   * that have no server field say so with `allowFiltering: false`.
+   */
+  const filterValues = useMemo(() => parseFilter(state.filter), [state.filter]);
+
+  const operatorByField = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const column of columns) {
+      map.set(column.dataField, column.filterOperator ?? 'contains');
+    }
+    return map;
+  }, [columns]);
+
+  const onFilterValuesChange = useCallback(
+    (next: Record<string, string>) => {
+      const terms = Object.entries(next)
+        .map(([field, value]) => [field, value.trim()] as const)
+        .filter(([, value]) => value !== '')
+        // Semicolons and colons are the separators, so a value containing one
+        // would parse as extra terms. Stripping beats escaping: no column here
+        // holds text where they carry meaning, and a half-applied filter is
+        // worse than a slightly narrowed one.
+        .map(([field, value]) => `${field}:${operatorByField.get(field) ?? 'contains'}:${value.replaceAll(/[;:]/g, ' ')}`);
+
+      apply({ filter: terms.length ? terms.join(';') : null });
+    },
+    [apply, operatorByField],
+  );
+
   return (
     <TreeList<Indexable<TRow>>
       dataSource={dataSource}
@@ -142,8 +182,13 @@ export function MasterTreeList<TRow>({
       onSearchChange={onSearchChange}
       sortValue={sortValue}
       onSortChange={onSortChange}
+      filterValues={filterValues}
+      onFilterValuesChange={onFilterValuesChange}
       searchPlaceholder={searchPlaceholder}
       ariaLabel={ariaLabel}
+      // Named as the Part Master prototype names it. "Filters" alone reads as the
+      // page's filters; these are the per-column boxes in the header.
+      filterRowLabel="Column filters"
       emptyTitle={emptyTitle ?? 'Nothing to show'}
       emptyHint={emptyHint ?? 'No records match the current filters.'}
       emptyAction={emptyAction}
@@ -234,6 +279,38 @@ function Pager<TRow>({
       </div>
     </div>
   );
+}
+
+/**
+ * Parses the wire format `field:op:value;other:op:value` back into the
+ * `{ field: text }` shape the filter row renders.
+ *
+ * The operator is dropped on the way in — the row shows one text box per column,
+ * and which comparison it performs is a property of the column, not something
+ * the user typed. Split into three so a value may itself contain a colon.
+ */
+function parseFilter(filter: string | null): Record<string, string> {
+  if (!filter) return {};
+
+  const values: Record<string, string> = {};
+
+  for (const term of filter.split(';')) {
+    const [field, , value] = splitOnce(term);
+    if (field && value) values[field] = value;
+  }
+
+  return values;
+}
+
+/** `field:op:value` → the three parts, with the value keeping any further colons. */
+function splitOnce(term: string): [string, string, string] {
+  const first = term.indexOf(':');
+  if (first < 0) return ['', '', ''];
+
+  const second = term.indexOf(':', first + 1);
+  if (second < 0) return ['', '', ''];
+
+  return [term.slice(0, first), term.slice(first + 1, second), term.slice(second + 1)];
 }
 
 /** Parses the wire format `field:asc,other:desc` into TreeList's descriptors. */

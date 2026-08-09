@@ -85,6 +85,8 @@ export function activeColumn<T>(dataField = 'isActive'): TreeColumn<T> {
   return {
     dataField,
     caption: 'Active',
+    // A bit column: LIKE '%true%' against it is nonsense.
+    filterOperator: 'eq',
     width: 92,
     minWidth: 80,
     align: 'center',
@@ -100,6 +102,8 @@ export function statusColumn<T>(dataField = 'status'): TreeColumn<T> {
   return {
     dataField,
     caption: 'Status',
+    // Stored as its enum name, so "Approved" must match whole.
+    filterOperator: 'eq',
     width: 150,
     minWidth: 120,
     calculateCellValue: (row) => STATUS_LABELS[read(row, dataField) as MasterStatus] ?? '',
@@ -124,6 +128,8 @@ export function booleanColumn<T>(dataField: string, caption: string, width = 150
     width,
     minWidth: 90,
     align: 'center',
+    // Rendered Yes/No but stored as a bit — compare exactly.
+    filterOperator: 'eq',
     calculateCellValue: (row) => (read(row, dataField) ? 'Yes' : 'No'),
   };
 }
@@ -147,6 +153,8 @@ export function optionalBooleanColumn<T>(
     width,
     minWidth: 90,
     align: 'center',
+    // Three states (yes / no / not stated); still a bit column.
+    filterOperator: 'eq',
     defaultVisible: options.defaultVisible,
     calculateCellValue: (row) => {
       const value = read(row, dataField);
@@ -200,6 +208,8 @@ export function numberColumn<T>(
     width,
     minWidth: 80,
     align: 'right',
+    // A number. 'contains' would stringify it and match 1 inside 21.
+    filterOperator: 'eq',
     defaultVisible: options.defaultVisible,
     calculateCellValue: (row) => {
       const value = read(row, dataField);
@@ -239,6 +249,8 @@ export function lookupColumn<T>(
     width,
     minWidth: 80,
     align: 'center',
+    // Holds a code; the label is display only.
+    filterOperator: 'eq',
     defaultVisible: options.defaultVisible,
     calculateCellValue: (row) => {
       const value = read(row, dataField);

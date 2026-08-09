@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { usePermissions } from '@/components/permission/session-provider';
 import type { TreeColumn } from '@/components/tree-list/tree-list';
 import type { PartListItem, PartStatus } from '@/lib/api/types';
+import { PART_FILTERS } from '../shared/master-filter-fields';
 import { MasterTreeList } from '../shared/master-tree-list';
 import {
   activeColumn,
@@ -133,6 +134,8 @@ export function PartsTable() {
   return (
     <MasterTreeList<PartListItem>
       resource="parts"
+      filters={PART_FILTERS}
+      filtersNoun="Part"
       columns={columns}
       keyField="id"
       stretchColumn="description"

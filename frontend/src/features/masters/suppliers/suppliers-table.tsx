@@ -6,6 +6,7 @@ import { usePermissions } from '@/components/permission/session-provider';
 
 import type { TreeColumn } from '@/components/tree-list/tree-list';
 import type { SupplierListItem } from '@/lib/api/types';
+import { SUPPLIER_FILTERS } from '../shared/master-filter-fields';
 import { MasterTreeList } from '../shared/master-tree-list';
 import {
   activeColumn,
@@ -97,6 +98,8 @@ export function SuppliersTable() {
   return (
     <MasterTreeList<SupplierListItem>
       resource="suppliers"
+      filters={SUPPLIER_FILTERS}
+      filtersNoun="Supplier"
       columns={columns}
       keyField="id"
       stretchColumn="supplierName"

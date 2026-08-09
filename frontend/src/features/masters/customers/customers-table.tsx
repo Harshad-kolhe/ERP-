@@ -6,6 +6,7 @@ import { usePermissions } from '@/components/permission/session-provider';
 
 import type { TreeColumn } from '@/components/tree-list/tree-list';
 import type { CustomerListItem } from '@/lib/api/types';
+import { CUSTOMER_FILTERS } from '../shared/master-filter-fields';
 import { MasterTreeList } from '../shared/master-tree-list';
 import {
   activeColumn,
@@ -79,6 +80,8 @@ export function CustomersTable() {
   return (
     <MasterTreeList<CustomerListItem>
       resource="customers"
+      filters={CUSTOMER_FILTERS}
+      filtersNoun="Customer"
       columns={columns}
       keyField="id"
       stretchColumn="customerName"

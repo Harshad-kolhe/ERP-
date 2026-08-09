@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useServerTable, type ServerTableState } from '@/components/data-table/use-server-table';
 import TreeList, {
@@ -10,6 +10,14 @@ import TreeList, {
   type TreeListProps,
 } from '@/components/tree-list/tree-list';
 import type { PagedResult } from '@/lib/api/types';
+import { countActive, replaceOwnedTerms, valuesFor, type FilterTerm } from './filter-terms';
+import {
+  MasterFilters,
+  MasterFiltersTrigger,
+  filterLookups,
+  type MasterFilterField,
+} from './master-filters';
+import { useLookups } from './use-lookups';
 import { useMasterList } from './use-master-list';
 
 /**
@@ -54,6 +62,8 @@ export function MasterTreeList<TRow>({
   rowActions,
   editHref,
   canEdit = false,
+  filters,
+  filtersNoun,
 }: {
   /** Path segment under `/masters`, e.g. `suppliers`. */
   resource: string;
@@ -80,6 +90,14 @@ export function MasterTreeList<TRow>({
   editHref?: (row: TRow) => string;
   /** Whether the caller may edit. The endpoint enforces it too; this only decides what to draw. */
   canEdit?: boolean;
+  /**
+   * The fields this master's filters panel offers. Omit it and no panel is drawn,
+   * so a master that has nothing worth a dedicated search does not grow an empty
+   * one. Every field must exist on the endpoint's `QueryMap`.
+   */
+  filters?: readonly MasterFilterField[];
+  /** Names the panel: "Part" gives "Part filters". Defaults to the aria label. */
+  filtersNoun?: string;
 }) {
   const router = useRouter();
   const { state, apply, queryString } = useServerTable();
@@ -143,30 +161,66 @@ export function MasterTreeList<TRow>({
    * would show unfiltered data to someone who believes it is filtered. Columns
    * that have no server field say so with `allowFiltering: false`.
    */
-  const filterValues = useMemo(() => parseFilter(state.filter), [state.filter]);
+  const panelFields = useMemo(() => filters ?? [], [filters]);
+
+  // The two surfaces divide the query string between them by field. The panel is
+  // declared explicitly; the column row owns whatever is left, so neither can
+  // erase the other's work when it rewrites its own.
+  const panelOwned = useMemo(() => panelFields.map((field) => field.field), [panelFields]);
+
+  const columnOwned = useMemo(
+    () =>
+      columns
+        .map((column) => column.dataField)
+        .filter((field) => !panelOwned.includes(field)),
+    [columns, panelOwned],
+  );
 
   const operatorByField = useMemo(() => {
     const map = new Map<string, string>();
-    for (const column of columns) {
-      map.set(column.dataField, column.filterOperator ?? 'contains');
-    }
+    for (const column of columns) map.set(column.dataField, column.filterOperator ?? 'contains');
+    for (const field of panelFields) map.set(field.field, field.operator ?? 'contains');
     return map;
-  }, [columns]);
+  }, [columns, panelFields]);
+
+  const toTerms = useCallback(
+    (values: Record<string, string>): FilterTerm[] =>
+      Object.entries(values)
+        .filter(([, value]) => value.trim() !== '')
+        .map(([field, value]) => ({
+          field,
+          operator: (operatorByField.get(field) ?? 'contains') as FilterTerm['operator'],
+          value,
+        })),
+    [operatorByField],
+  );
+
+  const filterValues = useMemo(() => valuesFor(state.filter, columnOwned), [state.filter, columnOwned]);
 
   const onFilterValuesChange = useCallback(
-    (next: Record<string, string>) => {
-      const terms = Object.entries(next)
-        .map(([field, value]) => [field, value.trim()] as const)
-        .filter(([, value]) => value !== '')
-        // Semicolons and colons are the separators, so a value containing one
-        // would parse as extra terms. Stripping beats escaping: no column here
-        // holds text where they carry meaning, and a half-applied filter is
-        // worse than a slightly narrowed one.
-        .map(([field, value]) => `${field}:${operatorByField.get(field) ?? 'contains'}:${value.replaceAll(/[;:]/g, ' ')}`);
+    (next: Record<string, string>) =>
+      apply({ filter: replaceOwnedTerms(state.filter, columnOwned, toTerms(next)) }),
+    [apply, state.filter, columnOwned, toTerms],
+  );
 
-      apply({ filter: terms.length ? terms.join(';') : null });
-    },
-    [apply, operatorByField],
+  // ---- the page's own filters panel
+
+  const panelValues = useMemo(() => valuesFor(state.filter, panelOwned), [state.filter, panelOwned]);
+  const panelCount = countActive(panelValues);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const { lookups } = useLookups(useMemo(() => filterLookups(panelFields), [panelFields]));
+
+  const applyPanel = useCallback(
+    (next: Record<string, string>) =>
+      apply({ filter: replaceOwnedTerms(state.filter, panelOwned, toTerms(next)) }),
+    [apply, state.filter, panelOwned, toTerms],
+  );
+
+  // Clears this panel's fields only. The column row's terms are somebody else's,
+  // and a Reset that silently emptied them too would be a trap.
+  const resetPanel = useCallback(
+    () => apply({ filter: replaceOwnedTerms(state.filter, panelOwned, []) }),
+    [apply, state.filter, panelOwned],
   );
 
   return (
@@ -184,6 +238,31 @@ export function MasterTreeList<TRow>({
       onSortChange={onSortChange}
       filterValues={filterValues}
       onFilterValuesChange={onFilterValuesChange}
+      toolbarExtras={
+        <>
+          {panelFields.length > 0 && (
+            <MasterFiltersTrigger
+              open={panelOpen}
+              appliedCount={panelCount}
+              onToggle={() => setPanelOpen((open) => !open)}
+            />
+          )}
+          {toolbarExtras}
+        </>
+      }
+      panel={
+        panelFields.length > 0 && panelOpen ? (
+          <MasterFilters
+            noun={filtersNoun ?? ariaLabel}
+            fields={panelFields}
+            values={panelValues}
+            lookups={lookups}
+            onApply={applyPanel}
+            onReset={resetPanel}
+            onClose={() => setPanelOpen(false)}
+          />
+        ) : null
+      }
       searchPlaceholder={searchPlaceholder}
       ariaLabel={ariaLabel}
       // Named as the Part Master prototype names it. "Filters" alone reads as the
@@ -195,7 +274,6 @@ export function MasterTreeList<TRow>({
       stretchColumn={stretchColumn}
       exportLabel="Export page"
       exportFileName={exportFileName}
-      toolbarExtras={toolbarExtras}
       externalFilterChips={externalFilterChips}
       onClearExternalFilters={onClearExternalFilters}
       // Clicking anywhere on the row opens it, which is what people try first.
@@ -279,38 +357,6 @@ function Pager<TRow>({
       </div>
     </div>
   );
-}
-
-/**
- * Parses the wire format `field:op:value;other:op:value` back into the
- * `{ field: text }` shape the filter row renders.
- *
- * The operator is dropped on the way in — the row shows one text box per column,
- * and which comparison it performs is a property of the column, not something
- * the user typed. Split into three so a value may itself contain a colon.
- */
-function parseFilter(filter: string | null): Record<string, string> {
-  if (!filter) return {};
-
-  const values: Record<string, string> = {};
-
-  for (const term of filter.split(';')) {
-    const [field, , value] = splitOnce(term);
-    if (field && value) values[field] = value;
-  }
-
-  return values;
-}
-
-/** `field:op:value` → the three parts, with the value keeping any further colons. */
-function splitOnce(term: string): [string, string, string] {
-  const first = term.indexOf(':');
-  if (first < 0) return ['', '', ''];
-
-  const second = term.indexOf(':', first + 1);
-  if (second < 0) return ['', '', ''];
-
-  return [term.slice(0, first), term.slice(first + 1, second), term.slice(second + 1)];
 }
 
 /** Parses the wire format `field:asc,other:desc` into TreeList's descriptors. */

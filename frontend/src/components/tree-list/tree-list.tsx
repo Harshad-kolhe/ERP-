@@ -172,6 +172,14 @@ export type TreeListProps<T extends Record<string, unknown>> = {
 
   /** Pager and record count, rendered under the grid. */
   footerBar?: ReactNode;
+
+  /**
+   * A panel between the controls band and the grid — the page's own filters,
+   * typically. A slot rather than a prop bag because what goes here belongs to
+   * the screen, not to the grid: TreeList should not learn what a master filter
+   * is in order to render one.
+   */
+  panel?: ReactNode;
 };
 
 const NO_SORT: SortDescriptor[] = [];
@@ -289,6 +297,7 @@ export default function TreeList<T extends Record<string, unknown>>({
   onFilterValuesChange,
   serverDriven = false,
   footerBar,
+  panel,
 }: TreeListProps<T>) {
   const domId = useId().replace(/[^a-zA-Z0-9-]/g, '');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1035,6 +1044,10 @@ export default function TreeList<T extends Record<string, unknown>>({
           </span>
         </div>
       )}
+
+      {/* The page's own filter panel, between the controls that open it and the
+          rows it narrows — which is where someone looks for it after clicking. */}
+      {panel}
 
       {/* ---------- grid ---------- */}
       <div

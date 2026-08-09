@@ -7,6 +7,7 @@ import { usePermissions } from '@/components/permission/session-provider';
 import type { TreeColumn } from '@/components/tree-list/tree-list';
 import type { ParentPartListItem } from '@/lib/api/types';
 
+import { PARENT_PART_FILTERS } from '../shared/master-filter-fields';
 import { MasterTreeList } from '../shared/master-tree-list';
 import {
   activeColumn,
@@ -86,6 +87,8 @@ export function ParentPartsTable() {
   return (
     <MasterTreeList<ParentPartListItem>
       resource="parent-parts"
+      filters={PARENT_PART_FILTERS}
+      filtersNoun="Parent part"
       columns={columns}
       keyField="id"
       stretchColumn="partDescription"

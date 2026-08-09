@@ -6,6 +6,7 @@ import { useCallback, useMemo } from 'react';
 import { usePermissions } from '@/components/permission/session-provider';
 import type { AssemblyNodeListItem } from '@/lib/api/types';
 
+import { ASSEMBLY_NODE_FILTERS } from '../shared/master-filter-fields';
 import { MasterTreeList } from '../shared/master-tree-list';
 import { assemblyNodeColumns } from './assembly-node-columns';
 import type { AssemblyLevelScreen } from './assembly-node-level';
@@ -42,6 +43,10 @@ export function AssemblyNodesTable({ screen }: { screen: AssemblyLevelScreen }) 
   return (
     <MasterTreeList<AssemblyNodeListItem>
       resource={screen.resource}
+      // One declaration for all three levels, because they are one record type.
+      // The parent-code box is simply empty on sections, which have no parent.
+      filters={ASSEMBLY_NODE_FILTERS}
+      filtersNoun={sentenceCase(screen.noun)}
       columns={columns}
       keyField="id"
       stretchColumn="name"
@@ -78,4 +83,9 @@ export function AssemblyNodesTable({ screen }: { screen: AssemblyLevelScreen }) 
       }
     />
   );
+}
+
+/** "sub-assembly" → "Sub-assembly", so the panel heading reads as a title. */
+function sentenceCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }

@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { usePermissions } from '@/components/permission/session-provider';
 import type { TreeColumn } from '@/components/tree-list/tree-list';
 import type { EmployeeListItem } from '@/lib/api/types';
+import { EMPLOYEE_FILTERS } from '../shared/master-filter-fields';
 import { MasterTreeList } from '../shared/master-tree-list';
 import {
   activeColumn,
@@ -119,6 +120,8 @@ export function EmployeesTable() {
   return (
     <MasterTreeList<EmployeeListItem>
       resource="employees"
+      filters={EMPLOYEE_FILTERS}
+      filtersNoun="Employee"
       columns={columns}
       keyField="id"
       stretchColumn="address"

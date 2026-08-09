@@ -64,12 +64,14 @@ internal sealed class ListAssemblyNodesHandler(MastersDbContext db)
         .Field("createdAt", x => x.CreatedAtUtc)
         .Field("modifiedBy", x => x.ModifiedBy)
         .Field("modifiedAt", x => x.ModifiedAtUtc)
-        // Sequence first, because that is the order the engineering drawings are in
-        // and the order people read these lists in. Nulls sort first on SQL Server,
-        // which puts unsequenced nodes at the top where they are noticed and given
-        // one — the legacy grid ordered by id, so a node inserted later appeared
-        // last regardless of where it belonged.
-        .DefaultSort("displaySequence")
+        // Newest first, as on every list in this system.
+        //
+        // Previously this ordered by display sequence, on the reasoning that it is
+        // the order the drawings are in. That is the right order to *read* a
+        // finished breakdown in and the wrong one to *work* in: the node somebody
+        // just added is the one they want to check, and it arrived with no sequence
+        // at all. Anyone who wants the drawing order clicks that column and gets it.
+        .DefaultSort("createdAt", descending: true)
         .TieBreaker(x => x.Id)
         .Build();
 

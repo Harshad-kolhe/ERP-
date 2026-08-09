@@ -26,7 +26,10 @@ internal sealed class ListRolesHandler(MastersDbContext db)
         .Field("isActive", x => x.IsActive)
         .Field("bypassBusinessUnit", x => x.BypassBusinessUnit)
         .Field("createdAt", x => x.CreatedAtUtc)
-        .DefaultSort("rolesName")
+        // Newest first: a master is worked from the end, and the row somebody
+        // just added is the one they came back to check. Any column header still
+        // reorders it, and the tie-breaker below keeps paging stable either way.
+        .DefaultSort("createdAt", descending: true)
         .TieBreaker(x => x.Id)
         .Build();
 

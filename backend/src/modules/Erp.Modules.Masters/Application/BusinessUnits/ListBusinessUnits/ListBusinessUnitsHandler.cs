@@ -32,7 +32,10 @@ internal sealed class ListBusinessUnitsHandler(MastersDbContext db)
         .Field("stateName", x => x.StateName)
         .Field("isActive", x => x.IsActive)
         .Field("createdAt", x => x.CreatedAtUtc)
-        .DefaultSort("businessName")
+        // Newest first: a master is worked from the end, and the row somebody
+        // just added is the one they came back to check. Any column header still
+        // reorders it, and the tie-breaker below keeps paging stable either way.
+        .DefaultSort("createdAt", descending: true)
         .TieBreaker(x => x.Id)
         .Build();
 

@@ -52,7 +52,10 @@ internal sealed class ListCustomersHandler(MastersDbContext db)
         .Field("createdAt", x => x.CreatedAtUtc)
         .Field("modifiedBy", x => x.ModifiedBy)
         .Field("modifiedAt", x => x.ModifiedAtUtc)
-        .DefaultSort("customerName")
+        // Newest first: a master is worked from the end, and the row somebody
+        // just added is the one they came back to check. Any column header still
+        // reorders it, and the tie-breaker below keeps paging stable either way.
+        .DefaultSort("createdAt", descending: true)
         .TieBreaker(x => x.Id)
         .Build();
 

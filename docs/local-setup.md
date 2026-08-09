@@ -132,6 +132,15 @@ Two properties of that call matter:
   A missing file is not an error; that is the normal case everywhere but a
   laptop.
 
+**Never put `ASPNETCORE_ENVIRONMENT` in `.env`.** `dotnet run` and `dotnet ef`
+both take it from
+[`launchSettings.json`](../backend/src/Erp.Api/Properties/launchSettings.json),
+so nothing needs it there — and setting it breaks the build. `dotnet build`
+starts the host to emit `contracts/openapi.json`, deliberately outside
+Development so that reading a schema never applies a migration or seeds a user.
+A value in `.env` reaches that process too, and the build starts writing to your
+database.
+
 ### user-secrets — the alternative
 
 Still supported, and unchanged: values live in `~/.microsoft/usersecrets/`, keyed
@@ -338,6 +347,8 @@ dotnet ef migrations add <Name> \
 | Works on one machine, not another after `git pull` | `.env` is gitignored and per-machine. `cp .env.example .env` — and if a teammate added a variable, diff the two files. |
 | A setting in `.env` appears to be ignored | something already exports that variable in the shell, or it is also set in user-secrets. Real environment variables win by design (`NoClobber`); check with `env \| grep <name>` and `dotnet user-secrets list`. |
 | Integration tests fail, others pass | Docker Desktop is not running. Testcontainers needs it on both platforms. |
+| `dotnet build` fails with `There is already an object named 'AspNetRoles'` | `ASPNETCORE_ENVIRONMENT=Development` is set in `.env`. Remove it — see §3. The build starts the host to emit the OpenAPI document, deliberately outside Development so it never migrates; a value in `.env` reaches that process and makes `dotnet build` write to your database. |
+| `dotnet build` or `dotnet ef` fails on a locked DLL | the app is running. Stop it, or pass `--no-build`. |
 
 ---
 

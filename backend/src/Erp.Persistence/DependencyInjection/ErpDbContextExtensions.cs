@@ -23,7 +23,7 @@ public static class ErpDbContextExtensions
         services.AddDbContext<ErpDbContext>((serviceProvider, options) =>
             options
                 .UseSqlServer(
-                    configuration.GetConnectionString("Erp"),
+                    configuration.ErpConnectionString(),
                     sql => sql
                         .MigrationsHistoryTable("__EFMigrationsHistory", "masters")
                         .EnableRetryOnFailure())

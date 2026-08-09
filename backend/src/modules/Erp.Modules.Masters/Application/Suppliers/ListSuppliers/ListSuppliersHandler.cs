@@ -3,7 +3,7 @@ using Erp.BuildingBlocks.Application.Querying;
 using Erp.BuildingBlocks.Persistence.Querying;
 using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ namespace Erp.Modules.Masters.Application.Suppliers.ListSuppliers;
 /// count and page.
 /// </para>
 /// </summary>
-internal sealed class ListSuppliersHandler(MastersDbContext db)
+internal sealed class ListSuppliersHandler(ErpDbContext db)
     : IQueryHandler<ListSuppliersQuery, PagedResult<SupplierListItemDto>>
 {
     /// <summary>
@@ -128,12 +128,12 @@ internal sealed class ListSuppliersHandler(MastersDbContext db)
                 ActiveStatus = s.ActiveStatus,
                 IsActive = s.IsActive,
                 Status = s.Status,
-                CreatedBy = db.AuditUsers
+                CreatedBy = db.Users
                     .Where(u => u.Id == s.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
                 CreatedAtUtc = s.CreatedAtUtc,
-                ModifiedBy = db.AuditUsers
+                ModifiedBy = db.Users
                     .Where(u => u.Id == s.ModifiedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),

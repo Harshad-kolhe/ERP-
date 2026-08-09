@@ -1,7 +1,7 @@
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.Common;
-using Erp.Modules.Masters.Domain.Suppliers;
+using Erp.Persistence.Domain.Common;
+using Erp.Persistence.Domain.Suppliers;
 
 namespace Erp.Modules.Masters.Application.Suppliers;
 

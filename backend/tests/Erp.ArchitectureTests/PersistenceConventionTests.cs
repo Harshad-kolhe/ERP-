@@ -1,6 +1,5 @@
-using Erp.Modules.Masters;
+using Erp.Persistence;
 using Erp.SharedKernel.Primitives;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,27 +15,20 @@ namespace Erp.ArchitectureTests;
 /// </summary>
 public sealed class PersistenceConventionTests(ErpTestHost host) : IClassFixture<ErpTestHost>
 {
+    /// <summary>
+    /// The whole model, from the one context. There is nothing to enumerate any
+    /// more: every module maps its tables into <see cref="ErpDbContext"/>, so a
+    /// convention checked here is checked everywhere.
+    /// </summary>
     private IReadOnlyList<IEntityType> EntityTypes
     {
         get
         {
             using var scope = host.Services.CreateScope();
 
-            var contextTypes = typeof(MastersModule).Assembly
-                .GetTypes()
-                .Where(type => typeof(DbContext).IsAssignableFrom(type) && !type.IsAbstract);
-
-            var entityTypes = new List<IEntityType>();
-
-            foreach (var contextType in contextTypes)
-            {
-                if (scope.ServiceProvider.GetService(contextType) is DbContext context)
-                {
-                    entityTypes.AddRange(context.Model.GetEntityTypes());
-                }
-            }
-
-            return entityTypes;
+            return scope.ServiceProvider.GetService(typeof(ErpDbContext)) is ErpDbContext context
+                ? [.. context.Model.GetEntityTypes()]
+                : [];
         }
     }
 

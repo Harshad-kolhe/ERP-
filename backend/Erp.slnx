@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/Erp.Api/Erp.Api.csproj" />
     <Project Path="src/Erp.Contracts/Erp.Contracts.csproj" />
+    <Project Path="src/Erp.Persistence/Erp.Persistence.csproj" />
   </Folder>
   <Folder Name="/src/modules/">
     <Project Path="src/modules/Erp.Modules.Masters/Erp.Modules.Masters.csproj" />

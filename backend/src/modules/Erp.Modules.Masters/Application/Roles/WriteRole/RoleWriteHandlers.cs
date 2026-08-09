@@ -1,8 +1,8 @@
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.Roles;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Roles;
 using Erp.SharedKernel.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +37,7 @@ internal static class RoleMasterMapping
     };
 }
 
-internal sealed class GetRoleMasterByIdHandler(MastersDbContext db)
+internal sealed class GetRoleMasterByIdHandler(ErpDbContext db)
     : IQueryHandler<GetRoleMasterByIdQuery, RoleMasterDetailDto>
 {
     public async Task<Result<RoleMasterDetailDto>> HandleAsync(
@@ -46,7 +46,7 @@ internal sealed class GetRoleMasterByIdHandler(MastersDbContext db)
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var role = await db.Roles
+        var role = await db.MasterRoles
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Id == query.Id, cancellationToken);
 
@@ -56,7 +56,7 @@ internal sealed class GetRoleMasterByIdHandler(MastersDbContext db)
     }
 }
 
-internal sealed class CreateRoleMasterHandler(MastersDbContext db)
+internal sealed class CreateRoleMasterHandler(ErpDbContext db)
     : ICommandHandler<CreateRoleMasterCommand, int>
 {
     public async Task<Result<int>> HandleAsync(
@@ -68,7 +68,7 @@ internal sealed class CreateRoleMasterHandler(MastersDbContext db)
         var name = command.Request.RolesName.Trim();
 
         // Unique system-wide, not per tenant: a role is a cross-tenant concept here.
-        var exists = await db.Roles
+        var exists = await db.MasterRoles
             .AsNoTracking()
             .AnyAsync(r => r.RolesName == name, cancellationToken);
 
@@ -80,7 +80,7 @@ internal sealed class CreateRoleMasterHandler(MastersDbContext db)
         var role = new Role { RoleId = command.Request.RoleId };
         RoleMasterMapping.Apply(role, command.Request);
 
-        db.Roles.Add(role);
+        db.MasterRoles.Add(role);
 
         try
         {
@@ -98,7 +98,7 @@ internal sealed class CreateRoleMasterHandler(MastersDbContext db)
         exception.InnerException is SqlException { Number: 2601 or 2627 };
 }
 
-internal sealed class UpdateRoleMasterHandler(MastersDbContext db)
+internal sealed class UpdateRoleMasterHandler(ErpDbContext db)
     : ICommandHandler<UpdateRoleMasterCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(
@@ -112,7 +112,7 @@ internal sealed class UpdateRoleMasterHandler(MastersDbContext db)
             return Result.Failure<Unit>(MasterErrors.StaleRowVersion("role"));
         }
 
-        var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == command.Id, cancellationToken);
+        var role = await db.MasterRoles.FirstOrDefaultAsync(r => r.Id == command.Id, cancellationToken);
 
         if (role is null)
         {

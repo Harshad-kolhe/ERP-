@@ -48,7 +48,9 @@ Pin exact versions at scaffold time (`global.json` for the SDK, `Directory.Packa
 **2.1 — Modular monolith with vertical slices. One deployable API.**
 Not microservices: the domain is tightly coupled (BOM ↔ Inventory ↔ Procurement all touch the same aggregates), and distributed transactions would cost more than they buy at this team size. Not classic Clean/Onion layering either — the legacy already *had* `Domain/`, `Models/BLL/`, `Models/Database/` folders and they meant nothing, because a folder is not a boundary.
 
-The boundary here is **the C# `internal` keyword**. Each module is its own `.csproj`; everything except a small `Integration/` folder is `internal` and therefore *invisible to the compiler* from other modules. `BomBLL.cs` cannot happen again because nothing outside Engineering can call into it. This also leaves the door open to extracting a module into its own service later without redesigning.
+The boundary here is **the C# `internal` keyword**. Each module is its own `.csproj`; its application code — handlers, endpoints, validators — is `internal` apart from a small `Integration/` folder, and therefore *invisible to the compiler* from other modules. `BomBLL.cs` cannot happen again because nothing outside Engineering can call into it.
+
+Entities are the exception, and a deliberate one: since [ADR 0002](adr/0002-one-dbcontext-for-the-application.md) they are public and live in `src/Erp.Persistence` beneath the modules, so that one `DbContext` can map all of them. That trades away some of the extraction story in §2.5's original form — it is the cost the ADR accepts.
 
 **2.2 — Minimal APIs, one endpoint per file, not controllers.**
 `MastersController.cs` reached 249 actions because a controller is an unbounded bucket. A file that holds exactly one endpoint has nowhere to grow, and two developers adding features touch two different files instead of one — which directly attacks the 329-merge-commit problem.
@@ -59,8 +61,8 @@ All browser→API traffic goes through a catch-all Route Handler at `/api/[...pa
 **2.4 — Monorepo.**
 One repo, one PR, one CI run. The OpenAPI→TypeScript codegen gate (§8) only works if a schema change and its client update land in the same commit — two repos make contract drift inevitable.
 
-**2.5 — Schema-per-module in one database.**
-`masters.*`, `procurement.*`, `inventory.*`, `engineering.*` … One `DbContext` per module, each with `HasDefaultSchema` and its own migrations history table. Cross-module writes go through the **transactional outbox + integration events**, never a shared transaction — that is what keeps the boundaries real rather than decorative.
+**2.5 — One `DbContext`, schema-per-area in one database.** *(revised 2026-08-09 — see [ADR 0002](adr/0002-one-dbcontext-for-the-application.md))*
+`masters.*`, `identity.*`, and later `procurement.*`, `inventory.*`, `engineering.*` … all mapped by a single `ErpDbContext` in `src/Erp.Persistence`, with one `__EFMigrationsHistory`. Entities and their `IEntityTypeConfiguration` classes live there too — public, beneath the modules, because a context with typed `DbSet<T>` must see every entity at compile time and every handler must see the context. Modules keep their vertical slices; they no longer own their tables. A cross-module write is one `SaveChangesAsync` in one transaction; the outbox remains for integration, not for consistency.
 
 **2.6 — Static navigation in code, permissions from the database.**
 Legacy drove the menu from `ApplicationMaster`/`UMScreenMaster`/`UMControlMaster` rows that existed nowhere in source, which is a large part of why the feature surface was unknowable. New screens require a deploy anyway, so the nav tree is a typed config file; only *permissions* are data.
@@ -141,7 +143,7 @@ backend/
 │   │   │   ├── Querying/        QueryMap.cs, PageRequest.cs, QueryableExtensions.cs
 │   │   │   └── Abstractions/    ICurrentUser.cs, IBusinessUnitContext.cs
 │   │   ├── Erp.BuildingBlocks.Persistence/
-│   │   │   ├── ErpDbContextBase.cs          # applies ALL conventions (§9)
+│   │   │   ├── DependencyInjection/  AddErpPersistence, AddErpInterceptors
 │   │   │   ├── Interceptors/    AuditStampInterceptor, BusinessUnitStampInterceptor,
 │   │   │   │                    SoftDeleteInterceptor, DomainEventDispatchInterceptor,
 │   │   │   │                    UnboundedQueryGuardInterceptor
@@ -244,8 +246,8 @@ Erp.Modules.Inventory/
 │   └── Abstractions/IStockPostingService.cs
 │
 ├── Infrastructure/
-│   ├── InventoryDbContext.cs           # HasDefaultSchema("inventory")
-│   ├── Configurations/                 # one IEntityTypeConfiguration per aggregate
+│   │                                   # no DbContext — see ADR 0002; entities and
+│   │                                   # configurations live in src/Erp.Persistence
 │   │   ├── StockLedgerEntryConfiguration.cs
 │   │   ├── StockBalanceConfiguration.cs
 │   │   └── GoodsReceiptConfiguration.cs
@@ -383,7 +385,7 @@ src/features/inventory/goods-receipts/
 
 ## 6. Database conventions
 
-Applied **by convention in `ErpDbContextBase.OnModelCreating`**, iterating all entity types — never per-entity, so they cannot be forgotten:
+Applied **by convention in `ErpDbContext.OnModelCreating`** (`src/Erp.Persistence`), iterating all entity types — never per-entity, so they cannot be forgotten:
 
 | Concern | Mechanism |
 |---|---|
@@ -457,7 +459,7 @@ Every row is enforceable by a machine. None is "we'll be careful."
 
 Because this is greenfield-no-parity, sequence by **business value**, not by legacy screen count — but platform first, because everything inherits from it.
 
-**Phase 0 — Platform (4–6 weeks).** Repo skeleton, `Directory.Build.props`, analyzers, arch tests, CI, Docker compose, Identity, `ErpDbContextBase` + all conventions, `QueryMap`, `PagedResult`, `ProblemDetails`, numbering allocator, outbox, `data-table` kit, form kit, BFF proxy, orval pipeline.
+**Phase 0 — Platform (4–6 weeks).** Repo skeleton, `Directory.Build.props`, analyzers, arch tests, CI, Docker compose, Identity, `ErpDbContext` + all conventions, `QueryMap`, `PagedResult`, `ProblemDetails`, numbering allocator, outbox, `data-table` kit, form kit, BFF proxy, orval pipeline.
 
 **Phase 0.5 — Vertical proof (1–2 weeks).** *Before* scaling out: one complete slice end-to-end — login → parts list (server-paged, filtered, exported) → create part → approve part. It exercises every layer, every guardrail, and every generated artefact. Fix the structure here, while it costs nothing.
 

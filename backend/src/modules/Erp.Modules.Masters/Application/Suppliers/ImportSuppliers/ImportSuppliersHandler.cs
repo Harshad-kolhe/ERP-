@@ -2,9 +2,9 @@ using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.BuildingBlocks.Excel;
 using Erp.Contracts.Import;
 using Erp.Modules.Masters.Application.Imports;
-using Erp.Modules.Masters.Domain.Common;
-using Erp.Modules.Masters.Domain.Suppliers;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Common;
+using Erp.Persistence.Domain.Suppliers;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +13,7 @@ namespace Erp.Modules.Masters.Application.Suppliers.ImportSuppliers;
 internal sealed record ImportSuppliersCommand(ImportFile File);
 
 /// <summary>Loads a sheet of suppliers. Same shape as <c>ImportPartsHandler</c> — see it for the reasoning.</summary>
-internal sealed class ImportSuppliersHandler(MastersDbContext db)
+internal sealed class ImportSuppliersHandler(ErpDbContext db)
     : ICommandHandler<ImportSuppliersCommand, ImportResultDto>
 {
     public async Task<Result<ImportResultDto>> HandleAsync(

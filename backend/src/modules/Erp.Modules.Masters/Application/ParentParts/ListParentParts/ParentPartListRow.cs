@@ -1,6 +1,6 @@
-using Erp.Modules.Masters.Domain.Assemblies;
-using Erp.Modules.Masters.Domain.ParentParts;
-using Erp.Modules.Masters.Domain.Parts;
+using Erp.Persistence.Domain.Assemblies;
+using Erp.Persistence.Domain.ParentParts;
+using Erp.Persistence.Domain.Parts;
 
 namespace Erp.Modules.Masters.Application.ParentParts.ListParentParts;
 

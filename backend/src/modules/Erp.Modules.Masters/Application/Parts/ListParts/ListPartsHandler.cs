@@ -3,7 +3,7 @@ using Erp.BuildingBlocks.Application.Querying;
 using Erp.BuildingBlocks.Persistence.Querying;
 using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +24,7 @@ namespace Erp.Modules.Masters.Application.Parts.ListParts;
 /// view rather than from a lookup per row.
 /// </para>
 /// </summary>
-internal sealed class ListPartsHandler(MastersDbContext db)
+internal sealed class ListPartsHandler(ErpDbContext db)
     : IQueryHandler<ListPartsQuery, PagedResult<PartListItemDto>>
 {
     /// <summary>
@@ -124,12 +124,12 @@ internal sealed class ListPartsHandler(MastersDbContext db)
                 RevisionRemark = p.RevisionRemark,
                 HoldRemark = p.HoldRemark,
                 InactiveRemark = p.InactiveRemark,
-                CreatedBy = db.AuditUsers
+                CreatedBy = db.Users
                     .Where(u => u.Id == p.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
                 CreatedAtUtc = p.CreatedAtUtc,
-                ModifiedBy = db.AuditUsers
+                ModifiedBy = db.Users
                     .Where(u => u.Id == p.ModifiedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),

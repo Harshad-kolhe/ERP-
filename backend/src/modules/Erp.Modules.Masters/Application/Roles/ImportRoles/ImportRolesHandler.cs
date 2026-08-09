@@ -2,8 +2,8 @@ using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.BuildingBlocks.Excel;
 using Erp.Contracts.Import;
 using Erp.Modules.Masters.Application.Imports;
-using Erp.Modules.Masters.Domain.Roles;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Roles;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +24,7 @@ internal sealed record ImportRolesCommand(ImportFile File);
 /// a cross-tenant concept here — see <c>Role</c>.
 /// </para>
 /// </summary>
-internal sealed class ImportRolesHandler(MastersDbContext db)
+internal sealed class ImportRolesHandler(ErpDbContext db)
     : ICommandHandler<ImportRolesCommand, ImportResultDto>
 {
     public async Task<Result<ImportResultDto>> HandleAsync(
@@ -72,7 +72,7 @@ internal sealed class ImportRolesHandler(MastersDbContext db)
             return Result.Success(report.Build(committed: false));
         }
 
-        db.Roles.AddRange(roles);
+        db.MasterRoles.AddRange(roles);
         await db.SaveChangesAsync(cancellationToken);
 
         return Result.Success(report.Build(committed: true));
@@ -116,7 +116,7 @@ internal sealed class ImportRolesHandler(MastersDbContext db)
             return;
         }
 
-        var taken = (await db.Roles
+        var taken = (await db.MasterRoles
                 .AsNoTracking()
                 .Where(role => role.RolesName != null && wanted.Contains(role.RolesName))
                 .Select(role => role.RolesName!)

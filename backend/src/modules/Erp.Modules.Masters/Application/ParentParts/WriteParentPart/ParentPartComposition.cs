@@ -1,8 +1,8 @@
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Domain.Assemblies;
-using Erp.Modules.Masters.Domain.ParentParts;
-using Erp.Modules.Masters.Domain.Parts;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Assemblies;
+using Erp.Persistence.Domain.ParentParts;
+using Erp.Persistence.Domain.Parts;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,7 +36,7 @@ internal static class ParentPartComposition
     /// by id.
     /// </param>
     public static async Task<Result<List<ParentPartComponentDraft>>> BuildAsync(
-        MastersDbContext db,
+        ErpDbContext db,
         PartId parentPartId,
         IReadOnlyList<ParentPartComponentDto> components,
         CancellationToken cancellationToken)
@@ -107,7 +107,7 @@ internal static class ParentPartComposition
     /// </para>
     /// </summary>
     public static async Task<Result<AssemblyNodeId?>> ResolveAssemblyNodeAsync(
-        MastersDbContext db,
+        ErpDbContext db,
         Guid? assemblyNodeId,
         CancellationToken cancellationToken)
     {

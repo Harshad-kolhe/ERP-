@@ -1,7 +1,7 @@
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.Common;
-using Erp.Modules.Masters.Domain.Employees;
+using Erp.Persistence.Domain.Common;
+using Erp.Persistence.Domain.Employees;
 
 namespace Erp.Modules.Masters.Application.Employees;
 

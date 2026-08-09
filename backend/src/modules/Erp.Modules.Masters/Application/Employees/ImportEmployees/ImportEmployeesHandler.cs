@@ -3,8 +3,8 @@ using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.BuildingBlocks.Excel;
 using Erp.Contracts.Import;
 using Erp.Modules.Masters.Application.Imports;
-using Erp.Modules.Masters.Domain.Employees;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Employees;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +21,7 @@ internal sealed record ImportEmployeesCommand(ImportFile File);
 /// another business unit would be a way to write across the boundary.
 /// </para>
 /// </summary>
-internal sealed class ImportEmployeesHandler(MastersDbContext db)
+internal sealed class ImportEmployeesHandler(ErpDbContext db)
     : ICommandHandler<ImportEmployeesCommand, ImportResultDto>
 {
     public async Task<Result<ImportResultDto>> HandleAsync(

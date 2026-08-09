@@ -2,6 +2,7 @@ using Erp.BuildingBlocks.Application.Abstractions;
 using Erp.BuildingBlocks.Web.Modules;
 using Erp.Contracts.Auth;
 using Erp.Contracts.Common;
+using Erp.Persistence.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace Erp.Api.Authentication;

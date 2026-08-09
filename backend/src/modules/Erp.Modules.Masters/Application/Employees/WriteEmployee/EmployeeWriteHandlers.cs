@@ -2,9 +2,9 @@ using Erp.BuildingBlocks.Application.Abstractions;
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.Employees;
-using Erp.Modules.Masters.Infrastructure;
 using Erp.Modules.Masters.Integration;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Employees;
 using Erp.SharedKernel.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ internal sealed record CreateEmployeeCommand(CreateEmployeeRequest Request);
 
 internal sealed record UpdateEmployeeCommand(int Id, UpdateEmployeeRequest Request);
 
-internal sealed class GetEmployeeByIdHandler(MastersDbContext db, ICurrentUser currentUser)
+internal sealed class GetEmployeeByIdHandler(ErpDbContext db, ICurrentUser currentUser)
     : IQueryHandler<GetEmployeeByIdQuery, EmployeeDetailDto>
 {
     public async Task<Result<EmployeeDetailDto>> HandleAsync(
@@ -41,7 +41,7 @@ internal sealed class GetEmployeeByIdHandler(MastersDbContext db, ICurrentUser c
     }
 }
 
-internal sealed class CreateEmployeeHandler(MastersDbContext db, ICurrentUser currentUser)
+internal sealed class CreateEmployeeHandler(ErpDbContext db, ICurrentUser currentUser)
     : ICommandHandler<CreateEmployeeCommand, int>
 {
     public async Task<Result<int>> HandleAsync(
@@ -92,7 +92,7 @@ internal sealed class CreateEmployeeHandler(MastersDbContext db, ICurrentUser cu
         exception.InnerException is SqlException { Number: 2601 or 2627 };
 }
 
-internal sealed class UpdateEmployeeHandler(MastersDbContext db, ICurrentUser currentUser)
+internal sealed class UpdateEmployeeHandler(ErpDbContext db, ICurrentUser currentUser)
     : ICommandHandler<UpdateEmployeeCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(

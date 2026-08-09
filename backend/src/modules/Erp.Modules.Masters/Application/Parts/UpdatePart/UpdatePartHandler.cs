@@ -1,7 +1,7 @@
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Domain.Parts;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Parts;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ internal sealed record UpdatePartCommand(
     PartAttributesDto? Attributes,
     string RowVersion);
 
-internal sealed class UpdatePartHandler(MastersDbContext db) : ICommandHandler<UpdatePartCommand, Unit>
+internal sealed class UpdatePartHandler(ErpDbContext db) : ICommandHandler<UpdatePartCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(UpdatePartCommand command, CancellationToken cancellationToken)
     {

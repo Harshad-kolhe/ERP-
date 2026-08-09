@@ -1,7 +1,7 @@
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Domain.Parts;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Parts;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +9,7 @@ namespace Erp.Modules.Masters.Application.Parts.GetPartById;
 
 internal sealed record GetPartByIdQuery(Guid Id);
 
-internal sealed class GetPartByIdHandler(MastersDbContext db) : IQueryHandler<GetPartByIdQuery, PartDetailDto>
+internal sealed class GetPartByIdHandler(ErpDbContext db) : IQueryHandler<GetPartByIdQuery, PartDetailDto>
 {
     public async Task<Result<PartDetailDto>> HandleAsync(
         GetPartByIdQuery query,

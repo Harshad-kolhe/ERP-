@@ -5,6 +5,8 @@ using Erp.BuildingBlocks.Web.Modules;
 using Erp.BuildingBlocks.Web.Security;
 using Erp.Contracts.Common;
 using Erp.Contracts.Security;
+using Erp.Persistence;
+using Erp.Persistence.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,7 +51,7 @@ internal static class RoleEndpoints
         group.MapGet("/roles", async (
                 int? page,
                 int? pageSize,
-                IdentityDataContext db,
+                ErpDbContext db,
                 CancellationToken cancellationToken) =>
             {
                 var request = PageRequestBinding.From(page, pageSize, sort: null, search: null, filter: null);
@@ -80,7 +82,7 @@ internal static class RoleEndpoints
 
         group.MapGet("/roles/{id:guid}", async (
                 Guid id,
-                IdentityDataContext db,
+                ErpDbContext db,
                 CancellationToken cancellationToken) =>
             {
                 var role = await db.Roles

@@ -1,23 +1,18 @@
+using Erp.Persistence;
+using Erp.Persistence.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Erp.Api.Authentication;
 
 internal static class AuthenticationSetup
 {
-    public static IServiceCollection AddErpAuthentication(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddErpAuthentication(this IServiceCollection services)
     {
-        services.AddDbContext<IdentityDataContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("Erp"),
-                sql => sql
-                    .MigrationsHistoryTable("__EFMigrationsHistory", "identity")
-                    .EnableRetryOnFailure()));
-
+        // No context registration here. Identity stores into the application's one
+        // ErpDbContext, registered by the host through AddErpDbContext, so a sign-in
+        // and a master-data query share a connection and a migration history.
         services.AddAuthentication(IdentityConstants.ApplicationScheme)
             .AddIdentityCookies();
 
@@ -39,7 +34,7 @@ internal static class AuthenticationSetup
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddRoles<ErpRole>()
-            .AddEntityFrameworkStores<IdentityDataContext>()
+            .AddEntityFrameworkStores<ErpDbContext>()
             .AddClaimsPrincipalFactory<ErpClaimsPrincipalFactory>()
             .AddSignInManager()
             .AddDefaultTokenProviders();

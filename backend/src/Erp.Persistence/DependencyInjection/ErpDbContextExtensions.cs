@@ -1,0 +1,35 @@
+using Erp.BuildingBlocks.Persistence.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Erp.Persistence.DependencyInjection;
+
+public static class ErpDbContextExtensions
+{
+    /// <summary>
+    /// Registers the application's single <see cref="ErpDbContext"/>. Called once
+    /// from the host — modules no longer register a context of their own, so there
+    /// is exactly one place that names the connection string and one migration
+    /// history table for the whole schema.
+    /// </summary>
+    public static IServiceCollection AddErpDbContext(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddDbContext<ErpDbContext>((serviceProvider, options) =>
+            options
+                .UseSqlServer(
+                    configuration.GetConnectionString("Erp"),
+                    sql => sql
+                        .MigrationsHistoryTable("__EFMigrationsHistory", "masters")
+                        .EnableRetryOnFailure())
+                // Audit stamping, tenant stamping and soft delete. Not optional.
+                .AddErpInterceptors(serviceProvider));
+
+        return services;
+    }
+}

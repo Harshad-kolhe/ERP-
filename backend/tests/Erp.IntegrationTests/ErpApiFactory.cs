@@ -5,6 +5,8 @@ using Erp.Api.Authentication;
 using Erp.BuildingBlocks.Web.Security;
 using Erp.Contracts.Auth;
 using Erp.Modules.Masters;
+using Erp.Persistence;
+using Erp.Persistence.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -136,7 +138,7 @@ public sealed class ErpApiFactory : WebApplicationFactory<Program>, IAsyncLifeti
     /// </summary>
     private static async Task MigrateAllContextsAsync(IServiceProvider services)
     {
-        var contextTypes = new[] { typeof(MastersModule).Assembly, typeof(IdentityDataContext).Assembly }
+        var contextTypes = new[] { typeof(MastersModule).Assembly, typeof(ErpDbContext).Assembly }
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => typeof(DbContext).IsAssignableFrom(type) && !type.IsAbstract)
             .Distinct();

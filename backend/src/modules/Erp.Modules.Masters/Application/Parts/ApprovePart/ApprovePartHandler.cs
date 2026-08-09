@@ -1,7 +1,7 @@
 using Erp.BuildingBlocks.Application.Abstractions;
 using Erp.BuildingBlocks.Application.Cqrs;
-using Erp.Modules.Masters.Domain.Parts;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Parts;
 using Erp.SharedKernel.Results;
 using Erp.SharedKernel.Time;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ namespace Erp.Modules.Masters.Application.Parts.ApprovePart;
 internal sealed record ApprovePartCommand(Guid Id);
 
 internal sealed class ApprovePartHandler(
-    MastersDbContext db,
+    ErpDbContext db,
     ICurrentUser currentUser,
     IClock clock) : ICommandHandler<ApprovePartCommand, Unit>
 {

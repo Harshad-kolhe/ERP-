@@ -1,9 +1,9 @@
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.ParentParts;
-using Erp.Modules.Masters.Domain.Parts;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.ParentParts;
+using Erp.Persistence.Domain.Parts;
 using Erp.SharedKernel.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +19,7 @@ internal sealed record UpdateParentPartCommand(Guid Id, UpdateParentPartRequest 
 /// <summary>
 /// Returns one build and its lines, with every part number resolved server-side.
 /// </summary>
-internal sealed class GetParentPartByIdHandler(MastersDbContext db)
+internal sealed class GetParentPartByIdHandler(ErpDbContext db)
     : IQueryHandler<GetParentPartByIdQuery, ParentPartDetailDto>
 {
     public async Task<Result<ParentPartDetailDto>> HandleAsync(
@@ -118,7 +118,7 @@ internal sealed class GetParentPartByIdHandler(MastersDbContext db)
     }
 }
 
-internal sealed class CreateParentPartHandler(MastersDbContext db)
+internal sealed class CreateParentPartHandler(ErpDbContext db)
     : ICommandHandler<CreateParentPartCommand, Guid>
 {
     public async Task<Result<Guid>> HandleAsync(
@@ -199,7 +199,7 @@ internal sealed class CreateParentPartHandler(MastersDbContext db)
         exception.InnerException is SqlException { Number: 2601 or 2627 };
 }
 
-internal sealed class UpdateParentPartHandler(MastersDbContext db)
+internal sealed class UpdateParentPartHandler(ErpDbContext db)
     : ICommandHandler<UpdateParentPartCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(

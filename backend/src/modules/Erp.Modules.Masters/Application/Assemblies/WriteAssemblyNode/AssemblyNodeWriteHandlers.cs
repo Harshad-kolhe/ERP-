@@ -1,8 +1,8 @@
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.Assemblies;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Assemblies;
 using Erp.SharedKernel.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +20,7 @@ internal sealed record CreateAssemblyNodeCommand(AssemblyLevel Level, CreateAsse
 
 internal sealed record UpdateAssemblyNodeCommand(AssemblyLevel Level, Guid Id, UpdateAssemblyNodeRequest Request);
 
-internal sealed class GetAssemblyNodeByIdHandler(MastersDbContext db)
+internal sealed class GetAssemblyNodeByIdHandler(ErpDbContext db)
     : IQueryHandler<GetAssemblyNodeByIdQuery, AssemblyNodeDetailDto>
 {
     public async Task<Result<AssemblyNodeDetailDto>> HandleAsync(
@@ -71,7 +71,7 @@ internal sealed class GetAssemblyNodeByIdHandler(MastersDbContext db)
     }
 }
 
-internal sealed class CreateAssemblyNodeHandler(MastersDbContext db)
+internal sealed class CreateAssemblyNodeHandler(ErpDbContext db)
     : ICommandHandler<CreateAssemblyNodeCommand, Guid>
 {
     public async Task<Result<Guid>> HandleAsync(
@@ -138,7 +138,7 @@ internal sealed class CreateAssemblyNodeHandler(MastersDbContext db)
     }
 }
 
-internal sealed class UpdateAssemblyNodeHandler(MastersDbContext db)
+internal sealed class UpdateAssemblyNodeHandler(ErpDbContext db)
     : ICommandHandler<UpdateAssemblyNodeCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(
@@ -251,7 +251,7 @@ internal static class AssemblyNodeRules
     /// </para>
     /// </summary>
     public static async Task<Result<AssemblyNodeId?>> ResolveParentAsync(
-        MastersDbContext db,
+        ErpDbContext db,
         AssemblyLevel level,
         Guid? parentId,
         CancellationToken cancellationToken)

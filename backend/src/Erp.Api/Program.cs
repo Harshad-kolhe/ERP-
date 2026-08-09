@@ -8,6 +8,7 @@ using Erp.BuildingBlocks.Persistence.Time;
 using Erp.BuildingBlocks.Web.DependencyInjection;
 using Erp.BuildingBlocks.Web.Modules;
 using Erp.BuildingBlocks.Web.Security;
+using Erp.Persistence.DependencyInjection;
 using Erp.SharedKernel.Time;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -19,18 +20,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.ConfigureErpSerilog();
 
 builder.Services.AddErpObservability(builder.Configuration);
-builder.Services.AddErpAuthentication(builder.Configuration);
+builder.Services.AddErpAuthentication();
 builder.Services.AddErpWebBuildingBlocks();
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IClock>(
     new SystemClock(TimeProvider.System, BusinessTimeZone.Resolve(builder.Configuration)));
 
-// Audit stamping, tenant stamping and soft delete. Each module attaches them to
-// its own DbContext with .AddErpInterceptors(serviceProvider) — explicitly, because
-// EF's implicit discovery of IInterceptor registrations did not pick them up and
-// the failure was silent: rows written with BusinessUnitId = 0 and no audit trail.
+// Audit stamping, tenant stamping and soft delete. AddErpDbContext attaches them
+// with .AddErpInterceptors(serviceProvider) — explicitly, because EF's implicit
+// discovery of IInterceptor registrations did not pick them up and the failure was
+// silent: rows written with BusinessUnitId = 0 and no audit trail.
 builder.Services.AddErpPersistence();
+
+// One DbContext for the whole application. Modules map their tables into it
+// through IEntityTypeConfiguration; none of them registers a context of its own.
+builder.Services.AddErpDbContext(builder.Configuration);
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

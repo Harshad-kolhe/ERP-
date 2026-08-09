@@ -5,7 +5,7 @@ using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Assemblies.ListAssemblyNodes;
 using Erp.Modules.Masters.Application.Assemblies.WriteAssemblyNode;
-using Erp.Modules.Masters.Domain.Assemblies;
+using Erp.Persistence.Domain.Assemblies;
 using Erp.SharedKernel.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

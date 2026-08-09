@@ -1,4 +1,4 @@
-using Erp.Modules.Masters.Domain.Parts;
+using Erp.Persistence.Domain.Parts;
 
 namespace Erp.Modules.Masters.Tests.Domain;
 

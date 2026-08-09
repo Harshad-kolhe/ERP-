@@ -3,7 +3,7 @@ using Erp.BuildingBlocks.Application.Querying;
 using Erp.BuildingBlocks.Persistence.Querying;
 using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +24,7 @@ internal sealed record ListParentPartsQuery(PageRequest Page);
 /// separately and matched numbers up in the browser.
 /// </para>
 /// </summary>
-internal sealed class ListParentPartsHandler(MastersDbContext db)
+internal sealed class ListParentPartsHandler(ErpDbContext db)
     : IQueryHandler<ListParentPartsQuery, PagedResult<ParentPartListItemDto>>
 {
     /// <summary>
@@ -92,12 +92,12 @@ internal sealed class ListParentPartsHandler(MastersDbContext db)
                 TotalWeightKg = parentPart.TotalWeightKg,
                 TotalAmount = parentPart.TotalAmount,
                 IsActive = parentPart.IsActive,
-                CreatedBy = db.AuditUsers
+                CreatedBy = db.Users
                     .Where(user => user.Id == parentPart.CreatedByUserId)
                     .Select(user => user.DisplayName)
                     .FirstOrDefault(),
                 CreatedAtUtc = parentPart.CreatedAtUtc,
-                ModifiedBy = db.AuditUsers
+                ModifiedBy = db.Users
                     .Where(user => user.Id == parentPart.ModifiedByUserId)
                     .Select(user => user.DisplayName)
                     .FirstOrDefault(),

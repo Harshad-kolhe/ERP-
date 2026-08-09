@@ -1,6 +1,6 @@
 using Erp.BuildingBlocks.Web.Modules;
-using Erp.Modules.Masters.Domain.Assemblies;
 using Erp.Modules.Masters.Integration;
+using Erp.Persistence.Domain.Assemblies;
 using Microsoft.AspNetCore.Routing;
 
 namespace Erp.Modules.Masters.Application.Assemblies;

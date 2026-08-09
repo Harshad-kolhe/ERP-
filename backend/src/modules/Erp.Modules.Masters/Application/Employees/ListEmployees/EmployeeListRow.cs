@@ -1,4 +1,4 @@
-using Erp.Modules.Masters.Domain.Common;
+using Erp.Persistence.Domain.Common;
 
 namespace Erp.Modules.Masters.Application.Employees.ListEmployees;
 

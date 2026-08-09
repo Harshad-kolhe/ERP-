@@ -3,8 +3,8 @@ using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.BuildingBlocks.Excel;
 using Erp.Contracts.Import;
 using Erp.Modules.Masters.Application.Imports;
-using Erp.Modules.Masters.Domain.BusinessUnits;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.BusinessUnits;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +21,7 @@ internal sealed record ImportBusinessUnitsCommand(ImportFile File);
 /// has, so it is checked as carefully as the name.
 /// </para>
 /// </summary>
-internal sealed class ImportBusinessUnitsHandler(MastersDbContext db)
+internal sealed class ImportBusinessUnitsHandler(ErpDbContext db)
     : ICommandHandler<ImportBusinessUnitsCommand, ImportResultDto>
 {
     public async Task<Result<ImportResultDto>> HandleAsync(

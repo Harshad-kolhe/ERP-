@@ -1,8 +1,8 @@
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Domain.Common;
-using Erp.Modules.Masters.Domain.Lookups;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Common;
+using Erp.Persistence.Domain.Lookups;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +18,7 @@ internal sealed record GetLookupsQuery(IReadOnlyList<string> Types);
 /// <c>LookupValue</c>, not a deployment.
 /// </para>
 /// </summary>
-internal sealed class GetLookupsHandler(MastersDbContext db)
+internal sealed class GetLookupsHandler(ErpDbContext db)
     : IQueryHandler<GetLookupsQuery, LookupSetDto>
 {
     /// <summary>

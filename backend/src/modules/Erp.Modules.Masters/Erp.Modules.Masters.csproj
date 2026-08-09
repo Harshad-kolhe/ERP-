@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\shared\Erp.BuildingBlocks.Persistence\Erp.BuildingBlocks.Persistence.csproj" />
     <ProjectReference Include="..\..\shared\Erp.BuildingBlocks.Web\Erp.BuildingBlocks.Web.csproj" />
     <ProjectReference Include="..\..\Erp.Contracts\Erp.Contracts.csproj" />
+    <ProjectReference Include="..\..\Erp.Persistence\Erp.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,9 +22,9 @@
   </ItemGroup>
 
   <!--
-    Everything in this assembly is `internal` except the Integration/ folder.
-    Its own test project is the single exception — no other module gets access,
-    which is what makes the boundary real rather than decorative.
+    Application code in this assembly stays `internal` except the Integration/
+    folder. Entities no longer live here — they are in Erp.Persistence, public,
+    alongside the single ErpDbContext.
   -->
   <ItemGroup>
     <InternalsVisibleTo Include="Erp.Modules.Masters.Tests" />

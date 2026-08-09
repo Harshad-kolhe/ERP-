@@ -10,6 +10,7 @@
     <ProjectReference Include="..\shared\Erp.BuildingBlocks.Web\Erp.BuildingBlocks.Web.csproj" />
     <ProjectReference Include="..\shared\Erp.BuildingBlocks.Persistence\Erp.BuildingBlocks.Persistence.csproj" />
     <ProjectReference Include="..\Erp.Contracts\Erp.Contracts.csproj" />
+    <ProjectReference Include="..\Erp.Persistence\Erp.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup Label="Modules">

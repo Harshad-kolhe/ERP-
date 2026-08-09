@@ -1,8 +1,8 @@
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.Customers;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Customers;
 using Erp.SharedKernel.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,7 @@ internal sealed record CreateCustomerCommand(CreateCustomerRequest Request);
 
 internal sealed record UpdateCustomerCommand(int Id, UpdateCustomerRequest Request);
 
-internal sealed class GetCustomerByIdHandler(MastersDbContext db)
+internal sealed class GetCustomerByIdHandler(ErpDbContext db)
     : IQueryHandler<GetCustomerByIdQuery, CustomerDetailDto>
 {
     public async Task<Result<CustomerDetailDto>> HandleAsync(
@@ -34,7 +34,7 @@ internal sealed class GetCustomerByIdHandler(MastersDbContext db)
     }
 }
 
-internal sealed class CreateCustomerHandler(MastersDbContext db)
+internal sealed class CreateCustomerHandler(ErpDbContext db)
     : ICommandHandler<CreateCustomerCommand, int>
 {
     public async Task<Result<int>> HandleAsync(
@@ -75,7 +75,7 @@ internal sealed class CreateCustomerHandler(MastersDbContext db)
         exception.InnerException is SqlException { Number: 2601 or 2627 };
 }
 
-internal sealed class UpdateCustomerHandler(MastersDbContext db)
+internal sealed class UpdateCustomerHandler(ErpDbContext db)
     : ICommandHandler<UpdateCustomerCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(

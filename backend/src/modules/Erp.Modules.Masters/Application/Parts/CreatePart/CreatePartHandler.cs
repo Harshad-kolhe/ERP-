@@ -1,13 +1,13 @@
 using Erp.BuildingBlocks.Application.Cqrs;
-using Erp.Modules.Masters.Domain.Parts;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Parts;
 using Erp.SharedKernel.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Erp.Modules.Masters.Application.Parts.CreatePart;
 
-internal sealed class CreatePartHandler(MastersDbContext db) : ICommandHandler<CreatePartCommand, Guid>
+internal sealed class CreatePartHandler(ErpDbContext db) : ICommandHandler<CreatePartCommand, Guid>
 {
     public async Task<Result<Guid>> HandleAsync(CreatePartCommand command, CancellationToken cancellationToken)
     {

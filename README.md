@@ -88,12 +88,13 @@ pnpm lint                                  # eslint + prettier
 pnpm test                                  # vitest
 pnpm --filter web exec playwright test     # e2e
 
-# Add a migration (per-module DbContext). Run from backend/.
+# Add a migration. One DbContext for the application — see docs/adr/0002.
+# Run from backend/.
 dotnet ef migrations add <Name> \
-  --project src/modules/Erp.Modules.Masters \
+  --project src/Erp.Persistence \
   --startup-project src/Erp.Api \
-  --context MastersDbContext \
-  --output-dir Infrastructure/Migrations
+  --context ErpDbContext \
+  --output-dir Migrations
 
 # Regenerate the TypeScript client from OpenAPI
 pnpm --filter web generate:api

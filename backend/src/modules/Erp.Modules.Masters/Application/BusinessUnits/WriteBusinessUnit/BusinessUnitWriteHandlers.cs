@@ -2,8 +2,8 @@ using System.Globalization;
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.BusinessUnits;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.BusinessUnits;
 using Erp.SharedKernel.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -55,7 +55,7 @@ internal static class BusinessUnitMapping
     };
 }
 
-internal sealed class GetBusinessUnitByIdHandler(MastersDbContext db)
+internal sealed class GetBusinessUnitByIdHandler(ErpDbContext db)
     : IQueryHandler<GetBusinessUnitByIdQuery, BusinessUnitDetailDto>
 {
     public async Task<Result<BusinessUnitDetailDto>> HandleAsync(
@@ -74,7 +74,7 @@ internal sealed class GetBusinessUnitByIdHandler(MastersDbContext db)
     }
 }
 
-internal sealed class CreateBusinessUnitHandler(MastersDbContext db)
+internal sealed class CreateBusinessUnitHandler(ErpDbContext db)
     : ICommandHandler<CreateBusinessUnitCommand, int>
 {
     public async Task<Result<int>> HandleAsync(
@@ -126,7 +126,7 @@ internal sealed class CreateBusinessUnitHandler(MastersDbContext db)
         exception.InnerException is SqlException { Number: 2601 or 2627 };
 }
 
-internal sealed class UpdateBusinessUnitHandler(MastersDbContext db)
+internal sealed class UpdateBusinessUnitHandler(ErpDbContext db)
     : ICommandHandler<UpdateBusinessUnitCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(

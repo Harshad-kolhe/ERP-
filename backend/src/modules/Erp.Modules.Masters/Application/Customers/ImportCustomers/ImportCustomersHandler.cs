@@ -2,8 +2,8 @@ using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.BuildingBlocks.Excel;
 using Erp.Contracts.Import;
 using Erp.Modules.Masters.Application.Imports;
-using Erp.Modules.Masters.Domain.Customers;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Customers;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +12,7 @@ namespace Erp.Modules.Masters.Application.Customers.ImportCustomers;
 internal sealed record ImportCustomersCommand(ImportFile File);
 
 /// <summary>Loads a sheet of customers. Same shape as <c>ImportPartsHandler</c> — see it for the reasoning.</summary>
-internal sealed class ImportCustomersHandler(MastersDbContext db)
+internal sealed class ImportCustomersHandler(ErpDbContext db)
     : ICommandHandler<ImportCustomersCommand, ImportResultDto>
 {
     public async Task<Result<ImportResultDto>> HandleAsync(

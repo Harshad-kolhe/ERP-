@@ -1,8 +1,8 @@
 using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.Contracts.Masters;
 using Erp.Modules.Masters.Application.Masters;
-using Erp.Modules.Masters.Domain.Suppliers;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Suppliers;
 using Erp.SharedKernel.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,7 @@ internal sealed record CreateSupplierCommand(CreateSupplierRequest Request);
 
 internal sealed record UpdateSupplierCommand(int Id, UpdateSupplierRequest Request);
 
-internal sealed class GetSupplierByIdHandler(MastersDbContext db)
+internal sealed class GetSupplierByIdHandler(ErpDbContext db)
     : IQueryHandler<GetSupplierByIdQuery, SupplierDetailDto>
 {
     public async Task<Result<SupplierDetailDto>> HandleAsync(
@@ -36,7 +36,7 @@ internal sealed class GetSupplierByIdHandler(MastersDbContext db)
     }
 }
 
-internal sealed class CreateSupplierHandler(MastersDbContext db)
+internal sealed class CreateSupplierHandler(ErpDbContext db)
     : ICommandHandler<CreateSupplierCommand, int>
 {
     public async Task<Result<int>> HandleAsync(
@@ -82,7 +82,7 @@ internal sealed class CreateSupplierHandler(MastersDbContext db)
         exception.InnerException is SqlException { Number: 2601 or 2627 };
 }
 
-internal sealed class UpdateSupplierHandler(MastersDbContext db)
+internal sealed class UpdateSupplierHandler(ErpDbContext db)
     : ICommandHandler<UpdateSupplierCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(

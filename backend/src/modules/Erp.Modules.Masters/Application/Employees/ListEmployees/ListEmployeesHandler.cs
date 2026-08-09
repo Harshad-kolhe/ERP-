@@ -4,8 +4,8 @@ using Erp.BuildingBlocks.Application.Querying;
 using Erp.BuildingBlocks.Persistence.Querying;
 using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Infrastructure;
 using Erp.Modules.Masters.Integration;
+using Erp.Persistence;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +26,7 @@ namespace Erp.Modules.Masters.Application.Employees.ListEmployees;
 /// caller may not see, which leaks who earns most without showing a figure.
 /// </para>
 /// </summary>
-internal sealed class ListEmployeesHandler(MastersDbContext db, ICurrentUser currentUser)
+internal sealed class ListEmployeesHandler(ErpDbContext db, ICurrentUser currentUser)
     : IQueryHandler<ListEmployeesQuery, PagedResult<EmployeeListItemDto>>
 {
     /// <summary>The fields any reader of the employee master may sort and filter on.</summary>
@@ -66,7 +66,7 @@ internal sealed class ListEmployeesHandler(MastersDbContext db, ICurrentUser cur
                 Gender = e.Gender,
                 Address = e.Address,
                 UserName = e.UserName,
-                RoleName = db.Roles
+                RoleName = db.MasterRoles
                     .Where(r => r.RoleId == e.RoleId)
                     .Select(r => r.RolesName)
                     .FirstOrDefault(),
@@ -101,12 +101,12 @@ internal sealed class ListEmployeesHandler(MastersDbContext db, ICurrentUser cur
                 PerHourSalary = e.PerHourSalary,
                 IsActive = e.IsActive,
                 Status = e.Status,
-                CreatedBy = db.AuditUsers
+                CreatedBy = db.Users
                     .Where(u => u.Id == e.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
                 CreatedAtUtc = e.CreatedAtUtc,
-                ModifiedBy = db.AuditUsers
+                ModifiedBy = db.Users
                     .Where(u => u.Id == e.ModifiedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),

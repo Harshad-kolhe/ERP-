@@ -1,5 +1,5 @@
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Domain.Assemblies;
+using Erp.Persistence.Domain.Assemblies;
 
 namespace Erp.Modules.Masters.Application.Assemblies;
 

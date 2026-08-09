@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Claims;
 using Erp.BuildingBlocks.Web.Security;
+using Erp.Persistence.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 

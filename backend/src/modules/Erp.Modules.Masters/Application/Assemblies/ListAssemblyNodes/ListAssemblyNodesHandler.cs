@@ -3,8 +3,8 @@ using Erp.BuildingBlocks.Application.Querying;
 using Erp.BuildingBlocks.Persistence.Querying;
 using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Domain.Assemblies;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Assemblies;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,7 +33,7 @@ internal sealed record ListAssemblyNodesQuery(AssemblyLevel Level, PageRequest P
 /// JavaScript.
 /// </para>
 /// </summary>
-internal sealed class ListAssemblyNodesHandler(MastersDbContext db)
+internal sealed class ListAssemblyNodesHandler(ErpDbContext db)
     : IQueryHandler<ListAssemblyNodesQuery, PagedResult<AssemblyNodeListItemDto>>
 {
     /// <summary>
@@ -112,12 +112,12 @@ internal sealed class ListAssemblyNodesHandler(MastersDbContext db)
                 WeightKg = node.WeightKg,
                 DisplaySequence = node.DisplaySequence,
                 IsActive = node.IsActive,
-                CreatedBy = db.AuditUsers
+                CreatedBy = db.Users
                     .Where(user => user.Id == node.CreatedByUserId)
                     .Select(user => user.DisplayName)
                     .FirstOrDefault(),
                 CreatedAtUtc = node.CreatedAtUtc,
-                ModifiedBy = db.AuditUsers
+                ModifiedBy = db.Users
                     .Where(user => user.Id == node.ModifiedByUserId)
                     .Select(user => user.DisplayName)
                     .FirstOrDefault(),

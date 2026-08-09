@@ -1,7 +1,15 @@
 # ADR 0001 — Modular monolith with compiler-enforced boundaries
 
-- **Status**: Accepted
+- **Status**: Accepted, partly superseded by
+  [ADR 0002](0002-one-dbcontext-for-the-application.md)
 - **Date**: 2026-08-08
+
+> **Amended 2026-08-09.** The "one `DbContext` and one SQL schema per module"
+> decision below, and the `internal` boundary as it applied to *entities*, were
+> reversed by ADR 0002: there is now one `ErpDbContext` for the application and
+> entities are public, in `src/Erp.Persistence`. Everything else here still
+> holds — modules are still separate assemblies, their application code is still
+> `internal`, and minimal APIs one-endpoint-per-file is unchanged.
 
 ## Context
 
@@ -29,8 +37,9 @@ discouraged by review, but because the compiler will not resolve the name.
 
 Supporting choices that follow from this:
 
-- **One `DbContext` and one SQL schema per module.** Cross-module writes go
-  through integration events, never a shared transaction.
+- ~~**One `DbContext` and one SQL schema per module.** Cross-module writes go
+  through integration events, never a shared transaction.~~ Reversed by ADR 0002:
+  one `ErpDbContext`, one migration history, schemas retained per area.
 - **Minimal APIs, one endpoint per file.** A controller is an unbounded bucket;
   that is how one reached 249 actions. A file holding one endpoint has nowhere
   to grow, and two developers adding features touch two different files.

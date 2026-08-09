@@ -3,7 +3,7 @@ using Erp.BuildingBlocks.Application.Querying;
 using Erp.BuildingBlocks.Persistence.Querying;
 using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +13,7 @@ namespace Erp.Modules.Masters.Application.Customers.ListCustomers;
 /// Returns one page of customers. Projected, never materialised as aggregates —
 /// see <c>ListPartsHandler</c> for the reasoning.
 /// </summary>
-internal sealed class ListCustomersHandler(MastersDbContext db)
+internal sealed class ListCustomersHandler(ErpDbContext db)
     : IQueryHandler<ListCustomersQuery, PagedResult<CustomerListItemDto>>
 {
     /// <summary>The allow-list. Anything absent here cannot be sorted or filtered on.</summary>
@@ -100,12 +100,12 @@ internal sealed class ListCustomersHandler(MastersDbContext db)
                 TaxCode = c.TaxCode,
                 IsActive = c.IsActive,
                 Status = c.Status,
-                CreatedBy = db.AuditUsers
+                CreatedBy = db.Users
                     .Where(u => u.Id == c.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
                 CreatedAtUtc = c.CreatedAtUtc,
-                ModifiedBy = db.AuditUsers
+                ModifiedBy = db.Users
                     .Where(u => u.Id == c.ModifiedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),

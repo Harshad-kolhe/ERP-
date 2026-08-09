@@ -1,6 +1,6 @@
 using Erp.BuildingBlocks.Application.Cqrs;
-using Erp.Modules.Masters.Domain.Parts;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
+using Erp.Persistence.Domain.Parts;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +8,7 @@ namespace Erp.Modules.Masters.Application.Parts.SubmitPart;
 
 internal sealed record SubmitPartCommand(Guid Id);
 
-internal sealed class SubmitPartHandler(MastersDbContext db) : ICommandHandler<SubmitPartCommand, Unit>
+internal sealed class SubmitPartHandler(ErpDbContext db) : ICommandHandler<SubmitPartCommand, Unit>
 {
     public async Task<Result<Unit>> HandleAsync(SubmitPartCommand command, CancellationToken cancellationToken)
     {

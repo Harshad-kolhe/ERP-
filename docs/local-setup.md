@@ -197,36 +197,33 @@ frontend BFF talks to port 5080 over http regardless, so nothing is lost.
 called at the end of [`Program.cs`](../backend/src/Erp.Api/Program.cs), does two
 things on startup:
 
-1. **Migrate.** It scans the loaded `Erp.*` assemblies for every non-abstract
-   `DbContext` and calls `MigrateAsync()` on each. Found by type, so the host
-   never names a module — a new module's context is picked up by existing.
+1. **Migrate.** It resolves `ErpDbContext` and calls `MigrateAsync()`. One
+   context maps the whole application, so this is one call rather than a scan
+   for every module's own context — see
+   [ADR 0002](adr/0002-one-dbcontext-for-the-application.md).
 2. **Seed one way in.** If no user matches `admin@erp.local` it creates the
    `Super Administrator` role and that account, logging the generated password.
    If the account already exists it does nothing, and in particular does not
    re-sync the role's permissions — an administrator may have changed them
    deliberately.
 
-Both contexts share the one `Erp` database but own separate schemas and separate
-history tables, configured in
-[`MastersModule.cs`](../backend/src/modules/Erp.Modules.Masters/MastersModule.cs)
-and [`AuthenticationSetup.cs`](../backend/src/Erp.Api/Authentication/AuthenticationSetup.cs),
-so the modules migrate independently of each other:
+There is one context and one history table. Tables still sit in per-area schemas,
+mapped in [`ErpDbContext.cs`](../backend/src/Erp.Persistence/ErpDbContext.cs) and
+registered once by the host through
+[`AddErpDbContext`](../backend/src/Erp.Persistence/DependencyInjection/ErpDbContextExtensions.cs):
 
-| Context | Project | Schema | History table |
+| Context | Project | Schemas | History table |
 |---|---|---|---|
-| `IdentityDataContext` | `src/Erp.Api` | `identity` | `identity.__EFMigrationsHistory` |
-| `MastersDbContext` | `src/modules/Erp.Modules.Masters` | `masters` | `masters.__EFMigrationsHistory` |
+| `ErpDbContext` | `src/Erp.Persistence` | `masters`, `identity` | `masters.__EFMigrationsHistory` |
 
 Confirm a run worked:
 
 ```sql
-SELECT * FROM identity.__EFMigrationsHistory;
 SELECT * FROM masters.__EFMigrationsHistory;
 ```
 
-Those two tables record which migrations have been applied. The next `dotnet
-run` reads them, finds nothing pending, and does nothing. The operation is
-idempotent.
+That table records which migrations have been applied. The next `dotnet run`
+reads it, finds nothing pending, and does nothing. The operation is idempotent.
 
 > **The bootstrap only runs when `ASPNETCORE_ENVIRONMENT` is `Development`.**
 > [`launchSettings.json`](../backend/src/Erp.Api/Properties/launchSettings.json)
@@ -249,7 +246,7 @@ generates the migration for you. Review it, edit it if needed, commit it.
 |---|---|
 | changelog you write | migration classes, generated from the entity classes |
 | `liquibase update` | `dotnet ef database update` — or just `dotnet run`, here |
-| `DATABASECHANGELOG` | `__EFMigrationsHistory`, one per module schema |
+| `DATABASECHANGELOG` | `masters.__EFMigrationsHistory`, one for the application |
 | `liquibase rollback` | `dotnet ef database update <PreviousMigrationName>` |
 | `liquibase diff` | `dotnet ef migrations has-pending-model-changes` (a CI gate) |
 
@@ -263,10 +260,10 @@ empty database:
 ```bash
 cd backend
 
-# Drops the whole database — both schemas, both contexts.
+# Drops the whole database — both schemas, one context.
 dotnet ef database drop -f \
-  --context IdentityDataContext \
-  --project src/Erp.Api --startup-project src/Erp.Api
+  --context ErpDbContext \
+  --project src/Erp.Persistence --startup-project src/Erp.Api
 
 dotnet run --project src/Erp.Api
 ```
@@ -286,26 +283,26 @@ administrator — with a **new** generated password unless
 
 ### Migrating explicitly, without starting the app
 
-Rarely needed, since startup does it. Note this is per-context, so it does *not*
-pick up a new module automatically the way the bootstrap does. Run from
-`backend/`:
+Rarely needed, since startup does it. One command now, because there is one
+context. Run from `backend/`:
 
 ```bash
-dotnet ef database update --context IdentityDataContext \
-  --project src/Erp.Api --startup-project src/Erp.Api
-
-dotnet ef database update --context MastersDbContext \
-  --project src/modules/Erp.Modules.Masters --startup-project src/Erp.Api
+dotnet ef database update --context ErpDbContext \
+  --project src/Erp.Persistence --startup-project src/Erp.Api
 ```
+
+Add `--no-build` when the app is already running and holding its output
+assemblies — the migration then runs against the existing build rather than
+failing on a locked DLL.
 
 ### Adding a migration
 
 ```bash
 dotnet ef migrations add <Name> \
-  --project src/modules/Erp.Modules.Masters \
+  --project src/Erp.Persistence \
   --startup-project src/Erp.Api \
-  --context MastersDbContext \
-  --output-dir Infrastructure/Migrations
+  --context ErpDbContext \
+  --output-dir Migrations
 ```
 
 ---

@@ -99,8 +99,8 @@ Four, each of which would have shipped silently:
    materialisation.
 4. **EF did not discover the interceptors from DI.** Every row was written with
    `BusinessUnitId = 0` and no audit stamp — rows invisible to the tenant filter that
-   had just created them. Interceptors are now attached explicitly per module, which
-   also fixes their order.
+   had just created them. Interceptors are now attached explicitly where the context
+   is registered, which also fixes their order.
 
 A fifth finding was a UX one: the validator rejected a part number with surrounding
 whitespace before the domain could trim it. Format rules now run against the trimmed

@@ -3,7 +3,7 @@ using Erp.BuildingBlocks.Application.Querying;
 using Erp.BuildingBlocks.Persistence.Querying;
 using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ namespace Erp.Modules.Masters.Application.BusinessUnits.ListBusinessUnits;
 /// applies. Access rests entirely on the endpoint's permission.
 /// </para>
 /// </summary>
-internal sealed class ListBusinessUnitsHandler(MastersDbContext db)
+internal sealed class ListBusinessUnitsHandler(ErpDbContext db)
     : IQueryHandler<ListBusinessUnitsQuery, PagedResult<BusinessUnitListItemDto>>
 {
     private static readonly QueryMap<BusinessUnitListRow> Map = QueryMap<BusinessUnitListRow>.Create()

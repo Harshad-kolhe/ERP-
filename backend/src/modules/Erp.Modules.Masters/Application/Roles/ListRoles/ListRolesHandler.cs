@@ -3,7 +3,7 @@ using Erp.BuildingBlocks.Application.Querying;
 using Erp.BuildingBlocks.Persistence.Querying;
 using Erp.Contracts.Common;
 using Erp.Contracts.Masters;
-using Erp.Modules.Masters.Infrastructure;
+using Erp.Persistence;
 using Erp.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ namespace Erp.Modules.Masters.Application.Roles.ListRoles;
 /// <c>Role</c>.
 /// </para>
 /// </summary>
-internal sealed class ListRolesHandler(MastersDbContext db)
+internal sealed class ListRolesHandler(ErpDbContext db)
     : IQueryHandler<ListRolesQuery, PagedResult<RoleListItemDto>>
 {
     private static readonly QueryMap<RoleListRow> Map = QueryMap<RoleListRow>.Create()
@@ -39,7 +39,7 @@ internal sealed class ListRolesHandler(MastersDbContext db)
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var rows = db.Roles
+        var rows = db.MasterRoles
             .AsNoTracking()
             .Select(r => new RoleListRow
             {

@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using Erp.BuildingBlocks.Web.Security;
+using Erp.Persistence;
+using Erp.Persistence.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,21 +49,12 @@ internal static class DevelopmentBootstrap
 
     private static async Task MigrateAsync(IServiceProvider services)
     {
-        // Every module's DbContext, plus Identity. Found by type so the host never
-        // names a module's internal context.
-        var contextTypes = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .Where(assembly => assembly.GetName().Name?.StartsWith("Erp.", StringComparison.Ordinal) == true)
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(type => typeof(DbContext).IsAssignableFrom(type) && !type.IsAbstract)
-            .Distinct();
-
-        foreach (var contextType in contextTypes)
+        // One context for the whole application — master data and identity in a
+        // single model with a single migration history — so this is one call rather
+        // than a scan for every module's own context.
+        if (services.GetService(typeof(ErpDbContext)) is DbContext context)
         {
-            if (services.GetService(contextType) is DbContext context)
-            {
-                await context.Database.MigrateAsync();
-            }
+            await context.Database.MigrateAsync();
         }
     }
 

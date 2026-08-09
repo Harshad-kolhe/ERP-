@@ -97,7 +97,6 @@ export function ParentPartsTable() {
       emptyTitle="No parent parts"
       emptyHint="No parent parts match the current filters."
       exportFileName="Parent parts"
-      onRowClick={canEdit ? open : undefined}
       rowActions={
         canEdit
           ? {
@@ -107,10 +106,7 @@ export function ParentPartsTable() {
                 <button
                   type="button"
                   className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-2 py-0.5 text-xs font-medium"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    open(row);
-                  }}
+                  onClick={() => open(row)}
                 >
                   Edit
                 </button>

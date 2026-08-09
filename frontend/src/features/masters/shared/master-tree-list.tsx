@@ -276,25 +276,30 @@ export function MasterTreeList<TRow>({
       exportFileName={exportFileName}
       externalFilterChips={externalFilterChips}
       onClearExternalFilters={onClearExternalFilters}
-      // Clicking anywhere on the row opens it, which is what people try first.
-      onRowClick={onRowClick ?? (editHref && canEdit ? openRow : undefined)}
+      /*
+       * Navigating is the Edit button's job and nothing else's.
+       *
+       * A whole-row click used to open the record too. On a grid this wide that
+       * is a trap rather than a shortcut: selecting a cell to read it, dragging
+       * to compare two columns, or clicking to dismiss a popover all land on a
+       * row, and any of them would throw away the filters and scroll position
+       * the user had built up. One deliberate target, always in the same place.
+       *
+       * `onRowClick` is still honoured when a screen passes its own — the grid
+       * keeps the capability; the masters simply decline to navigate with it.
+       */
+      onRowClick={onRowClick}
       rowActions={
         rowActions ??
         (editHref && canEdit
           ? {
               caption: '',
               width: 72,
-              // The pinned button stays alongside the row click, because these
-              // grids are wide and the mouse is often parked far from the row start.
               render: (row) => (
                 <button
                   type="button"
                   className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-2 py-0.5 text-xs font-medium"
-                  onClick={(event) => {
-                    // The row's own handler would fire too and race this one.
-                    event.stopPropagation();
-                    openRow(row);
-                  }}
+                  onClick={() => openRow(row)}
                 >
                   Edit
                 </button>

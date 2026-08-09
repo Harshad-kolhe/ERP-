@@ -59,7 +59,6 @@ export function AssemblyNodesTable({ screen }: { screen: AssemblyLevelScreen }) 
       emptyTitle={`No ${screen.plural.toLowerCase()}`}
       emptyHint={`No ${screen.plural.toLowerCase()} match the current filters.`}
       exportFileName={screen.plural}
-      onRowClick={canEdit ? open : undefined}
       rowActions={
         canEdit
           ? {
@@ -69,11 +68,7 @@ export function AssemblyNodesTable({ screen }: { screen: AssemblyLevelScreen }) 
                 <button
                   type="button"
                   className="border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink rounded-lg border px-2 py-0.5 text-xs font-medium"
-                  onClick={(event) => {
-                    // The row's own click handler would fire too and race this one.
-                    event.stopPropagation();
-                    open(row);
-                  }}
+                  onClick={() => open(row)}
                 >
                   Edit
                 </button>

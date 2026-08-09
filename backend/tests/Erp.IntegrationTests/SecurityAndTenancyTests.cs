@@ -17,6 +17,56 @@ public sealed class SecurityAndTenancyTests(ErpApiFactory factory) : IAsyncLifet
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     /// <summary>
+    /// A body the framework cannot bind is answered 400, not 500.
+    /// <para>
+    /// Model binding throws before any endpoint filter runs, so <c>ValidationFilter</c>
+    /// never sees a payload like this and it lands in the global exception handler.
+    /// Answered 500 it would tell an honest client to retry something that can never
+    /// succeed, and would file a client's typo among real server faults.
+    /// </para>
+    /// <para>
+    /// Checked on <c>/auth/login</c> deliberately: it is the one endpoint an
+    /// unauthenticated caller can reach, so it is where a leaked internal type name
+    /// would matter most. The response must carry neither the CLR type nor the
+    /// property that was missing.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public async Task A_body_the_framework_cannot_bind_is_a_client_error()
+    {
+        var client = factory.CreateClient();
+
+        // Well-formed JSON, but 'email' is required and absent.
+        var response = await client.PostAsync(
+            new Uri("/api/v1/auth/login", UriKind.Relative),
+            new StringContent(
+                """{"password":"whatever"}""",
+                System.Text.Encoding.UTF8,
+                "application/json"));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+
+        var body = await response.Content.ReadAsStringAsync();
+
+        body.ShouldNotContain("Erp.Contracts", Case.Insensitive);
+        body.ShouldNotContain("System.Text.Json", Case.Insensitive);
+        body.ShouldNotContain("Exception", Case.Insensitive);
+    }
+
+    /// <summary>Outright malformed JSON takes the same path.</summary>
+    [Fact]
+    public async Task Syntactically_invalid_json_is_a_client_error()
+    {
+        var client = factory.CreateClient();
+
+        var response = await client.PostAsync(
+            new Uri("/api/v1/auth/login", UriKind.Relative),
+            new StringContent("{ this is not json", System.Text.Encoding.UTF8, "application/json"));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    /// <summary>
     /// The fallback authorization policy at work. Three legacy controllers were
     /// reachable anonymously because someone omitted an attribute; here an endpoint
     /// that declares nothing still requires a signed-in user.

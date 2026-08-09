@@ -26,7 +26,8 @@ Everything here was built and run, not just written.
 | Format gate | `dotnet format whitespace` and `dotnet format style` clean |
 | Schema drift gate | Both contexts report "No changes have been made to the model since the last migration" |
 | Schema documentation | `db/erd/` regenerates from the EF model — `masters` (10 tables, 5 foreign keys) and `identity` (7 tables, 6 foreign keys). Byte-identical on a second run, and both diagrams parse as mermaid `erDiagram` |
-| Frontend | `tsc --noEmit` clean; `next build` succeeds, `/api/[...path]` emitted as dynamic |
+| Frontend | `tsc --noEmit` clean; `eslint .` clean (0 errors); `next build` succeeds, `/api/[...path]` emitted as dynamic |
+| Client contract | `dotnet build` emits `contracts/openapi.json` with no server and no database; `pnpm --filter web generate:api` turns it into one committed file. Byte-identical from Debug and Release builds, and proved to catch drift by adding a property to a C# DTO and watching it surface in the generated TypeScript |
 | Infrastructure | `docker compose up -d` — sqlserver, seq, minio, mailpit all healthy |
 
 Resolved versions: .NET **10.0.10** · EF Core **10.0.10** · Next.js **16.3.0** ·
@@ -154,9 +155,12 @@ Named here so they are not mistaken for oversights:
 - **Approvals module** — the shared engine. Part approval is a state machine on the
   aggregate, which is the right shape to generalise from.
 - **Document store** (`IDocumentStore` over MinIO) and the Category master.
-- **orval OpenAPI → TypeScript generation.** `frontend/src/lib/api/types.ts` is
-  hand-written and marked as such; the `Client contract drift` CI job fails until
-  `orval.config.ts` exists.
+- **Migrating the app onto the generated types.** orval now runs and the
+  `Client contract drift` gate is live (see below), but `frontend/src/lib/api/types.ts`
+  is still hand-written and still what every feature imports. Until the call sites
+  move across, the generated client proves the server's shape without the app
+  actually depending on it — so a C# change is *detected*, not yet *enforced* at the
+  point of use.
 - **Login page, app shell, navigation.** The BFF proxy, `data-table` kit and parts list
   exist; the surrounding chrome does not.
 - **Playwright end-to-end tests.**

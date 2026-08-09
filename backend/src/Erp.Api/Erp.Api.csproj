@@ -39,8 +39,32 @@
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
   </ItemGroup>
 
+  <PropertyGroup Label="OpenAPI">
+    <!--
+      Writes the OpenAPI document on every build, into a folder that is committed.
+      That file is the input to the TypeScript client generator, so the generated
+      client and the API cannot drift without the diff showing it.
+
+      Build-time rather than fetched from the running app: /openapi/v1.json sits
+      behind authentication, and standing an API up, migrating a database and
+      signing a user in purely to read a schema would make a contract check depend
+      on infrastructure that has nothing to do with the contract.
+    -->
+    <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+    <OpenApiDocumentsDirectory>$(MSBuildThisFileDirectory)..\..\..\contracts</OpenApiDocumentsDirectory>
+
+    <!-- The build task starts the host to read its endpoints; it must not also
+         apply migrations or seed users, so it runs outside Development. -->
+    <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
+  </PropertyGroup>
+
   <ItemGroup Label="Tooling">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

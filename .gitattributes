@@ -1,0 +1,40 @@
+# Line endings.
+#
+# `.editorconfig` says `end_of_line = lf`, and `dotnet format whitespace
+# --verify-no-changes` enforces it in CI. But git had nothing to say on the
+# subject, so with `core.autocrlf=true` — the Windows default — a clone rewrote
+# every file to CRLF on the way out. CI runs on Linux and never noticed; a
+# developer on Windows got a format gate that failed on files they had not
+# touched, and every `git add` printed "LF will be replaced by CRLF".
+#
+# `text=auto eol=lf` normalises to LF in the repository *and* on checkout, on
+# every platform. Binary files are still detected and left alone by `auto`.
+* text=auto eol=lf
+
+# The exceptions: Windows-only scripts genuinely need CRLF, because cmd.exe and
+# PowerShell's older parser can misread a lone LF in a batch file.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Declared binary so git never attempts a line-ending or diff transformation on
+# them. `auto` would almost certainly get these right on its own; saying so
+# explicitly costs nothing and removes the "almost".
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.xlsx binary
+*.snk binary
+*.pfx binary
+
+# Generated, and reviewed as output rather than as source. Marking them keeps a
+# regenerated client out of language statistics and collapses it by default in a
+# pull request, so the diff that matters stays visible next to it.
+contracts/openapi.json linguist-generated=true
+frontend/src/lib/api/generated/** linguist-generated=true
+db/erd/*.md linguist-generated=true

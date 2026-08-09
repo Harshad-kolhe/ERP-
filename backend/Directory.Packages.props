@@ -50,6 +50,13 @@
       resolves a fixed version on its own.
     -->
     <PackageVersion Include="Microsoft.OpenApi" Version="2.11.0" />
+    <!--
+      Emits the OpenAPI document during `dotnet build`, without running the app.
+      The runtime document at /openapi/v1.json needs a signed-in session, so CI
+      cannot simply fetch it — and starting the API, seeding a user and signing in
+      just to read a schema would make the contract gate depend on the database.
+    -->
+    <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.10" />
     <PackageVersion Include="Asp.Versioning.Http" Version="10.2.1" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.16.18" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.8.0" />

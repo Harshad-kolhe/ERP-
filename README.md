@@ -42,6 +42,9 @@ pnpm --filter web dev                      # http://localhost:3000
 The pnpm package is named `web` and lives in `frontend/`, so workspace commands
 are `pnpm --filter web <script>`.
 
+A machine that has nothing on it yet, Windows and SQL Server without Docker, and
+recreating the database from scratch: [`docs/local-setup.md`](docs/local-setup.md).
+
 Default sign-in for a freshly seeded database is written to the console on
 first run. There are no credentials in this repository.
 

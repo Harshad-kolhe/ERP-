@@ -159,42 +159,62 @@ jobs:
   contract:
     name: Client contract drift
     runs-on: ubuntu-latest
-
-    # Armed, but dormant until the generator exists.
-    #
-    # `generate:api` runs `orval --config orval.config.ts`, and that config has not
-    # been written yet — it is listed as deferred in docs/status.md. Until then this
-    # job cannot pass, and a job that always fails teaches everyone to ignore a red
-    # tick, which is worse than no gate at all.
-    #
-    # The condition is the file itself rather than a comment or a disabled job, so
-    # the gate switches itself on the moment orval.config.ts is committed. Nobody
-    # has to remember to re-enable it.
-    if: hashFiles('frontend/orval.config.ts') != ''
-
     steps:
       - uses: actions/checkout@v4
 
+      # Armed, but dormant until the generator exists.
+      #
+      # `generate:api` runs `orval --config orval.config.ts`, and that config has
+      # not been written yet — it is listed as deferred in docs/status.md. Until
+      # then this job cannot pass, and a job that always fails teaches everyone to
+      # ignore a red tick, which is worse than no gate at all.
+      #
+      # The switch is the file itself rather than a comment or a disabled job, so
+      # the gate turns itself on the moment orval.config.ts is committed and nobody
+      # has to remember to re-enable it.
+      #
+      # Checked here in a step rather than in the job's `if:`. hashFiles is only
+      # available to `jobs.<job_id>.steps.if`, never to `jobs.<job_id>.if` — used
+      # in the latter it is not a false condition but an invalid expression, and
+      # the whole workflow file then fails to parse. A run in that state reports
+      # "failure" with zero jobs, so every other gate in this file silently stops
+      # running too.
+      - name: Is the generator configured?
+        id: generator
+        run: |
+          if [ -f frontend/orval.config.ts ]; then
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::frontend/orval.config.ts is absent, so the client contract gate is skipped. See docs/status.md.'
+          fi
+
       - uses: actions/setup-dotnet@v4
+        if: steps.generator.outputs.present == 'true'
         with:
           global-json-file: global.json
 
       - uses: pnpm/action-setup@v4
+        if: steps.generator.outputs.present == 'true'
         with:
           version: 10
 
       - uses: actions/setup-node@v4
+        if: steps.generator.outputs.present == 'true'
         with:
           node-version: 24
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - if: steps.generator.outputs.present == 'true'
+        run: pnpm install --frozen-lockfile
 
       # Regenerates the TypeScript client from the API's OpenAPI document and fails
       # if the result differs from what is committed. Server and client types
       # therefore cannot drift apart between releases.
       - name: Regenerate client
+        if: steps.generator.outputs.present == 'true'
         run: pnpm --filter web generate:api
 
       - name: Fail on drift
+        if: steps.generator.outputs.present == 'true'
         run: git diff --exit-code -- frontend/src/lib/api/generated

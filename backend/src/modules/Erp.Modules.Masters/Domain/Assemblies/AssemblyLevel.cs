@@ -54,4 +54,40 @@ internal static class AssemblyLevels
         AssemblyLevel.SubAssembly => "sub-assembly",
         _ => level.ToString(),
     };
+
+    /// <summary>
+    /// As <see cref="Describe"/>, with its indefinite article — "an assembly", not
+    /// "a assembly".
+    /// <para>
+    /// Spelled out per level rather than derived from a leading-vowel test. The
+    /// test happens to be right for these three, but it is wrong for the next name
+    /// somebody adds that starts with a silent letter or a vowel that is read as a
+    /// consonant, and a message the user reads deserves better than a rule that is
+    /// accidentally correct.
+    /// </para>
+    /// </summary>
+    public static string DescribeWithArticle(AssemblyLevel level) => level switch
+    {
+        AssemblyLevel.Section => "a section",
+        AssemblyLevel.Assembly => "an assembly",
+        AssemblyLevel.SubAssembly => "a sub-assembly",
+        _ => level.ToString(),
+    };
+
+    /// <summary>
+    /// As <see cref="DescribeWithArticle"/>, capitalised for the start of a
+    /// sentence — "An assembly must belong to a section."
+    /// <para>
+    /// A separate method rather than leaving each message to capitalise for itself,
+    /// because that is precisely what went wrong the first time: the article was
+    /// corrected where a level appeared mid-sentence and missed where the same
+    /// level opened one, so "A assembly must belong to a section" survived a fix
+    /// that was supposed to be about exactly that.
+    /// </para>
+    /// </summary>
+    public static string DescribeCapitalised(AssemblyLevel level)
+    {
+        var described = DescribeWithArticle(level);
+        return string.Concat(described[..1].ToUpperInvariant(), described[1..]);
+    }
 }

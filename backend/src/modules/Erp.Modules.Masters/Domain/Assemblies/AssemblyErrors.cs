@@ -23,16 +23,17 @@ internal static class AssemblyErrors
 
     public static Error DuplicateName(AssemblyLevel level, string name) => Error.Conflict(
         "assembly.name.duplicate",
-        $"A {AssemblyLevels.Describe(level)} named '{name}' already exists here.");
+        $"{AssemblyLevels.DescribeCapitalised(level)} named '{name}' already exists here.");
 
     public static Error ParentRequired(AssemblyLevel level) => Error.Validation(
         "assembly.parent.required",
-        $"A {AssemblyLevels.Describe(level)} must belong to a "
-        + $"{AssemblyLevels.Describe(AssemblyLevels.ParentOf(level)!.Value)}.");
+        $"{AssemblyLevels.DescribeCapitalised(level)} must belong to "
+        + $"{AssemblyLevels.DescribeWithArticle(AssemblyLevels.ParentOf(level)!.Value)}.");
 
     public static Error ParentNotAllowed(AssemblyLevel level) => Error.Validation(
         "assembly.parent.not_allowed",
-        $"A {AssemblyLevels.Describe(level)} sits at the top of the breakdown and cannot have a parent.");
+        $"{AssemblyLevels.DescribeCapitalised(level)} sits at the top of the breakdown "
+        + "and cannot have a parent.");
 
     public static Error ParentNotFound(Guid parentId) => Error.Validation(
         "assembly.parent.not_found",
@@ -40,9 +41,9 @@ internal static class AssemblyErrors
 
     public static Error ParentWrongLevel(AssemblyLevel level, AssemblyLevel actualParentLevel) => Error.Validation(
         "assembly.parent.wrong_level",
-        $"A {AssemblyLevels.Describe(level)} must belong to a "
-        + $"{AssemblyLevels.Describe(AssemblyLevels.ParentOf(level)!.Value)}, "
-        + $"but the one selected is a {AssemblyLevels.Describe(actualParentLevel)}.");
+        $"{AssemblyLevels.DescribeCapitalised(level)} must belong to "
+        + $"{AssemblyLevels.DescribeWithArticle(AssemblyLevels.ParentOf(level)!.Value)}, "
+        + $"but the one selected is {AssemblyLevels.DescribeWithArticle(actualParentLevel)}.");
 
     // No "would create a cycle" error, deliberately. With exactly three levels, a
     // level that never changes, and a parent that must sit exactly one level above,

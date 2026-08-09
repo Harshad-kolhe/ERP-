@@ -112,19 +112,14 @@ jobs:
       # server, so nobody could review it, diff it, or recreate it.
       #
       # This fails when an entity has been changed without a matching migration.
-      - name: Masters
+      # One context, one migration history — ADR 0002. Masters and Identity used to
+      # be checked separately here; both are now mapped by ErpDbContext.
+      - name: Model drift
         run: >
           dotnet ef migrations has-pending-model-changes
-          --project backend/src/modules/Erp.Modules.Masters
+          --project backend/src/Erp.Persistence
           --startup-project backend/src/Erp.Api
-          --context MastersDbContext
-
-      - name: Identity
-        run: >
-          dotnet ef migrations has-pending-model-changes
-          --project backend/src/Erp.Api
-          --startup-project backend/src/Erp.Api
-          --context IdentityDataContext
+          --context ErpDbContext
 
   frontend:
     name: Frontend

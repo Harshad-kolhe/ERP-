@@ -2,28 +2,41 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { Can } from '@/components/permission/can';
-import { PageHeader } from '@/components/shell/page-header';
-import { Button } from '@/components/ui/button';
+import { MasterPageHeader } from '@/features/masters/shared/master-page-header';
 import { SuppliersTable } from '@/features/masters/suppliers/suppliers-table';
 
-export const metadata = { title: 'Suppliers · ERP' };
+export const metadata = { title: 'Supplier Master · ERP' };
 
 export default function SuppliersPage() {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PageHeader
-        title="Suppliers"
-        description="Server-paged. Filtering and sorting run in the database; the browser only ever holds one page."
-        actions={
-          <Can permission="masters.supplier.create">
-            <Button size="sm" asChild>
-              <Link href="/masters/suppliers/new">New supplier</Link>
-            </Button>
-          </Can>
-        }
-      />
+      {/* The header counts through the API, so it needs a boundary during prerender. */}
+      <Suspense fallback={<div className="border-line h-[69px] shrink-0 border-b" />}>
+        <MasterPageHeader
+          icon="supplier"
+          title="Supplier Master"
+          resource="suppliers"
+          stats={[
+            { label: 'suppliers' },
+        { label: 'awaiting approval', filter: 'status:eq:PendingApproval', emphasise: true },
+          ]}
+          actions={
+            <Can permission="masters.supplier.create">
+              <Link
+                href="/masters/suppliers/new"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground inline-flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[13px] font-semibold shadow-sm"
+              >
+                <span aria-hidden="true" className="-mt-px text-base leading-none">
+                  +
+                </span>
+                New Supplier
+              </Link>
+            </Can>
+          }
+        />
+      </Suspense>
 
-      <div className="flex min-h-0 flex-1 flex-col p-6">
+      <div className="flex min-h-0 flex-1 flex-col p-4">
         {/* useSearchParams needs a Suspense boundary during prerender. */}
         <Suspense fallback={<p className="text-muted-foreground text-sm">Loading…</p>}>
           <SuppliersTable />

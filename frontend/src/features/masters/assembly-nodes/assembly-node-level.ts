@@ -1,3 +1,5 @@
+import type { MasterIconName } from '../shared/master-page-header';
+
 import type { AssemblyLevel } from '@/lib/api/types';
 
 /**
@@ -16,6 +18,14 @@ export interface AssemblyLevelScreen {
   resource: 'sections' | 'assemblies' | 'sub-assemblies';
   /** Sentence-case singular, used in headings and toasts. */
   noun: string;
+  /** Heading on the list screen, e.g. "Section Master". */
+  masterTitle: string;
+  /**
+   * Header tile icon, by name. Not the component: these screen objects are built
+   * on the server and handed to client components, and a function cannot cross
+   * that boundary — see MasterIconName.
+   */
+  icon: MasterIconName;
   /** Plural, used in page titles. */
   plural: string;
   /** The screen one level up, or null at the top of the breakdown. */
@@ -30,6 +40,8 @@ export const SECTION_SCREEN: AssemblyLevelScreen = {
   resource: 'sections',
   noun: 'section',
   plural: 'Sections',
+  masterTitle: 'Section Master',
+  icon: 'section',
   parent: null,
   childNoun: 'Assembly',
   permissions: {
@@ -44,6 +56,8 @@ export const ASSEMBLY_SCREEN: AssemblyLevelScreen = {
   resource: 'assemblies',
   noun: 'assembly',
   plural: 'Assemblies',
+  masterTitle: 'Assembly Master',
+  icon: 'assembly',
   parent: { noun: 'Section', resource: 'sections' },
   childNoun: 'Sub-assembly',
   permissions: {
@@ -58,6 +72,8 @@ export const SUB_ASSEMBLY_SCREEN: AssemblyLevelScreen = {
   resource: 'sub-assemblies',
   noun: 'sub-assembly',
   plural: 'Sub-assemblies',
+  masterTitle: 'Sub-assembly Master',
+  icon: 'subAssembly',
   parent: { noun: 'Assembly', resource: 'assemblies' },
   childNoun: null,
   permissions: {

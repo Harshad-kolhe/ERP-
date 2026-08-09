@@ -1,20 +1,19 @@
 'use client';
 
-import { Download, FileText, Layers, MapPin, Package, SendHorizontal, Upload } from 'lucide-react';
+import { Download, FileText, Layers, MapPin, SendHorizontal, Upload } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { Can } from '@/components/permission/can';
 import Popover from '@/components/tree-list/popover';
-import { usePartCounts } from '@/features/dashboard/use-dashboard';
+import { MasterPageHeader } from '../shared/master-page-header';
 
 /**
  * The Part Master page header.
  *
- * One band carrying what the page is, how much is in it, and what can be done to
- * it — the layout the approved prototype uses, and the answer to "where does the
- * count go": a subtitle under the title, with the per-status breakdown in the
- * chips below.
+ * The action set, on the shared `MasterPageHeader` band. Everything about how the
+ * band looks lives there; this file decides only what goes in it, which is what
+ * lets the other masters get the same header without copying it.
  *
  * The action set is the legacy screen's, which resolved each of these through
  * `PERMISSION_MAP` against `GetPageButtonPermissions`. Here each one is wrapped in
@@ -26,26 +25,18 @@ import { usePartCounts } from '@/features/dashboard/use-dashboard';
  * page put all seven side by side and the important one was not findable.
  */
 export function PartsPageHeader() {
-  const { total, counts, isLoading } = usePartCounts();
-  const pending = counts.find((entry) => entry.status === 'PendingApproval')?.count ?? 0;
-
   return (
-    <header className="border-line bg-surface flex shrink-0 flex-wrap items-center gap-2 border-b px-4 py-2.5">
-      <span className="bg-brand-soft text-brand-strong flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-        <Package className="h-4 w-4" />
-      </span>
-
-      <div className="min-w-0">
-        <h1 className="text-ink truncate text-sm leading-tight font-semibold">Part Master</h1>
-        <p className="text-ink-3 hidden truncate text-[11px] leading-tight sm:block">
-          {isLoading
-            ? 'Counting…'
-            : `${total.toLocaleString('en-IN')} parts · ${pending.toLocaleString('en-IN')} awaiting approval`}
-        </p>
-      </div>
-
-      <div className="flex-1" />
-
+    <MasterPageHeader
+      icon="part"
+      title="Part Master"
+      resource="parts"
+      stats={[
+        { label: 'parts' },
+        { label: 'awaiting approval', filter: 'status:eq:PendingApproval', emphasise: true },
+        { label: 'on hold', filter: 'status:eq:Hold', emphasise: true },
+      ]}
+      actions={
+        <>
       <Can permission="masters.part.create">
         <Link
           href="/masters/parts/new"
@@ -101,10 +92,12 @@ export function PartsPageHeader() {
             <MenuItemDisabled icon={<FileText className="h-3.5 w-3.5" />} reason="Needs the Reporting module">
               Part report
             </MenuItemDisabled>
-          </div>
-        )}
-      </Popover>
-    </header>
+            </div>
+          )}
+        </Popover>
+        </>
+      }
+    />
   );
 }
 

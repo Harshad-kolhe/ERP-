@@ -2,47 +2,42 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { Can } from '@/components/permission/can';
-import { PageHeader } from '@/components/shell/page-header';
-import { Button } from '@/components/ui/button';
+import { MasterPageHeader } from '@/features/masters/shared/master-page-header';
 import { RolesTable } from '@/features/masters/roles/roles-table';
 
-export const metadata = { title: 'Roles · ERP' };
+export const metadata = { title: 'Role Master · ERP' };
 
-export default function MasterRolesPage() {
+export default function RolesPage() {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PageHeader
-        title="Roles"
-        description="The role reference table carried over from the legacy system. These records grant nothing — permissions are administered under Roles & permissions."
-        actions={
-          <Can permission="masters.role.create">
-            <Button size="sm" asChild>
-              <Link href="/masters/roles/new">New role</Link>
-            </Button>
-          </Can>
-        }
-      />
+      {/* The header counts through the API, so it needs a boundary during prerender. */}
+      <Suspense fallback={<div className="border-line h-[69px] shrink-0 border-b" />}>
+        <MasterPageHeader
+          icon="role"
+          title="Role Master"
+          resource="roles"
+          stats={[
+            { label: 'roles' },
+        { label: 'inactive', filter: 'isActive:eq:false' },
+          ]}
+          actions={
+            <Can permission="masters.role.create">
+              <Link
+                href="/masters/roles/new"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground inline-flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[13px] font-semibold shadow-sm"
+              >
+                <span aria-hidden="true" className="-mt-px text-base leading-none">
+                  +
+                </span>
+                New Role
+              </Link>
+            </Can>
+          }
+        />
+      </Suspense>
 
-      {/*
-        Two different things in this system are called "role", and confusing them is
-        easy enough that the screen says so. This one is master data; the one that
-        grants permissions lives under Administer.
-      */}
-      <div className="px-6 pt-4">
-        <p className="bg-muted/50 text-muted-foreground rounded-md border px-3 py-2 text-[13px]">
-          Looking for what a role is allowed to do?{' '}
-          <Can
-            permission="admin.role.read"
-            fallback={<span>Ask an administrator — it lives under Administer › Roles &amp; permissions.</span>}
-          >
-            <Link href="/admin/roles" className="text-primary font-medium underline-offset-4 hover:underline">
-              Roles &amp; permissions
-            </Link>
-          </Can>
-        </p>
-      </div>
-
-      <div className="flex min-h-0 flex-1 flex-col p-6">
+      <div className="flex min-h-0 flex-1 flex-col p-4">
+        {/* useSearchParams needs a Suspense boundary during prerender. */}
         <Suspense fallback={<p className="text-muted-foreground text-sm">Loading…</p>}>
           <RolesTable />
         </Suspense>

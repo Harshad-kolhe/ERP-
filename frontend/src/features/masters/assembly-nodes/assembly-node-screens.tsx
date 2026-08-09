@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { Can } from '@/components/permission/can';
-import { PageHeader } from '@/components/shell/page-header';
-import { Button } from '@/components/ui/button';
+import { MasterPageHeader } from '../shared/master-page-header';
 import type { AssemblyNodeDetail } from '@/lib/api/types';
 
 import { EditMasterRecord } from '../shared/edit-master-record';
@@ -25,26 +24,32 @@ import { AssemblyNodesTable } from './assembly-nodes-table';
 export function AssemblyNodeListScreen({ screen }: { screen: AssemblyLevelScreen }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PageHeader
-        title={screen.plural}
-        description={
-          screen.parent
-            ? `Every ${screen.noun} belongs to one ${screen.parent.noun.toLowerCase()}. Filtering, sorting and paging run in the database.`
-            : `The top of the machine breakdown. Filtering, sorting and paging run in the database.`
-        }
-        actions={
-          // Rendered only for users holding the create permission. The endpoint
-          // enforces the same check, so this is about not offering an action that
-          // would fail — not about security.
-          <Can permission={screen.permissions.create}>
-            <Button size="sm" asChild>
-              <Link href={`/masters/${screen.resource}/new`}>New {screen.noun}</Link>
-            </Button>
-          </Can>
-        }
-      />
+      <Suspense fallback={<div className="border-line h-[69px] shrink-0 border-b" />}>
+        <MasterPageHeader
+          icon={screen.icon}
+          title={screen.masterTitle}
+          resource={screen.resource}
+          stats={[
+            { label: screen.plural.toLowerCase() },
+            { label: 'inactive', filter: 'isActive:eq:false' },
+          ]}
+          actions={
+            <Can permission={screen.permissions.create}>
+              <Link
+                href={`/masters/${screen.resource}/new`}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground inline-flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[13px] font-semibold shadow-sm"
+              >
+                <span aria-hidden="true" className="-mt-px text-base leading-none">
+                  +
+                </span>
+                New {screen.noun}
+              </Link>
+            </Can>
+          }
+        />
+      </Suspense>
 
-      <div className="flex min-h-0 flex-1 flex-col p-6">
+      <div className="flex min-h-0 flex-1 flex-col p-4">
         {/* useSearchParams needs a Suspense boundary during prerender. */}
         <Suspense fallback={<p className="text-muted-foreground text-sm">Loading…</p>}>
           <AssemblyNodesTable screen={screen} />

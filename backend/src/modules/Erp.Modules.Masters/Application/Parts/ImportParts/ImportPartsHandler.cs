@@ -2,6 +2,7 @@ using Erp.BuildingBlocks.Application.Cqrs;
 using Erp.BuildingBlocks.Excel;
 using Erp.Contracts.Import;
 using Erp.Modules.Masters.Application.Imports;
+using Erp.Modules.Masters.Application.Lookups;
 using Erp.Persistence;
 using Erp.Persistence.Domain.Parts;
 using Erp.SharedKernel.Results;
@@ -46,6 +47,14 @@ internal sealed class ImportPartsHandler(ErpDbContext db)
         var parts = new List<Part>(rows.Count);
         var keys = new List<(int Row, string? Key)>(rows.Count);
 
+        // Loaded once for the whole file, like the duplicate check below. A sheet of
+        // 2,000 parts has 24,000 coded cells between them, and looking each one up
+        // as it is read would be 24,000 round trips.
+        var known = await ReferenceCodes.KnownAsync(
+            db,
+            PartCodedFields.LookupTypesUsed,
+            cancellationToken);
+
         foreach (var row in rows)
         {
             var reader = new ImportRowReader(row);
@@ -53,7 +62,7 @@ internal sealed class ImportPartsHandler(ErpDbContext db)
             // The key comes back from MapRow rather than being re-read here. Every
             // accessor records its own problems, so reading a column a second time
             // reports a blank required cell twice.
-            var (part, key) = MapRow(reader);
+            var (part, key) = MapRow(reader, known);
 
             keys.Add((row.Row, key));
             report.Add(reader.Errors);
@@ -90,7 +99,9 @@ internal sealed class ImportPartsHandler(ErpDbContext db)
     /// is returned even for a failed row, so the duplicate checks can still name it.
     /// </para>
     /// </summary>
-    private static (Part? Part, string? Key) MapRow(ImportRowReader reader)
+    private static (Part? Part, string? Key) MapRow(
+        ImportRowReader reader,
+        Dictionary<string, HashSet<string>> known)
     {
         var partNumber = reader.RequiredText(PartImportColumns.PartNumber);
 
@@ -191,10 +202,42 @@ internal sealed class ImportPartsHandler(ErpDbContext db)
 
         part.RestoreLifecycleState(status, isActive);
 
+        RejectUnknownCodes(reader, known);
+
         // Re-checked: the attribute columns are read after the check above, and a
         // too-long value among them records an error there. Cheap, and it keeps the
         // "no part is built from a row with errors" invariant true.
         return (reader.IsValid ? part : null, key);
+    }
+
+    /// <summary>
+    /// Rejects a coded cell whose value no master recognises — <c>Source code:
+    /// Outsourced</c> when the option is <c>OutSource</c>.
+    /// <para>
+    /// The check the legacy import did not have, and the reason a migrated master
+    /// ends up with four spellings of one material. It runs per cell rather than per
+    /// row so the operator is told which column is wrong, not merely that the row is.
+    /// </para>
+    /// </summary>
+    private static void RejectUnknownCodes(ImportRowReader reader, Dictionary<string, HashSet<string>> known)
+    {
+        foreach (var field in PartCodedFields.All)
+        {
+            var value = reader.Cell(field.Column);
+
+            // An over-length cell has already been reported by the accessor that read
+            // it, and is not going to match a code anyway. Saying so a second time
+            // just buries the error that matters.
+            if (value is null || value.Length > field.Column.MaxLength)
+            {
+                continue;
+            }
+
+            if (!ReferenceCodes.IsKnown(known, field.LookupType, value))
+            {
+                reader.AddError($"'{value}' is not a known {field.Column.Header}.", field.Column);
+            }
+        }
     }
 
     private static PartStatus ReadStatus(ImportRowReader reader)

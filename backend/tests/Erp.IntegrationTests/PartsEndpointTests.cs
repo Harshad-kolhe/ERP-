@@ -204,6 +204,67 @@ public sealed class PartsEndpointTests(ErpApiFactory factory) : IAsyncLifetime
         problem.Errors.ShouldContainKey("HsnCode");
     }
 
+    /// <summary>
+    /// The gap this closes: every coded field passed length and format checks and
+    /// then went into the database unread, so a part could be saved measured in a
+    /// unit that does not exist.
+    /// </summary>
+    [Fact]
+    public async Task A_code_no_master_recognises_is_rejected()
+    {
+        var client = await factory.CreateAuthenticatedClientAsync(TestUsers.Author);
+
+        var response = await client.PostAsJsonAsync(
+            "/api/v1/masters/parts",
+            new CreatePartRequest
+            {
+                PartNumber = "MTR-2000",
+                Description = "Drive motor 5kW",
+
+                // Shaped like a unit and is not one.
+                UnitOfMeasureCode = "XYZ",
+                Attributes = new PartAttributesDto { SourceCode = "Outsourced" },
+            });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+
+        var problem = await response.Content.ReadFromJsonAsync<ProblemResponse>(JsonOptions.Default);
+
+        // Both wrong codes named, not just the first one found — an integration
+        // posting a part usually gets several fields wrong at once.
+        problem!.Detail.ShouldNotBeNull();
+        problem.Detail.ShouldContain("XYZ");
+        problem.Detail.ShouldContain("Outsourced");
+    }
+
+    /// <summary>
+    /// The other half of the same rule: the option the dropdown actually offers is
+    /// accepted. Without this, a check that rejected everything would look correct.
+    /// </summary>
+    [Fact]
+    public async Task A_code_the_master_offers_is_accepted()
+    {
+        var client = await factory.CreateAuthenticatedClientAsync(TestUsers.Author);
+
+        var response = await client.PostAsJsonAsync(
+            "/api/v1/masters/parts",
+            new CreatePartRequest
+            {
+                PartNumber = "MTR-2001",
+                Description = "Drive motor 7kW",
+                UnitOfMeasureCode = "NOS",
+                HsnCode = "85015210",
+                Attributes = new PartAttributesDto
+                {
+                    SourceCode = "OutSource",
+                    Moc = "Mild steel",
+                    PurchaseUomCode = "KG",
+                },
+            });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+    }
+
     private static async Task<Guid> CreatePartAsync(HttpClient client, string partNumber, string description)
     {
         var response = await PostPartAsync(client, partNumber, description);

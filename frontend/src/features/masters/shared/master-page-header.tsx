@@ -7,7 +7,10 @@ import {
   Contact,
   IdCard,
   Layers,
+  ListTree,
   Package,
+  Percent,
+  Ruler,
   Truck,
   Users,
   Workflow,
@@ -39,6 +42,9 @@ const ICONS = {
   section: Layers,
   assembly: Component,
   subAssembly: Blocks,
+  lookupValue: ListTree,
+  unitOfMeasure: Ruler,
+  hsnCode: Percent,
 } satisfies Record<string, LucideIcon>;
 
 /**

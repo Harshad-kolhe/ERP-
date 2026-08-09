@@ -17,7 +17,7 @@ internal sealed class ListCustomersHandler(ErpDbContext db)
     : IQueryHandler<ListCustomersQuery, PagedResult<CustomerListItemDto>>
 {
     /// <summary>The allow-list. Anything absent here cannot be sorted or filtered on.</summary>
-    private static readonly QueryMap<CustomerListRow> Map = QueryMap<CustomerListRow>.Create()
+    private static readonly QueryMap<CustomerListItemDto> Map = QueryMap<CustomerListItemDto>.Create()
         .Field("customerCode", x => x.CustomerCode, searchable: true)
         .Field("customerName", x => x.CustomerName, searchable: true)
         .Field("industry", x => x.Industry)
@@ -67,7 +67,7 @@ internal sealed class ListCustomersHandler(ErpDbContext db)
 
         var rows = db.Customers
             .AsNoTracking()
-            .Select(c => new CustomerListRow
+            .Select(c => new CustomerListItemDto
             {
                 Id = c.Id,
                 CustomerCode = c.CustomerCode,
@@ -99,7 +99,7 @@ internal sealed class ListCustomersHandler(ErpDbContext db)
                 Currency = c.Currency,
                 TaxCode = c.TaxCode,
                 IsActive = c.IsActive,
-                Status = c.Status,
+                Status = (MasterStatusDto)c.Status,
                 CreatedBy = db.Users
                     .Where(u => u.Id == c.CreatedByUserId)
                     .Select(u => u.DisplayName)
@@ -112,58 +112,6 @@ internal sealed class ListCustomersHandler(ErpDbContext db)
                 ModifiedAtUtc = c.ModifiedAtUtc,
             });
 
-        var page = await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
-
-        if (page.IsFailure)
-        {
-            return Result.Failure<PagedResult<CustomerListItemDto>>(page.Error);
-        }
-
-        var items = page.Value.Items.Select(ToDto).ToList();
-
-        return Result.Success(new PagedResult<CustomerListItemDto>(
-            items,
-            page.Value.Page,
-            page.Value.PageSize,
-            page.Value.TotalCount));
+        return await rows.ToPagedResultAsync(Map, query.Page, cancellationToken);
     }
-
-    private static CustomerListItemDto ToDto(CustomerListRow row) => new()
-    {
-        Id = row.Id,
-        CustomerCode = row.CustomerCode,
-        CustomerName = row.CustomerName,
-        Industry = row.Industry,
-        PrimaryContact = row.PrimaryContact,
-        SecondaryContact = row.SecondaryContact,
-        Phone = row.Phone,
-        AltPhone = row.AltPhone,
-        Email = row.Email,
-        AltEmail = row.AltEmail,
-        Website = row.Website,
-        BillingAddress = row.BillingAddress,
-        BillingCity = row.BillingCity,
-        BillingState = row.BillingState,
-        BillingCountry = row.BillingCountry,
-        BillingZipCode = row.BillingZipCode,
-        ShippingAddress = row.ShippingAddress,
-        ShippingCity = row.ShippingCity,
-        ShippingState = row.ShippingState,
-        ShippingCountry = row.ShippingCountry,
-        ShippingZipCode = row.ShippingZipCode,
-        TaxId = row.TaxId,
-        Gst = row.Gst,
-        Pan = row.Pan,
-        Igst = row.Igst,
-        Cgst = row.Cgst,
-        Sgst = row.Sgst,
-        Currency = row.Currency,
-        TaxCode = row.TaxCode,
-        IsActive = row.IsActive,
-        Status = (MasterStatusDto)row.Status,
-        CreatedBy = row.CreatedBy,
-        CreatedAtUtc = row.CreatedAtUtc,
-        ModifiedBy = row.ModifiedBy,
-        ModifiedAtUtc = row.ModifiedAtUtc,
-    };
 }

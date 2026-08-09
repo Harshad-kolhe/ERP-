@@ -133,6 +133,9 @@ public sealed class EndpointConventionTests(ErpTestHost host) : IClassFixture<Er
             "/api/v1/masters/assemblies",
             "/api/v1/masters/sub-assemblies",
             "/api/v1/masters/parent-parts",
+            "/api/v1/masters/lookup-values",
+            "/api/v1/masters/units-of-measure",
+            "/api/v1/masters/hsn-codes",
         ];
 
         var mapped = Endpoints

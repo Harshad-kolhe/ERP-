@@ -19,13 +19,13 @@ Everything here was built and run, not just written.
 | | Evidence |
 |---|---|
 | Backend Release build | `dotnet build backend/Erp.slnx -c Release` — succeeds |
-| Domain unit tests | **47/47** pass |
-| Architecture tests | **19/19** pass, and verified to fail against a deliberately non-compliant endpoint |
-| Integration tests | **40/40** pass against a real SQL Server in a container |
+| Domain unit tests | **66/66** pass |
+| Architecture tests | **21/21** pass, and verified to fail against a deliberately non-compliant endpoint |
+| Integration tests | **52/52** pass against a real SQL Server in a container |
 | Banned symbols | Probed: `DateTime.Now`, `DateTime.UtcNow`, `Console`, `Task.Result`, `Task.Wait()`, `decimal.Parse(string)` all fail the build with their custom messages |
 | Format gate | `dotnet format whitespace` and `dotnet format style` clean |
 | Schema drift gate | Both contexts report "No changes have been made to the model since the last migration" |
-| Schema documentation | `db/erd/` regenerates from the EF model — `masters` (10 tables, 5 foreign keys) and `identity` (7 tables, 6 foreign keys). Byte-identical on a second run, and both diagrams parse as mermaid `erDiagram` |
+| Schema documentation | `db/erd/` regenerates from the EF model — `masters` (13 tables, 6 foreign keys) and `identity` (7 tables, 6 foreign keys). Byte-identical on a second run, and both diagrams parse as mermaid `erDiagram` |
 | Frontend | `tsc --noEmit` clean; `eslint .` clean (0 errors); `next build` succeeds, `/api/[...path]` emitted as dynamic |
 | Client contract | `dotnet build` emits `contracts/openapi.json` with no server and no database; `pnpm --filter web generate:api` turns it into one committed file. Byte-identical from Debug and Release builds, and proved to catch drift by adding a property to a C# DTO and watching it surface in the generated TypeScript |
 | Infrastructure | `docker compose up -d` — sqlserver, seq, minio, mailpit all healthy |
@@ -77,9 +77,33 @@ Section, Assembly, Sub-assembly and Parent part, ported from the legacy
 
 These are the first foreign keys in the `masters` schema — see the note below on
 what the ERD found. Every list is server-paged through the same `QueryMap`
-allow-list as the other masters, every dropdown reads from `LookupValue`, and the
-parent and part pickers search the server rather than loading a master into a
+allow-list as the other masters, every dropdown reads from the reference data, and
+the parent and part pickers search the server rather than loading a master into a
 `<select>`.
+
+## Reference data
+
+`UnitOfMeasure` and `HsnCode` were rows in `LookupValue` until they needed
+attributes a four-column option row cannot hold, and are now masters of their own:
+a unit carries its decimal places and its conversion to the base of its family, and
+an HSN code carries a GST rate history that is appended rather than edited, so an
+invoice raised last March still prices at last March's rate. Both are still
+requested by their old list names — a form asks for `uom` and does not know
+anything moved.
+
+The codes a part carries are now checked against those masters on create, update
+**and** import. Before that, every coded field passed a length check and went into
+the database unread, so a part could be saved measured in a unit that does not
+exist. Codes are still stored as codes rather than foreign keys — `"KG"`, not an id
+— which is what SAP and Oracle both do with reference data and what keeps an export,
+a support query and an import sheet readable; the relationship is enforced in the
+application instead.
+
+All three tables are maintained on screen under `/masters/lookup-values`,
+`/masters/units-of-measure` and `/masters/hsn-codes`, behind one
+`masters.referencedata.*` permission set. That closes the last place where adding a
+material of construction meant a database migration — the legacy failure the
+`LookupValue` table was built to end, which had simply moved up one level.
 
 ## Bugs found by the tests during this build
 

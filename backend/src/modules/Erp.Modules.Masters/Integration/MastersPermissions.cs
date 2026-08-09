@@ -140,6 +140,30 @@ public static class MastersPermissions
     public const string ParentPartCreate = "masters.parentpart.create";
 
     public const string ParentPartUpdate = "masters.parentpart.update";
+
+    /// <summary>
+    /// Maintains the code lists every other master picks from — lookup values,
+    /// units of measure and HSN codes.
+    /// <para>
+    /// One set of three permissions across all three tables, where sections and
+    /// assemblies got a set each. The difference is who does the work: the machine
+    /// hierarchy is maintained by different people at each level, whereas the code
+    /// lists are one job done by one administrator. Splitting them nine ways would
+    /// produce permissions that are always granted together, which teaches everyone
+    /// to grant them without reading.
+    /// </para>
+    /// <para>
+    /// Separate from reading a list, which needs no permission at all — every form
+    /// in the application has to fill its dropdowns, and that endpoint is
+    /// authenticated-only. This is the power to <em>change</em> what the dropdowns
+    /// offer, and through them what every master will accept.
+    /// </para>
+    /// </summary>
+    public const string ReferenceDataRead = "masters.referencedata.read";
+
+    public const string ReferenceDataCreate = "masters.referencedata.create";
+
+    public const string ReferenceDataUpdate = "masters.referencedata.update";
 }
 
 /// <summary>Publishes this module's permissions to the catalogue the roles screen reads.</summary>
@@ -191,6 +215,10 @@ public sealed class MastersPermissionSource : IPermissionSource
         new(MastersPermissions.ParentPartRead, "View parent parts", "Parent parts", "Masters"),
         new(MastersPermissions.ParentPartCreate, "Create parent parts", "Parent parts", "Masters"),
         new(MastersPermissions.ParentPartUpdate, "Edit parent parts", "Parent parts", "Masters"),
+
+        new(MastersPermissions.ReferenceDataRead, "View reference data", "Reference data", "Masters"),
+        new(MastersPermissions.ReferenceDataCreate, "Add reference data", "Reference data", "Masters"),
+        new(MastersPermissions.ReferenceDataUpdate, "Edit reference data", "Reference data", "Masters"),
 
         new(MastersPermissions.PartImport, "Import parts from Excel", "Parts", "Masters"),
         new(MastersPermissions.SupplierImport, "Import suppliers from Excel", "Suppliers", "Masters"),

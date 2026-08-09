@@ -26,8 +26,8 @@ place.
 | Module | Schema | Owns | Status |
 |---|---|---|---|
 | Identity | `identity` | Users, roles, role claims, sessions | **[built]** |
-| Masters | `masters` | Part, Supplier, Customer, Employee, BusinessUnit, Role | **[built]** |
-| Masters | `masters` | Location, UnitOfMeasure, FinancialYear, NumberingSeries, PartCategory | **[phase 1]** |
+| Masters | `masters` | Part, Supplier, Customer, Employee, BusinessUnit, Role, UnitOfMeasure, HsnCode | **[built]** |
+| Masters | `masters` | Location, FinancialYear, NumberingSeries, PartCategory | **[phase 1]** |
 | Approvals | `approvals` | ApprovalRequest, ApprovalStep — one engine for all ~10 flows | **[phase 1]** |
 | Documents | `documents` | StoredDocument, DocumentLink, drawings | **[phase 1]** |
 | Procurement | `procurement` | PurchaseRequisition, Enquiry, Quotation, PurchaseOrder + revisions | **[phase 2]** |
@@ -113,8 +113,22 @@ erDiagram
         string Name
     }
     UnitOfMeasure {
-        string Code PK
+        int Id PK
+        string Code "unique"
+        int Decimals
+        string BaseUnitCode
+        decimal ConversionToBase
+    }
+    HsnCode {
+        int Id PK
+        string Code "unique"
         string Description
+    }
+    HsnGstRate {
+        int Id PK
+        int HsnCodeId FK
+        decimal RatePercent
+        date EffectiveFrom
     }
     Location {
         int Id PK
@@ -146,12 +160,21 @@ erDiagram
     FinancialYear ||--o{ NumberingSeries : "FinancialYearId"
     PartCategory ||--o{ Part : "CategoryId"
     UnitOfMeasure ||--o{ Part : "UnitOfMeasureCode"
+    HsnCode ||--o{ Part : "HsnCode"
+    HsnCode ||--o{ HsnGstRate : "HsnCodeId"
 ```
 
-**What is missing today.** `PartCategory`, `UnitOfMeasure`, `Location`, `FinancialYear` and
-`NumberingSeries` do not exist — `Part.CategoryId` and `Employee.SiteId` already point at
-nothing. None of the relationships drawn above are enforced yet: the `masters` schema
-currently declares no foreign keys at all.
+**What is missing today.** `PartCategory`, `Location`, `FinancialYear` and `NumberingSeries`
+do not exist — `Part.CategoryId` and `Employee.SiteId` already point at nothing.
+
+**`UnitOfMeasure` and `HsnCode` exist, and are referenced by code rather than by key.**
+`Part.UnitOfMeasureCode` holds `"KG"`, not an id, which is what SAP and Oracle both do with
+reference data: the value stays readable in an export, a support query and an import sheet,
+and it does not diverge between environments seeded independently. The relationships drawn
+above are therefore enforced in the application rather than by a foreign key — every write
+path checks the code against the master before saving. The remaining relationships are not
+enforced at all yet; the `masters` schema declares foreign keys only between an aggregate and
+its own child rows.
 
 **Permissions are not in this diagram, and that is correct.** A permission is a compile-time
 constant published into the catalogue by the module that defines it, granted per role as an

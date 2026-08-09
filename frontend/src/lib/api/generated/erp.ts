@@ -4,6 +4,11 @@
  * Erp.Api | v1
  * OpenAPI spec version: 1.0.0
  */
+export interface AddHsnGstRateRequest {
+  ratePercent: number;
+  effectiveFrom: string;
+}
+
 export type AssemblyLevelDto = typeof AssemblyLevelDto[keyof typeof AssemblyLevelDto];
 
 
@@ -428,6 +433,22 @@ export interface CreateEmployeeRequest {
   status?: MasterStatusDto;
 }
 
+export interface CreateHsnCodeRequest {
+  code: string;
+  ratePercent: number;
+  effectiveFrom: string;
+  description: string;
+  isActive?: boolean;
+}
+
+export interface CreateLookupValueRequest {
+  type: string;
+  code: string;
+  name: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
 export type CreateParentPartRequestDescription = null | string;
 
 export type CreateParentPartRequestAssemblyNodeId = null | string;
@@ -585,6 +606,20 @@ export interface CreateSupplierRequest {
   activeStatus?: CreateSupplierRequestActiveStatus;
   isActive?: boolean;
   status?: MasterStatusDto;
+}
+
+export type CreateUnitOfMeasureRequestBaseUnitCode = null | string;
+
+export type CreateUnitOfMeasureRequestConversionToBase = null | number;
+
+export interface CreateUnitOfMeasureRequest {
+  code: string;
+  name: string;
+  decimals?: number;
+  baseUnitCode?: CreateUnitOfMeasureRequestBaseUnitCode;
+  conversionToBase?: CreateUnitOfMeasureRequestConversionToBase;
+  sortOrder?: number;
+  isActive?: boolean;
 }
 
 export interface CurrentUserDto {
@@ -1011,6 +1046,43 @@ export interface EmployeeListItemDto {
   modifiedAtUtc?: EmployeeListItemDtoModifiedAtUtc;
 }
 
+export type HsnCodeDetailDtoCode = null | string;
+
+export type HsnCodeDetailDtoDescription = null | string;
+
+export type HsnCodeDetailDtoModifiedAtUtc = null | string;
+
+export interface HsnCodeDetailDto {
+  id: number;
+  code: HsnCodeDetailDtoCode;
+  description: HsnCodeDetailDtoDescription;
+  isActive: boolean;
+  rates: HsnGstRateDto[];
+  createdAtUtc: string;
+  modifiedAtUtc?: HsnCodeDetailDtoModifiedAtUtc;
+  rowVersion: string;
+}
+
+export type HsnCodeListItemDtoCode = null | string;
+
+export type HsnCodeListItemDtoDescription = null | string;
+
+export type HsnCodeListItemDtoCurrentRatePercent = null | number;
+
+export interface HsnCodeListItemDto {
+  id: number;
+  code: HsnCodeListItemDtoCode;
+  description: HsnCodeListItemDtoDescription;
+  currentRatePercent: HsnCodeListItemDtoCurrentRatePercent;
+  isActive: boolean;
+  createdAtUtc: string;
+}
+
+export interface HsnGstRateDto {
+  ratePercent: number;
+  effectiveFrom: string;
+}
+
 export type HttpValidationProblemDetailsType = null | string;
 
 export type HttpValidationProblemDetailsTitle = null | string;
@@ -1067,6 +1139,42 @@ export interface LookupSetDto {
   lookups: LookupSetDtoLookups;
 }
 
+export type LookupValueDetailDtoType = null | string;
+
+export type LookupValueDetailDtoCode = null | string;
+
+export type LookupValueDetailDtoName = null | string;
+
+export type LookupValueDetailDtoModifiedAtUtc = null | string;
+
+export interface LookupValueDetailDto {
+  id: number;
+  type: LookupValueDetailDtoType;
+  code: LookupValueDetailDtoCode;
+  name: LookupValueDetailDtoName;
+  sortOrder: number;
+  isActive: boolean;
+  createdAtUtc: string;
+  modifiedAtUtc?: LookupValueDetailDtoModifiedAtUtc;
+  rowVersion: string;
+}
+
+export type LookupValueListItemDtoType = null | string;
+
+export type LookupValueListItemDtoCode = null | string;
+
+export type LookupValueListItemDtoName = null | string;
+
+export interface LookupValueListItemDto {
+  id: number;
+  type: LookupValueListItemDtoType;
+  code: LookupValueListItemDtoCode;
+  name: LookupValueListItemDtoName;
+  sortOrder: number;
+  isActive: boolean;
+  createdAtUtc: string;
+}
+
 export type MasterStatusDto = typeof MasterStatusDto[keyof typeof MasterStatusDto];
 
 
@@ -1111,6 +1219,26 @@ export interface PagedResultOfCustomerListItemDto {
 
 export interface PagedResultOfEmployeeListItemDto {
   items: EmployeeListItemDto[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
+  hasPreviousPage?: boolean;
+  hasNextPage?: boolean;
+}
+
+export interface PagedResultOfHsnCodeListItemDto {
+  items: HsnCodeListItemDto[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
+  hasPreviousPage?: boolean;
+  hasNextPage?: boolean;
+}
+
+export interface PagedResultOfLookupValueListItemDto {
+  items: LookupValueListItemDto[];
   page: number;
   pageSize: number;
   totalCount: number;
@@ -1171,6 +1299,16 @@ export interface PagedResultOfRoleMasterListItemDto {
 
 export interface PagedResultOfSupplierListItemDto {
   items: SupplierListItemDto[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages?: number;
+  hasPreviousPage?: boolean;
+  hasNextPage?: boolean;
+}
+
+export interface PagedResultOfUnitOfMeasureListItemDto {
+  items: UnitOfMeasureListItemDto[];
   page: number;
   pageSize: number;
   totalCount: number;
@@ -1782,6 +1920,50 @@ export interface SupplierListItemDto {
   modifiedAtUtc?: SupplierListItemDtoModifiedAtUtc;
 }
 
+export type UnitOfMeasureDetailDtoCode = null | string;
+
+export type UnitOfMeasureDetailDtoName = null | string;
+
+export type UnitOfMeasureDetailDtoBaseUnitCode = null | string;
+
+export type UnitOfMeasureDetailDtoConversionToBase = null | number;
+
+export type UnitOfMeasureDetailDtoModifiedAtUtc = null | string;
+
+export interface UnitOfMeasureDetailDto {
+  id: number;
+  code: UnitOfMeasureDetailDtoCode;
+  name: UnitOfMeasureDetailDtoName;
+  decimals: number;
+  baseUnitCode: UnitOfMeasureDetailDtoBaseUnitCode;
+  conversionToBase: UnitOfMeasureDetailDtoConversionToBase;
+  sortOrder: number;
+  isActive: boolean;
+  createdAtUtc: string;
+  modifiedAtUtc?: UnitOfMeasureDetailDtoModifiedAtUtc;
+  rowVersion: string;
+}
+
+export type UnitOfMeasureListItemDtoCode = null | string;
+
+export type UnitOfMeasureListItemDtoName = null | string;
+
+export type UnitOfMeasureListItemDtoBaseUnitCode = null | string;
+
+export type UnitOfMeasureListItemDtoConversionToBase = null | number;
+
+export interface UnitOfMeasureListItemDto {
+  id: number;
+  code: UnitOfMeasureListItemDtoCode;
+  name: UnitOfMeasureListItemDtoName;
+  decimals: number;
+  baseUnitCode: UnitOfMeasureListItemDtoBaseUnitCode;
+  conversionToBase: UnitOfMeasureListItemDtoConversionToBase;
+  sortOrder: number;
+  isActive: boolean;
+  createdAtUtc: string;
+}
+
 export type UpdateAssemblyNodeRequestParentId = null | string;
 
 export type UpdateAssemblyNodeRequestAttributes = null | AssemblyNodeAttributesDto;
@@ -2009,6 +2191,19 @@ export interface UpdateEmployeeRequest {
   status?: MasterStatusDto;
 }
 
+export interface UpdateHsnCodeRequest {
+  rowVersion: string;
+  description: string;
+  isActive?: boolean;
+}
+
+export interface UpdateLookupValueRequest {
+  rowVersion: string;
+  name: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
 export type UpdateParentPartRequestDescription = null | string;
 
 export type UpdateParentPartRequestAssemblyNodeId = null | string;
@@ -2169,9 +2364,31 @@ export interface UpdateSupplierRequest {
   status?: MasterStatusDto;
 }
 
+export type UpdateUnitOfMeasureRequestBaseUnitCode = null | string;
+
+export type UpdateUnitOfMeasureRequestConversionToBase = null | number;
+
+export interface UpdateUnitOfMeasureRequest {
+  rowVersion: string;
+  name: string;
+  decimals?: number;
+  baseUnitCode?: UpdateUnitOfMeasureRequestBaseUnitCode;
+  conversionToBase?: UpdateUnitOfMeasureRequestConversionToBase;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
 export type ListRolesParams = {
 page?: number;
 pageSize?: number;
+};
+
+export type ListUnitsOfMeasureParams = {
+page?: number;
+pageSize?: number;
+sort?: string;
+search?: string;
+filter?: string;
 };
 
 export type ListSuppliersParams = {
@@ -2218,8 +2435,24 @@ search?: string;
 filter?: string;
 };
 
+export type ListLookupValuesParams = {
+page?: number;
+pageSize?: number;
+sort?: string;
+search?: string;
+filter?: string;
+};
+
 export type GetLookupsParams = {
 types?: string;
+};
+
+export type ListHsnCodesParams = {
+page?: number;
+pageSize?: number;
+sort?: string;
+search?: string;
+filter?: string;
 };
 
 export type ListEmployeesParams = {
@@ -2739,6 +2972,265 @@ export const updateRole = async (id: string,
   
   const data: updateRoleResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as updateRoleResponse
+}
+
+
+
+/**
+ * @summary Get one unit of measure
+ */
+export type getUnitOfMeasureByIdResponse200 = {
+  data: UnitOfMeasureDetailDto
+  status: 200
+}
+
+export type getUnitOfMeasureByIdResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type getUnitOfMeasureByIdResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type getUnitOfMeasureByIdResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+    
+export type getUnitOfMeasureByIdResponseSuccess = (getUnitOfMeasureByIdResponse200) & {
+  headers: Headers;
+};
+export type getUnitOfMeasureByIdResponseError = (getUnitOfMeasureByIdResponse401 | getUnitOfMeasureByIdResponse403 | getUnitOfMeasureByIdResponse404) & {
+  headers: Headers;
+};
+
+export type getUnitOfMeasureByIdResponse = (getUnitOfMeasureByIdResponseSuccess | getUnitOfMeasureByIdResponseError)
+
+export const getGetUnitOfMeasureByIdUrl = (id: number,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/units-of-measure/${id}`
+}
+
+export const getUnitOfMeasureById = async (id: number, options?: RequestInit): Promise<getUnitOfMeasureByIdResponse> => {
+  
+  const res = await fetch(getGetUnitOfMeasureByIdUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: getUnitOfMeasureByIdResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getUnitOfMeasureByIdResponse
+}
+
+
+
+/**
+ * The code cannot be changed: parts store the letters, not a key.
+ * @summary Edit a unit of measure
+ */
+export type updateUnitOfMeasureResponse204 = {
+  data: void
+  status: 204
+}
+
+export type updateUnitOfMeasureResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type updateUnitOfMeasureResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type updateUnitOfMeasureResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type updateUnitOfMeasureResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type updateUnitOfMeasureResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type updateUnitOfMeasureResponseSuccess = (updateUnitOfMeasureResponse204) & {
+  headers: Headers;
+};
+export type updateUnitOfMeasureResponseError = (updateUnitOfMeasureResponse400 | updateUnitOfMeasureResponse401 | updateUnitOfMeasureResponse403 | updateUnitOfMeasureResponse404 | updateUnitOfMeasureResponse409) & {
+  headers: Headers;
+};
+
+export type updateUnitOfMeasureResponse = (updateUnitOfMeasureResponseSuccess | updateUnitOfMeasureResponseError)
+
+export const getUpdateUnitOfMeasureUrl = (id: number,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/units-of-measure/${id}`
+}
+
+export const updateUnitOfMeasure = async (id: number,
+    updateUnitOfMeasureRequest: UpdateUnitOfMeasureRequest, options?: RequestInit): Promise<updateUnitOfMeasureResponse> => {
+  
+  const res = await fetch(getUpdateUnitOfMeasureUrl(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateUnitOfMeasureRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: updateUnitOfMeasureResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as updateUnitOfMeasureResponse
+}
+
+
+
+/**
+ * Leave the base unit blank for a unit that is itself a base. A base unit must not itself convert to another — conversion is one level, not a chain.
+ * @summary Create a unit of measure
+ */
+export type createUnitOfMeasureResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createUnitOfMeasureResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createUnitOfMeasureResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createUnitOfMeasureResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createUnitOfMeasureResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createUnitOfMeasureResponseSuccess = (createUnitOfMeasureResponse201) & {
+  headers: Headers;
+};
+export type createUnitOfMeasureResponseError = (createUnitOfMeasureResponse400 | createUnitOfMeasureResponse401 | createUnitOfMeasureResponse403 | createUnitOfMeasureResponse409) & {
+  headers: Headers;
+};
+
+export type createUnitOfMeasureResponse = (createUnitOfMeasureResponseSuccess | createUnitOfMeasureResponseError)
+
+export const getCreateUnitOfMeasureUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/units-of-measure`
+}
+
+export const createUnitOfMeasure = async (createUnitOfMeasureRequest: CreateUnitOfMeasureRequest, options?: RequestInit): Promise<createUnitOfMeasureResponse> => {
+  
+  const res = await fetch(getCreateUnitOfMeasureUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createUnitOfMeasureRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createUnitOfMeasureResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createUnitOfMeasureResponse
+}
+
+
+
+/**
+ * Includes each unit's decimal places and its conversion to the base unit of its family.
+ * @summary List units of measure
+ */
+export type listUnitsOfMeasureResponse200 = {
+  data: PagedResultOfUnitOfMeasureListItemDto
+  status: 200
+}
+
+export type listUnitsOfMeasureResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listUnitsOfMeasureResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listUnitsOfMeasureResponseSuccess = (listUnitsOfMeasureResponse200) & {
+  headers: Headers;
+};
+export type listUnitsOfMeasureResponseError = (listUnitsOfMeasureResponse401 | listUnitsOfMeasureResponse403) & {
+  headers: Headers;
+};
+
+export type listUnitsOfMeasureResponse = (listUnitsOfMeasureResponseSuccess | listUnitsOfMeasureResponseError)
+
+export const getListUnitsOfMeasureUrl = (params?: ListUnitsOfMeasureParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/units-of-measure?${stringifiedParams}` : `/api/v1/api/v1/masters/units-of-measure`
+}
+
+export const listUnitsOfMeasure = async (params?: ListUnitsOfMeasureParams, options?: RequestInit): Promise<listUnitsOfMeasureResponse> => {
+  
+  const res = await fetch(getListUnitsOfMeasureUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listUnitsOfMeasureResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listUnitsOfMeasureResponse
 }
 
 
@@ -4272,6 +4764,265 @@ export const updateParentPart = async (id: string,
 
 
 /**
+ * @summary Get one reference-data option
+ */
+export type getLookupValueByIdResponse200 = {
+  data: LookupValueDetailDto
+  status: 200
+}
+
+export type getLookupValueByIdResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type getLookupValueByIdResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type getLookupValueByIdResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+    
+export type getLookupValueByIdResponseSuccess = (getLookupValueByIdResponse200) & {
+  headers: Headers;
+};
+export type getLookupValueByIdResponseError = (getLookupValueByIdResponse401 | getLookupValueByIdResponse403 | getLookupValueByIdResponse404) & {
+  headers: Headers;
+};
+
+export type getLookupValueByIdResponse = (getLookupValueByIdResponseSuccess | getLookupValueByIdResponseError)
+
+export const getGetLookupValueByIdUrl = (id: number,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/lookup-values/${id}`
+}
+
+export const getLookupValueById = async (id: number, options?: RequestInit): Promise<getLookupValueByIdResponse> => {
+  
+  const res = await fetch(getGetLookupValueByIdUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: getLookupValueByIdResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getLookupValueByIdResponse
+}
+
+
+
+/**
+ * The list and the code cannot be changed: records store the code, so editing it would reinterpret them. Retire an option by clearing Active — it stays for existing records and drops out of the dropdown.
+ * @summary Rename, reorder or retire an option
+ */
+export type updateLookupValueResponse204 = {
+  data: void
+  status: 204
+}
+
+export type updateLookupValueResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type updateLookupValueResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type updateLookupValueResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type updateLookupValueResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type updateLookupValueResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type updateLookupValueResponseSuccess = (updateLookupValueResponse204) & {
+  headers: Headers;
+};
+export type updateLookupValueResponseError = (updateLookupValueResponse400 | updateLookupValueResponse401 | updateLookupValueResponse403 | updateLookupValueResponse404 | updateLookupValueResponse409) & {
+  headers: Headers;
+};
+
+export type updateLookupValueResponse = (updateLookupValueResponseSuccess | updateLookupValueResponseError)
+
+export const getUpdateLookupValueUrl = (id: number,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/lookup-values/${id}`
+}
+
+export const updateLookupValue = async (id: number,
+    updateLookupValueRequest: UpdateLookupValueRequest, options?: RequestInit): Promise<updateLookupValueResponse> => {
+  
+  const res = await fetch(getUpdateLookupValueUrl(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateLookupValueRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: updateLookupValueResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as updateLookupValueResponse
+}
+
+
+
+/**
+ * The option becomes selectable immediately — no deployment.
+ * @summary Add an option to a list
+ */
+export type createLookupValueResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createLookupValueResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createLookupValueResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createLookupValueResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createLookupValueResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createLookupValueResponseSuccess = (createLookupValueResponse201) & {
+  headers: Headers;
+};
+export type createLookupValueResponseError = (createLookupValueResponse400 | createLookupValueResponse401 | createLookupValueResponse403 | createLookupValueResponse409) & {
+  headers: Headers;
+};
+
+export type createLookupValueResponse = (createLookupValueResponseSuccess | createLookupValueResponseError)
+
+export const getCreateLookupValueUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/lookup-values`
+}
+
+export const createLookupValue = async (createLookupValueRequest: CreateLookupValueRequest, options?: RequestInit): Promise<createLookupValueResponse> => {
+  
+  const res = await fetch(getCreateLookupValueUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createLookupValueRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createLookupValueResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createLookupValueResponse
+}
+
+
+
+/**
+ * Every dropdown option in the system, across all lists. Filter on `type` to see one list. Not the endpoint a form fills its dropdowns from — that is GET /masters/lookups.
+ * @summary List reference-data options
+ */
+export type listLookupValuesResponse200 = {
+  data: PagedResultOfLookupValueListItemDto
+  status: 200
+}
+
+export type listLookupValuesResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listLookupValuesResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listLookupValuesResponseSuccess = (listLookupValuesResponse200) & {
+  headers: Headers;
+};
+export type listLookupValuesResponseError = (listLookupValuesResponse401 | listLookupValuesResponse403) & {
+  headers: Headers;
+};
+
+export type listLookupValuesResponse = (listLookupValuesResponseSuccess | listLookupValuesResponseError)
+
+export const getListLookupValuesUrl = (params?: ListLookupValuesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/lookup-values?${stringifiedParams}` : `/api/v1/api/v1/masters/lookup-values`
+}
+
+export const listLookupValues = async (params?: ListLookupValuesParams, options?: RequestInit): Promise<listLookupValuesResponse> => {
+  
+  const res = await fetch(getListLookupValuesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listLookupValuesResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listLookupValuesResponse
+}
+
+
+
+/**
  * Comma-separated list names, e.g. ?types=uom,currency,supplier.type. Returns the active options of each in display order. This is the only source of dropdown options in the system — the web app holds none of its own.
  * @summary Option lists for master forms
  */
@@ -4324,6 +5075,337 @@ export const getLookups = async (params?: GetLookupsParams, options?: RequestIni
   
   const data: getLookupsResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getLookupsResponse
+}
+
+
+
+/**
+ * @summary Get one HSN code and its rate history
+ */
+export type getHsnCodeByIdResponse200 = {
+  data: HsnCodeDetailDto
+  status: 200
+}
+
+export type getHsnCodeByIdResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type getHsnCodeByIdResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type getHsnCodeByIdResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+    
+export type getHsnCodeByIdResponseSuccess = (getHsnCodeByIdResponse200) & {
+  headers: Headers;
+};
+export type getHsnCodeByIdResponseError = (getHsnCodeByIdResponse401 | getHsnCodeByIdResponse403 | getHsnCodeByIdResponse404) & {
+  headers: Headers;
+};
+
+export type getHsnCodeByIdResponse = (getHsnCodeByIdResponseSuccess | getHsnCodeByIdResponseError)
+
+export const getGetHsnCodeByIdUrl = (id: number,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/hsn-codes/${id}`
+}
+
+export const getHsnCodeById = async (id: number, options?: RequestInit): Promise<getHsnCodeByIdResponse> => {
+  
+  const res = await fetch(getGetHsnCodeByIdUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: getHsnCodeByIdResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getHsnCodeByIdResponse
+}
+
+
+
+/**
+ * Neither the code nor its rates change here — post a rate to amend the tax.
+ * @summary Edit an HSN code's description or active flag
+ */
+export type updateHsnCodeResponse204 = {
+  data: void
+  status: 204
+}
+
+export type updateHsnCodeResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type updateHsnCodeResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type updateHsnCodeResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type updateHsnCodeResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type updateHsnCodeResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type updateHsnCodeResponseSuccess = (updateHsnCodeResponse204) & {
+  headers: Headers;
+};
+export type updateHsnCodeResponseError = (updateHsnCodeResponse400 | updateHsnCodeResponse401 | updateHsnCodeResponse403 | updateHsnCodeResponse404 | updateHsnCodeResponse409) & {
+  headers: Headers;
+};
+
+export type updateHsnCodeResponse = (updateHsnCodeResponseSuccess | updateHsnCodeResponseError)
+
+export const getUpdateHsnCodeUrl = (id: number,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/hsn-codes/${id}`
+}
+
+export const updateHsnCode = async (id: number,
+    updateHsnCodeRequest: UpdateHsnCodeRequest, options?: RequestInit): Promise<updateHsnCodeResponse> => {
+  
+  const res = await fetch(getUpdateHsnCodeUrl(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateHsnCodeRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: updateHsnCodeResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as updateHsnCodeResponse
+}
+
+
+
+/**
+ * The rate is required: a code with none would tax an invoice line at nothing.
+ * @summary Create an HSN code with its opening rate
+ */
+export type createHsnCodeResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createHsnCodeResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createHsnCodeResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createHsnCodeResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createHsnCodeResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createHsnCodeResponseSuccess = (createHsnCodeResponse201) & {
+  headers: Headers;
+};
+export type createHsnCodeResponseError = (createHsnCodeResponse400 | createHsnCodeResponse401 | createHsnCodeResponse403 | createHsnCodeResponse409) & {
+  headers: Headers;
+};
+
+export type createHsnCodeResponse = (createHsnCodeResponseSuccess | createHsnCodeResponseError)
+
+export const getCreateHsnCodeUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/hsn-codes`
+}
+
+export const createHsnCode = async (createHsnCodeRequest: CreateHsnCodeRequest, options?: RequestInit): Promise<createHsnCodeResponse> => {
+  
+  const res = await fetch(getCreateHsnCodeUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createHsnCodeRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createHsnCodeResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createHsnCodeResponse
+}
+
+
+
+/**
+ * Each row shows the GST rate in force today; the full rate history is on the detail.
+ * @summary List HSN codes
+ */
+export type listHsnCodesResponse200 = {
+  data: PagedResultOfHsnCodeListItemDto
+  status: 200
+}
+
+export type listHsnCodesResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listHsnCodesResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listHsnCodesResponseSuccess = (listHsnCodesResponse200) & {
+  headers: Headers;
+};
+export type listHsnCodesResponseError = (listHsnCodesResponse401 | listHsnCodesResponse403) & {
+  headers: Headers;
+};
+
+export type listHsnCodesResponse = (listHsnCodesResponseSuccess | listHsnCodesResponseError)
+
+export const getListHsnCodesUrl = (params?: ListHsnCodesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/hsn-codes?${stringifiedParams}` : `/api/v1/api/v1/masters/hsn-codes`
+}
+
+export const listHsnCodes = async (params?: ListHsnCodesParams, options?: RequestInit): Promise<listHsnCodesResponse> => {
+  
+  const res = await fetch(getListHsnCodesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listHsnCodesResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listHsnCodesResponse
+}
+
+
+
+/**
+ * Appends a rate from a date. Existing rates are never edited: a document keeps the rate that applied when it was raised. Correct a wrong rate by superseding it.
+ * @summary Record a GST rate change
+ */
+export type addHsnGstRateResponse204 = {
+  data: void
+  status: 204
+}
+
+export type addHsnGstRateResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type addHsnGstRateResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type addHsnGstRateResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type addHsnGstRateResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type addHsnGstRateResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type addHsnGstRateResponseSuccess = (addHsnGstRateResponse204) & {
+  headers: Headers;
+};
+export type addHsnGstRateResponseError = (addHsnGstRateResponse400 | addHsnGstRateResponse401 | addHsnGstRateResponse403 | addHsnGstRateResponse404 | addHsnGstRateResponse409) & {
+  headers: Headers;
+};
+
+export type addHsnGstRateResponse = (addHsnGstRateResponseSuccess | addHsnGstRateResponseError)
+
+export const getAddHsnGstRateUrl = (id: number,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/hsn-codes/${id}/rates`
+}
+
+export const addHsnGstRate = async (id: number,
+    addHsnGstRateRequest: AddHsnGstRateRequest, options?: RequestInit): Promise<addHsnGstRateResponse> => {
+  
+  const res = await fetch(getAddHsnGstRateUrl(id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      addHsnGstRateRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: addHsnGstRateResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as addHsnGstRateResponse
 }
 
 

@@ -12,7 +12,21 @@ namespace Erp.Persistence.Domain.Lookups;
 /// </summary>
 public static class LookupTypes
 {
+    /// <summary>
+    /// Units of measure. Still named here, and still requested by clients under this
+    /// name, but no longer stored in <c>LookupValue</c> — the rows moved to
+    /// <c>UnitOfMeasure</c> when a unit acquired conversion factors and precision.
+    /// The name is what the web app asks for, so it stays whatever the value is
+    /// stored in.
+    /// </summary>
     public const string UnitOfMeasure = "uom";
+
+    /// <summary>
+    /// HSN codes, stored in <c>HsnCode</c> with their GST rate history. Never a
+    /// <c>LookupValue</c> type: a code that carries a rate schedule was a master from
+    /// the start.
+    /// </summary>
+    public const string HsnCode = "hsn";
 
     public const string Currency = "currency";
 

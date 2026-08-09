@@ -2,7 +2,7 @@
 
 # Database schema `masters`
 
-10 tables. Regenerate with:
+13 tables. Regenerate with:
 
 ```
 dotnet test backend/tests/Erp.ArchitectureTests --filter FullyQualifiedName~SchemaDiagram
@@ -154,6 +154,26 @@ erDiagram
         nvarchar_50 UserEmpCode "nullable"
         nvarchar_100 UserName "nullable"
         bit WillingToTravel "nullable"
+    }
+    HsnCode {
+        int Id PK
+        nvarchar_10 Code
+        datetimeoffset CreatedAtUtc
+        uniqueidentifier CreatedByUserId
+        datetimeoffset DeletedAtUtc "nullable"
+        uniqueidentifier DeletedByUserId "nullable"
+        nvarchar_250 Description
+        bit IsActive
+        bit IsDeleted
+        datetimeoffset ModifiedAtUtc "nullable"
+        uniqueidentifier ModifiedByUserId "nullable"
+        rowversion RowVersion
+    }
+    HsnGstRate {
+        int Id PK
+        date EffectiveFrom
+        int HsnCodeId FK
+        decimal_5_2 RatePercent
     }
     LookupValue {
         int Id PK
@@ -317,8 +337,27 @@ erDiagram
         nvarchar_50 TaxId "nullable"
         nvarchar_200 Website "nullable"
     }
+    UnitOfMeasure {
+        int Id PK
+        nvarchar_10 BaseUnitCode "nullable"
+        nvarchar_10 Code
+        decimal_18_6 ConversionToBase "nullable"
+        datetimeoffset CreatedAtUtc
+        uniqueidentifier CreatedByUserId
+        int Decimals
+        datetimeoffset DeletedAtUtc "nullable"
+        uniqueidentifier DeletedByUserId "nullable"
+        bit IsActive
+        bit IsDeleted
+        datetimeoffset ModifiedAtUtc "nullable"
+        uniqueidentifier ModifiedByUserId "nullable"
+        nvarchar_100 Name
+        rowversion RowVersion
+        int SortOrder
+    }
     AssemblyNode |o--o{ AssemblyNode : "ParentId"
     AssemblyNode |o--o{ ParentPart : "AssemblyNodeId"
+    HsnCode ||--o{ HsnGstRate : "HsnCodeId"
     ParentPart ||--o{ ParentPartComponent : "ParentPartId"
     Part ||--o{ ParentPart : "PartId"
     Part ||--o{ ParentPartComponent : "PartId"
@@ -351,6 +390,9 @@ because each module owns a separate `DbContext`. See `db/erd/README.md`.
 | Employee | ModifiedByUserId | `uniqueidentifier` |
 | Employee | RoleId | `int` |
 | Employee | SiteId | `int` |
+| HsnCode | CreatedByUserId | `uniqueidentifier` |
+| HsnCode | DeletedByUserId | `uniqueidentifier` |
+| HsnCode | ModifiedByUserId | `uniqueidentifier` |
 | LookupValue | CreatedByUserId | `uniqueidentifier` |
 | LookupValue | DeletedByUserId | `uniqueidentifier` |
 | LookupValue | ModifiedByUserId | `uniqueidentifier` |
@@ -371,3 +413,6 @@ because each module owns a separate `DbContext`. See `db/erd/README.md`.
 | Supplier | CreatedByUserId | `uniqueidentifier` |
 | Supplier | DeletedByUserId | `uniqueidentifier` |
 | Supplier | ModifiedByUserId | `uniqueidentifier` |
+| UnitOfMeasure | CreatedByUserId | `uniqueidentifier` |
+| UnitOfMeasure | DeletedByUserId | `uniqueidentifier` |
+| UnitOfMeasure | ModifiedByUserId | `uniqueidentifier` |

@@ -4,11 +4,13 @@ using Erp.Persistence.Domain.Assemblies;
 using Erp.Persistence.Domain.BusinessUnits;
 using Erp.Persistence.Domain.Customers;
 using Erp.Persistence.Domain.Employees;
+using Erp.Persistence.Domain.HsnCodes;
 using Erp.Persistence.Domain.Lookups;
 using Erp.Persistence.Domain.ParentParts;
 using Erp.Persistence.Domain.Parts;
 using Erp.Persistence.Domain.Roles;
 using Erp.Persistence.Domain.Suppliers;
+using Erp.Persistence.Domain.UnitsOfMeasure;
 using Erp.Persistence.Identity;
 using Erp.SharedKernel.Primitives;
 using Erp.SharedKernel.ValueObjects;
@@ -85,6 +87,20 @@ public sealed class ErpDbContext(
     /// none of them live in source.
     /// </summary>
     public DbSet<LookupValue> LookupValues => Set<LookupValue>();
+
+    /// <summary>
+    /// Units of measure. A list of options in <see cref="LookupValue"/> until it
+    /// needed conversion factors and precision — see <see cref="UnitOfMeasure"/>.
+    /// </summary>
+    public DbSet<UnitOfMeasure> UnitsOfMeasure => Set<UnitOfMeasure>();
+
+    /// <summary>
+    /// HSN codes and their GST rate history. Their rates are deliberately
+    /// <em>not</em> a set of their own: a rate is only meaningful inside the code it
+    /// belongs to, and a top-level <c>DbSet</c> would be a way to read one without
+    /// the code that explains it.
+    /// </summary>
+    public DbSet<HsnCode> HsnCodes => Set<HsnCode>();
 
     // Read inside compiled query filters. EF treats these as query parameters and
     // re-evaluates them per request, so one cached plan serves every business unit.

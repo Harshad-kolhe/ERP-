@@ -55,96 +55,118 @@ export const PART_LOOKUPS = [
   'part.revisionNo',
 ] as const;
 
+/** Quarter width, as the prototype's Classification and Flags rows use. */
+const Q = 'sm:col-span-3 lg:col-span-3';
+/** Sixth width — the prototype's Units and Stock rows fit six across. */
+const S = 'sm:col-span-2 lg:col-span-2';
+/** Half width, for the part description. */
+const H = 'sm:col-span-6 lg:col-span-6';
+
 /**
- * The part form, grouped the way someone filling it in thinks about a part:
- * what it is, how it is classified, how it is measured and stocked, what
- * paperwork it carries, and why it was changed.
+ * The part form, in the approved prototype's sections and order.
  *
- * `isNew` controls one field only. The part number is the business key and
- * renaming it silently re-points every BOM line and purchase order that refers to
- * it, so on an existing part it is shown and locked rather than hidden — people
- * need to read it while they edit the rest.
+ * Classification, then Description & Drawing, then Units/Source/Weight, then
+ * Stock Levels & Codes — the same five cards, the same field grouping and the
+ * same column spans as `PartMasterForm`, so someone moving between the two is
+ * looking at the same screen.
+ *
+ * Two deliberate differences, both forced by what this API actually accepts:
+ *
+ * - The system part number is a field here. The prototype assigns it on save and
+ *   shows "Assigned on save" in its identity bar; this API takes a user-entered
+ *   number until the numbering allocator lands, so it has to be typed somewhere.
+ * - The fifth card is Remarks, not Flags. The prototype's flags are Is Active and
+ *   QC Required; `UpdatePartRequest` accepts neither — activation is its own
+ *   audited operation and there is no QC flag on the part at all. An empty card,
+ *   or checkboxes that silently fail to save, would be worse than showing the
+ *   three remark fields this master really has.
+ *
+ * `isNew` controls one field. The part number is the business key and renaming it
+ * silently re-points every BOM line and purchase order that refers to it, so on an
+ * existing part it is shown and locked rather than hidden — people need to read it
+ * while they edit the rest.
  */
 export function partFormSections(isNew: boolean): MasterFormSection<PartFormValues>[] {
   return [
     {
-      id: 'identity',
-      label: 'Identity',
-      description: isNew
-        ? 'The part number is the business key and cannot be changed afterwards.'
-        : 'The part number cannot be changed here — that is a separate, audited operation.',
+      id: 'classification',
+      label: 'Classification',
       fields: [
         {
           name: 'partNumber',
-          label: 'System part number',
+          label: 'System Part Number',
           required: true,
           readOnly: !isNew,
           placeholder: 'MS-PLT-000001-00',
-          description: 'Letters, digits, dot, underscore, slash and hyphen.',
+          span: Q,
+          description: isNew ? 'Cannot be changed afterwards.' : undefined,
         },
-        { name: 'itemNumber', label: 'Item code (manual)', placeholder: 'PPE1043' },
-        { name: 'description', label: 'Part description', required: true, wide: true },
+        { name: 'seriesCode', label: 'Series Code', lookup: 'part.seriesCode', span: Q },
+        { name: 'partCategoryCode', label: 'Part Category Code', lookup: 'part.categoryCode', span: Q },
+        { name: 'partType', label: 'Part Type', lookup: 'part.type', span: Q },
+        { name: 'formCategory', label: 'Form Category', lookup: 'part.formCategory', span: Q },
+        { name: 'materialType', label: 'Material Type', lookup: 'part.materialType', span: Q },
+        { name: 'itemNumber', label: 'Item Code (Manual)', placeholder: 'PPE1043', span: Q },
+      ],
+    },
+    {
+      id: 'description',
+      label: 'Description & Drawing',
+      fields: [
+        { name: 'description', label: 'Part Description', required: true, span: H },
+        { name: 'moc', label: 'MOC (Material of Construction)', lookup: 'moc', span: Q },
         {
           name: 'technicalSpecification',
-          label: 'Technical specification',
+          label: 'Technical Specification',
           kind: 'textarea',
           rows: 4,
           description: 'Up to 2,000 characters. Unicode symbols such as Ω, µ and Ø are kept as typed.',
         },
+        { name: 'drawingNumber', label: 'Drawing Path', wide: true },
       ],
     },
     {
-      id: 'classification',
-      label: 'Classification',
-      fields: [
-        { name: 'partCategoryCode', label: 'Part category code', lookup: 'part.categoryCode' },
-        { name: 'partType', label: 'Part type', lookup: 'part.type' },
-        { name: 'formCategory', label: 'Form category', lookup: 'part.formCategory' },
-        { name: 'materialType', label: 'Material type', lookup: 'part.materialType' },
-        { name: 'seriesCode', label: 'Series code', lookup: 'part.seriesCode' },
-        { name: 'moc', label: 'MOC', lookup: 'moc', description: 'Material of construction.' },
-        { name: 'sourceCode', label: 'Source code', lookup: 'part.sourceCode' },
-        { name: 'partRevisionNo', label: 'Part revision no', lookup: 'part.revisionNo' },
-      ],
-    },
-    {
-      id: 'stock',
-      label: 'Units & stock',
+      id: 'units',
+      label: 'Units, Source & Weight',
       fields: [
         {
           name: 'unitOfMeasureCode',
           label: 'Primary UOM',
           required: true,
           lookup: 'uom',
+          span: S,
         },
-        { name: 'purchaseUomCode', label: 'Purchase UOM', lookup: 'uom' },
-        { name: 'sellingUomCode', label: 'Selling UOM', lookup: 'uom' },
-        { name: 'weightKg', label: 'Weight (kg)', kind: 'number', placeholder: '0.0000' },
-        { name: 'leadTimeDays', label: 'Lead time (days)', kind: 'integer' },
-        { name: 'minimumStockLevel', label: 'Minimum stock level', kind: 'number' },
-        { name: 'reorderPoint', label: 'Reorder point', kind: 'integer' },
+        { name: 'purchaseUomCode', label: 'Purchase UOM', lookup: 'uom', span: S },
+        { name: 'sellingUomCode', label: 'Selling UOM', lookup: 'uom', span: S },
+        { name: 'sourceCode', label: 'Source Code', lookup: 'part.sourceCode', span: S },
+        { name: 'partRevisionNo', label: 'Part Revision No', lookup: 'part.revisionNo', span: S },
+        { name: 'weightKg', label: 'Weight (Kg)', kind: 'number', placeholder: '0.0000', span: S },
       ],
     },
     {
-      id: 'compliance',
-      label: 'Compliance & drawing',
+      id: 'stock',
+      label: 'Stock Levels & Codes',
       fields: [
+        { name: 'minimumStockLevel', label: 'Minimum Stock Level', kind: 'number', span: S },
+        { name: 'reorderPoint', label: 'Reorder Point (Days)', kind: 'integer', span: S },
+        // No Maximum Stock Level: the prototype has one, this master does not.
+        { name: 'leadTimeDays', label: 'Lead Time (Days)', kind: 'integer', span: S },
         {
           name: 'hsnCode',
-          label: 'HSN code',
+          label: 'HSN Code',
           placeholder: '84821011',
-          description: '4, 6 or 8 digits. Used for GST on purchase and dispatch documents.',
+          span: S,
+          description: '4, 6 or 8 digits.',
         },
-        { name: 'drawingNumber', label: 'Drawing revision path', wide: true },
       ],
     },
     {
       id: 'remarks',
       label: 'Remarks',
       fields: [
-        { name: 'revisionRemark', label: 'Revision remark', kind: 'textarea', rows: 2 },
-        { name: 'holdRemark', label: 'Hold remark', kind: 'textarea', rows: 2 },
-        { name: 'inactiveRemark', label: 'Inactive remark', kind: 'textarea', rows: 2 },
+        { name: 'revisionRemark', label: 'Revision Remark', kind: 'textarea', rows: 2 },
+        { name: 'holdRemark', label: 'Hold Remark', kind: 'textarea', rows: 2 },
+        { name: 'inactiveRemark', label: 'Inactive Remark', kind: 'textarea', rows: 2 },
       ],
     },
   ];

@@ -95,6 +95,15 @@ jobs:
 
       - run: dotnet tool install --global dotnet-ef
 
+      # `dotnet ef` reads project metadata before it builds anything, and that read
+      # needs obj/project.assets.json — which only `restore` produces. Without this
+      # step the job dies on a fresh checkout with NETSDK1004 ("Assets file not
+      # found") and reports it as `Unable to retrieve project metadata`, which reads
+      # like a broken project rather than a missing restore. It passes on a
+      # developer machine only because obj/ is already populated there.
+      - name: Restore
+        run: dotnet restore backend/Erp.slnx
+
       # The single most important gate in this file.
       #
       # The legacy database was the undocumented source of truth: 284 DbSets, ~144
@@ -150,6 +159,19 @@ jobs:
   contract:
     name: Client contract drift
     runs-on: ubuntu-latest
+
+    # Armed, but dormant until the generator exists.
+    #
+    # `generate:api` runs `orval --config orval.config.ts`, and that config has not
+    # been written yet — it is listed as deferred in docs/status.md. Until then this
+    # job cannot pass, and a job that always fails teaches everyone to ignore a red
+    # tick, which is worse than no gate at all.
+    #
+    # The condition is the file itself rather than a comment or a disabled job, so
+    # the gate switches itself on the moment orval.config.ts is committed. Nobody
+    # has to remember to re-enable it.
+    if: hashFiles('frontend/orval.config.ts') != ''
+
     steps:
       - uses: actions/checkout@v4
 

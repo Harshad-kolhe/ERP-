@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
 
 import {
@@ -127,22 +127,32 @@ export function MasterForm<TValues extends FieldValues>({
    * Move to the first section that has a problem — but only when the section the
    * user is looking at has none. Yanking someone off a tab they are still fixing
    * is worse than leaving them to work through it.
+   *
+   * Adjusted during render rather than in an effect. This is the pattern React
+   * documents for state that has to react to a prop or a prior render: an effect
+   * would run after the browser had already painted the wrong tab, and calling
+   * setState inside one causes the cascading re-render that
+   * `react-hooks/set-state-in-effect` exists to catch.
+   *
+   * Keyed on `submitCount`, so it fires when someone presses Save and not on every
+   * keystroke that changes the error set — which is what "tell me which group to
+   * look in" actually means.
    */
-  useEffect(() => {
-    if (!errorKeys) {
-      return;
-    }
+  const [lastHandledSubmit, setLastHandledSubmit] = useState(submitCount);
 
-    if ((errorCountBySection.get(activeId) ?? 0) > 0) {
-      return;
-    }
+  if (submitCount !== lastHandledSubmit) {
+    setLastHandledSubmit(submitCount);
 
-    const firstFailing = sections.find((section) => (errorCountBySection.get(section.id) ?? 0) > 0);
+    if (errorKeys && (errorCountBySection.get(activeId) ?? 0) === 0) {
+      const firstFailing = sections.find(
+        (section) => (errorCountBySection.get(section.id) ?? 0) > 0,
+      );
 
-    if (firstFailing) {
-      setActiveId(firstFailing.id);
+      if (firstFailing) {
+        setActiveId(firstFailing.id);
+      }
     }
-  }, [errorKeys, submitCount, activeId, errorCountBySection, sections]);
+  }
 
   const active = sections.find((section) => section.id === activeId) ?? sections[0];
   const totalErrors = [...errorCountBySection.values()].reduce((sum, count) => sum + count, 0);

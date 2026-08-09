@@ -161,13 +161,21 @@ export function ReferencePicker({
   const [debounced, setDebounced] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
 
-  /** The label of whatever is currently selected, once we know it. */
-  const [chosenLabel, setChosenLabel] = useState<string | null>(initialLabel ?? null);
+  /**
+   * What the user picked in *this* component, remembered with the id it belongs
+   * to.
+   *
+   * Storing the pair rather than a bare label is what lets the displayed label be
+   * derived instead of synchronised. The id can change underneath us — an edit
+   * screen finishes loading, or the form resets — and a lone label would then keep
+   * describing the previous record until an effect corrected it, one paint later.
+   * Here a stale pair simply stops matching and the caller's `initialLabel` takes
+   * over in the same render.
+   */
+  const [picked, setPicked] = useState<{ value: string; label: string } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // The id can change under us — an edit screen loads, or the form resets — and
-  // the label shown must follow it rather than keep describing the old record.
-  useEffect(() => setChosenLabel(initialLabel ?? null), [initialLabel, value]);
+  const chosenLabel = picked?.value === value ? picked.label : (initialLabel ?? null);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(search.trim()), DEBOUNCE_MS);
@@ -211,14 +219,18 @@ export function ReferencePicker({
   const total = query.data?.totalCount ?? 0;
 
   function choose(option: ReferenceOption) {
-    setChosenLabel(option.hint ? `${option.label} — ${option.hint}` : option.label);
+    setPicked({
+      value: option.value,
+      label: option.hint ? `${option.label} — ${option.hint}` : option.label,
+    });
+
     onChange(option.value, option);
     setSearch('');
     setOpen(false);
   }
 
   function clear() {
-    setChosenLabel(null);
+    setPicked(null);
     onChange('', null);
     setSearch('');
   }

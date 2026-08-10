@@ -10,7 +10,6 @@ using Erp.Api.Common.Web;
 using Erp.Api.Common.Cqrs;
 using Erp.Api.Common.Security;
 using Erp.Api.Common.Validation;
-using Erp.Api.Features;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Scalar.AspNetCore;
@@ -94,7 +93,6 @@ app.MapAuthEndpoints();
 // Roles live here while Identity does. They move to Erp.Modules.Identity with it.
 app.MapRoleEndpoints();
 
-app.MapMasters();
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())

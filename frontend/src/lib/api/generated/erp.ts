@@ -2977,6 +2977,134 @@ export const updateRole = async (id: string,
 
 
 /**
+ * Includes each unit's decimal places and its conversion to the base unit of its family.
+ * @summary List units of measure
+ */
+export type listUnitsOfMeasureResponse200 = {
+  data: PagedResultOfUnitOfMeasureListItemDto
+  status: 200
+}
+
+export type listUnitsOfMeasureResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listUnitsOfMeasureResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listUnitsOfMeasureResponseSuccess = (listUnitsOfMeasureResponse200) & {
+  headers: Headers;
+};
+export type listUnitsOfMeasureResponseError = (listUnitsOfMeasureResponse401 | listUnitsOfMeasureResponse403) & {
+  headers: Headers;
+};
+
+export type listUnitsOfMeasureResponse = (listUnitsOfMeasureResponseSuccess | listUnitsOfMeasureResponseError)
+
+export const getListUnitsOfMeasureUrl = (params?: ListUnitsOfMeasureParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/units-of-measure?${stringifiedParams}` : `/api/v1/api/v1/masters/units-of-measure`
+}
+
+export const listUnitsOfMeasure = async (params?: ListUnitsOfMeasureParams, options?: RequestInit): Promise<listUnitsOfMeasureResponse> => {
+  
+  const res = await fetch(getListUnitsOfMeasureUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listUnitsOfMeasureResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listUnitsOfMeasureResponse
+}
+
+
+
+/**
+ * Leave the base unit blank for a unit that is itself a base. A base unit must not itself convert to another - conversion is one level, not a chain.
+ * @summary Create a unit of measure
+ */
+export type createUnitOfMeasureResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createUnitOfMeasureResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createUnitOfMeasureResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createUnitOfMeasureResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createUnitOfMeasureResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createUnitOfMeasureResponseSuccess = (createUnitOfMeasureResponse201) & {
+  headers: Headers;
+};
+export type createUnitOfMeasureResponseError = (createUnitOfMeasureResponse400 | createUnitOfMeasureResponse401 | createUnitOfMeasureResponse403 | createUnitOfMeasureResponse409) & {
+  headers: Headers;
+};
+
+export type createUnitOfMeasureResponse = (createUnitOfMeasureResponseSuccess | createUnitOfMeasureResponseError)
+
+export const getCreateUnitOfMeasureUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/units-of-measure`
+}
+
+export const createUnitOfMeasure = async (createUnitOfMeasureRequest: CreateUnitOfMeasureRequest, options?: RequestInit): Promise<createUnitOfMeasureResponse> => {
+  
+  const res = await fetch(getCreateUnitOfMeasureUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createUnitOfMeasureRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createUnitOfMeasureResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createUnitOfMeasureResponse
+}
+
+
+
+/**
  * @summary Get one unit of measure
  */
 export type getUnitOfMeasureByIdResponse200 = {
@@ -3108,100 +3236,34 @@ export const updateUnitOfMeasure = async (id: number,
 
 
 /**
- * Leave the base unit blank for a unit that is itself a base. A base unit must not itself convert to another — conversion is one level, not a chain.
- * @summary Create a unit of measure
+ * Server-paged. Supports sort=field:asc|desc (comma-separated), filter=field:op:value (semicolon-separated), and free-text search across supplier code, name, email and GST number. pageSize is clamped to 200.
+ * @summary List suppliers
  */
-export type createUnitOfMeasureResponse201 = {
-  data: void
-  status: 201
-}
-
-export type createUnitOfMeasureResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type createUnitOfMeasureResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type createUnitOfMeasureResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type createUnitOfMeasureResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type createUnitOfMeasureResponseSuccess = (createUnitOfMeasureResponse201) & {
-  headers: Headers;
-};
-export type createUnitOfMeasureResponseError = (createUnitOfMeasureResponse400 | createUnitOfMeasureResponse401 | createUnitOfMeasureResponse403 | createUnitOfMeasureResponse409) & {
-  headers: Headers;
-};
-
-export type createUnitOfMeasureResponse = (createUnitOfMeasureResponseSuccess | createUnitOfMeasureResponseError)
-
-export const getCreateUnitOfMeasureUrl = () => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/units-of-measure`
-}
-
-export const createUnitOfMeasure = async (createUnitOfMeasureRequest: CreateUnitOfMeasureRequest, options?: RequestInit): Promise<createUnitOfMeasureResponse> => {
-  
-  const res = await fetch(getCreateUnitOfMeasureUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createUnitOfMeasureRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createUnitOfMeasureResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createUnitOfMeasureResponse
-}
-
-
-
-/**
- * Includes each unit's decimal places and its conversion to the base unit of its family.
- * @summary List units of measure
- */
-export type listUnitsOfMeasureResponse200 = {
-  data: PagedResultOfUnitOfMeasureListItemDto
+export type listSuppliersResponse200 = {
+  data: PagedResultOfSupplierListItemDto
   status: 200
 }
 
-export type listUnitsOfMeasureResponse401 = {
+export type listSuppliersResponse401 = {
   data: ProblemDetails
   status: 401
 }
 
-export type listUnitsOfMeasureResponse403 = {
+export type listSuppliersResponse403 = {
   data: ProblemDetails
   status: 403
 }
     
-export type listUnitsOfMeasureResponseSuccess = (listUnitsOfMeasureResponse200) & {
+export type listSuppliersResponseSuccess = (listSuppliersResponse200) & {
   headers: Headers;
 };
-export type listUnitsOfMeasureResponseError = (listUnitsOfMeasureResponse401 | listUnitsOfMeasureResponse403) & {
+export type listSuppliersResponseError = (listSuppliersResponse401 | listSuppliersResponse403) & {
   headers: Headers;
 };
 
-export type listUnitsOfMeasureResponse = (listUnitsOfMeasureResponseSuccess | listUnitsOfMeasureResponseError)
+export type listSuppliersResponse = (listSuppliersResponseSuccess | listSuppliersResponseError)
 
-export const getListUnitsOfMeasureUrl = (params?: ListUnitsOfMeasureParams,) => {
+export const getListSuppliersUrl = (params?: ListSuppliersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -3213,12 +3275,12 @@ export const getListUnitsOfMeasureUrl = (params?: ListUnitsOfMeasureParams,) => 
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/units-of-measure?${stringifiedParams}` : `/api/v1/api/v1/masters/units-of-measure`
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/suppliers?${stringifiedParams}` : `/api/v1/api/v1/masters/suppliers`
 }
 
-export const listUnitsOfMeasure = async (params?: ListUnitsOfMeasureParams, options?: RequestInit): Promise<listUnitsOfMeasureResponse> => {
+export const listSuppliers = async (params?: ListSuppliersParams, options?: RequestInit): Promise<listSuppliersResponse> => {
   
-  const res = await fetch(getListUnitsOfMeasureUrl(params),
+  const res = await fetch(getListSuppliersUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -3229,8 +3291,74 @@ export const listUnitsOfMeasure = async (params?: ListUnitsOfMeasureParams, opti
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
   
-  const data: listUnitsOfMeasureResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as listUnitsOfMeasureResponse
+  const data: listSuppliersResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listSuppliersResponse
+}
+
+
+
+/**
+ * Creates the supplier in the status supplied, defaulting to Draft.
+ * @summary Create a supplier
+ */
+export type createSupplierResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createSupplierResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createSupplierResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createSupplierResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createSupplierResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createSupplierResponseSuccess = (createSupplierResponse201) & {
+  headers: Headers;
+};
+export type createSupplierResponseError = (createSupplierResponse400 | createSupplierResponse401 | createSupplierResponse403 | createSupplierResponse409) & {
+  headers: Headers;
+};
+
+export type createSupplierResponse = (createSupplierResponseSuccess | createSupplierResponseError)
+
+export const getCreateSupplierUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/suppliers`
+}
+
+export const createSupplier = async (createSupplierRequest: CreateSupplierRequest, options?: RequestInit): Promise<createSupplierResponse> => {
+  
+  const res = await fetch(getCreateSupplierUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createSupplierRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createSupplierResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createSupplierResponse
 }
 
 
@@ -3368,134 +3496,6 @@ export const updateSupplier = async (id: number,
 
 
 /**
- * Creates the supplier in the status supplied, defaulting to Draft.
- * @summary Create a supplier
- */
-export type createSupplierResponse201 = {
-  data: void
-  status: 201
-}
-
-export type createSupplierResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type createSupplierResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type createSupplierResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type createSupplierResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type createSupplierResponseSuccess = (createSupplierResponse201) & {
-  headers: Headers;
-};
-export type createSupplierResponseError = (createSupplierResponse400 | createSupplierResponse401 | createSupplierResponse403 | createSupplierResponse409) & {
-  headers: Headers;
-};
-
-export type createSupplierResponse = (createSupplierResponseSuccess | createSupplierResponseError)
-
-export const getCreateSupplierUrl = () => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/suppliers`
-}
-
-export const createSupplier = async (createSupplierRequest: CreateSupplierRequest, options?: RequestInit): Promise<createSupplierResponse> => {
-  
-  const res = await fetch(getCreateSupplierUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createSupplierRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createSupplierResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createSupplierResponse
-}
-
-
-
-/**
- * Server-paged. Supports sort=field:asc|desc (comma-separated), filter=field:op:value (semicolon-separated), and free-text search across supplier code, name, email and GST number. pageSize is clamped to 200.
- * @summary List suppliers
- */
-export type listSuppliersResponse200 = {
-  data: PagedResultOfSupplierListItemDto
-  status: 200
-}
-
-export type listSuppliersResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type listSuppliersResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-    
-export type listSuppliersResponseSuccess = (listSuppliersResponse200) & {
-  headers: Headers;
-};
-export type listSuppliersResponseError = (listSuppliersResponse401 | listSuppliersResponse403) & {
-  headers: Headers;
-};
-
-export type listSuppliersResponse = (listSuppliersResponseSuccess | listSuppliersResponseError)
-
-export const getListSuppliersUrl = (params?: ListSuppliersParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/suppliers?${stringifiedParams}` : `/api/v1/api/v1/masters/suppliers`
-}
-
-export const listSuppliers = async (params?: ListSuppliersParams, options?: RequestInit): Promise<listSuppliersResponse> => {
-  
-  const res = await fetch(getListSuppliersUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: listSuppliersResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as listSuppliersResponse
-}
-
-
-
-/**
  * Accepts a single .xlsx upload of at most 5,000 rows. All or nothing: every row is parsed and checked first, and if anything is wrong nothing is written and the response is 422 with every problem in the file. On success the response is 200 and the report says how many rows landed.
  * @summary Import suppliers from an Excel file
  */
@@ -3611,6 +3611,134 @@ export const getSuppliersImportTemplate = async ( options?: RequestInit): Promis
   
   const data: getSuppliersImportTemplateResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getSuppliersImportTemplateResponse
+}
+
+
+
+/**
+ * The legacy role master, which does NOT grant permissions — authorisation runs on Identity roles. Server-paged, with free-text search across the role name.
+ * @summary List role master records
+ */
+export type listMasterRolesResponse200 = {
+  data: PagedResultOfRoleMasterListItemDto
+  status: 200
+}
+
+export type listMasterRolesResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listMasterRolesResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listMasterRolesResponseSuccess = (listMasterRolesResponse200) & {
+  headers: Headers;
+};
+export type listMasterRolesResponseError = (listMasterRolesResponse401 | listMasterRolesResponse403) & {
+  headers: Headers;
+};
+
+export type listMasterRolesResponse = (listMasterRolesResponseSuccess | listMasterRolesResponseError)
+
+export const getListMasterRolesUrl = (params?: ListMasterRolesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/roles?${stringifiedParams}` : `/api/v1/api/v1/masters/roles`
+}
+
+export const listMasterRoles = async (params?: ListMasterRolesParams, options?: RequestInit): Promise<listMasterRolesResponse> => {
+  
+  const res = await fetch(getListMasterRolesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listMasterRolesResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listMasterRolesResponse
+}
+
+
+
+/**
+ * Grants no permissions. Permissions are assigned on the roles administration screen.
+ * @summary Create a legacy role master row
+ */
+export type createRoleMasterResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createRoleMasterResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createRoleMasterResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createRoleMasterResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createRoleMasterResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createRoleMasterResponseSuccess = (createRoleMasterResponse201) & {
+  headers: Headers;
+};
+export type createRoleMasterResponseError = (createRoleMasterResponse400 | createRoleMasterResponse401 | createRoleMasterResponse403 | createRoleMasterResponse409) & {
+  headers: Headers;
+};
+
+export type createRoleMasterResponse = (createRoleMasterResponseSuccess | createRoleMasterResponseError)
+
+export const getCreateRoleMasterUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/roles`
+}
+
+export const createRoleMaster = async (createRoleMasterRequest: CreateRoleMasterRequest, options?: RequestInit): Promise<createRoleMasterResponse> => {
+  
+  const res = await fetch(getCreateRoleMasterUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createRoleMasterRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createRoleMasterResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createRoleMasterResponse
 }
 
 
@@ -3747,134 +3875,6 @@ export const updateRoleMaster = async (id: number,
 
 
 /**
- * Grants no permissions. Permissions are assigned on the roles administration screen.
- * @summary Create a legacy role master row
- */
-export type createRoleMasterResponse201 = {
-  data: void
-  status: 201
-}
-
-export type createRoleMasterResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type createRoleMasterResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type createRoleMasterResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type createRoleMasterResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type createRoleMasterResponseSuccess = (createRoleMasterResponse201) & {
-  headers: Headers;
-};
-export type createRoleMasterResponseError = (createRoleMasterResponse400 | createRoleMasterResponse401 | createRoleMasterResponse403 | createRoleMasterResponse409) & {
-  headers: Headers;
-};
-
-export type createRoleMasterResponse = (createRoleMasterResponseSuccess | createRoleMasterResponseError)
-
-export const getCreateRoleMasterUrl = () => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/roles`
-}
-
-export const createRoleMaster = async (createRoleMasterRequest: CreateRoleMasterRequest, options?: RequestInit): Promise<createRoleMasterResponse> => {
-  
-  const res = await fetch(getCreateRoleMasterUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createRoleMasterRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createRoleMasterResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createRoleMasterResponse
-}
-
-
-
-/**
- * The legacy role master, which does NOT grant permissions — authorisation runs on Identity roles. Server-paged, with free-text search across the role name.
- * @summary List role master records
- */
-export type listMasterRolesResponse200 = {
-  data: PagedResultOfRoleMasterListItemDto
-  status: 200
-}
-
-export type listMasterRolesResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type listMasterRolesResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-    
-export type listMasterRolesResponseSuccess = (listMasterRolesResponse200) & {
-  headers: Headers;
-};
-export type listMasterRolesResponseError = (listMasterRolesResponse401 | listMasterRolesResponse403) & {
-  headers: Headers;
-};
-
-export type listMasterRolesResponse = (listMasterRolesResponseSuccess | listMasterRolesResponseError)
-
-export const getListMasterRolesUrl = (params?: ListMasterRolesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/roles?${stringifiedParams}` : `/api/v1/api/v1/masters/roles`
-}
-
-export const listMasterRoles = async (params?: ListMasterRolesParams, options?: RequestInit): Promise<listMasterRolesResponse> => {
-  
-  const res = await fetch(getListMasterRolesUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: listMasterRolesResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as listMasterRolesResponse
-}
-
-
-
-/**
  * Accepts a single .xlsx upload of at most 5,000 rows. All or nothing: every row is parsed and checked first, and if anything is wrong nothing is written and the response is 422 with every problem in the file. On success the response is 200 and the report says how many rows landed.
  * @summary Import roles from an Excel file
  */
@@ -3990,202 +3990,6 @@ export const getRolesImportTemplate = async ( options?: RequestInit): Promise<ge
   
   const data: getRolesImportTemplateResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getRolesImportTemplateResponse
-}
-
-
-
-/**
- * Requires the rowVersion returned by GET. A stale value yields 409 rather than overwriting a concurrent edit. The part number cannot be changed here.
- * @summary Update a part
- */
-export type updatePartResponse204 = {
-  data: void
-  status: 204
-}
-
-export type updatePartResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type updatePartResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type updatePartResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type updatePartResponse404 = {
-  data: ProblemDetails
-  status: 404
-}
-
-export type updatePartResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type updatePartResponseSuccess = (updatePartResponse204) & {
-  headers: Headers;
-};
-export type updatePartResponseError = (updatePartResponse400 | updatePartResponse401 | updatePartResponse403 | updatePartResponse404 | updatePartResponse409) & {
-  headers: Headers;
-};
-
-export type updatePartResponse = (updatePartResponseSuccess | updatePartResponseError)
-
-export const getUpdatePartUrl = (id: string,) => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/parts/${id}`
-}
-
-export const updatePart = async (id: string,
-    updatePartRequest: UpdatePartRequest, options?: RequestInit): Promise<updatePartResponse> => {
-  
-  const res = await fetch(getUpdatePartUrl(id),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updatePartRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: updatePartResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as updatePartResponse
-}
-
-
-
-/**
- * @summary Get a part
- */
-export type getPartByIdResponse200 = {
-  data: PartDetailDto
-  status: 200
-}
-
-export type getPartByIdResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type getPartByIdResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type getPartByIdResponse404 = {
-  data: ProblemDetails
-  status: 404
-}
-    
-export type getPartByIdResponseSuccess = (getPartByIdResponse200) & {
-  headers: Headers;
-};
-export type getPartByIdResponseError = (getPartByIdResponse401 | getPartByIdResponse403 | getPartByIdResponse404) & {
-  headers: Headers;
-};
-
-export type getPartByIdResponse = (getPartByIdResponseSuccess | getPartByIdResponseError)
-
-export const getGetPartByIdUrl = (id: string,) => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/parts/${id}`
-}
-
-export const getPartById = async (id: string, options?: RequestInit): Promise<getPartByIdResponse> => {
-  
-  const res = await fetch(getGetPartByIdUrl(id),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getPartByIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getPartByIdResponse
-}
-
-
-
-/**
- * Moves a Draft part to PendingApproval. It cannot be edited while under review.
- * @summary Submit a part for approval
- */
-export type submitPartForApprovalResponse204 = {
-  data: void
-  status: 204
-}
-
-export type submitPartForApprovalResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type submitPartForApprovalResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type submitPartForApprovalResponse404 = {
-  data: ProblemDetails
-  status: 404
-}
-
-export type submitPartForApprovalResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type submitPartForApprovalResponseSuccess = (submitPartForApprovalResponse204) & {
-  headers: Headers;
-};
-export type submitPartForApprovalResponseError = (submitPartForApprovalResponse401 | submitPartForApprovalResponse403 | submitPartForApprovalResponse404 | submitPartForApprovalResponse409) & {
-  headers: Headers;
-};
-
-export type submitPartForApprovalResponse = (submitPartForApprovalResponseSuccess | submitPartForApprovalResponseError)
-
-export const getSubmitPartForApprovalUrl = (id: string,) => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/parts/${id}/submit`
-}
-
-export const submitPartForApproval = async (id: string, options?: RequestInit): Promise<submitPartForApprovalResponse> => {
-  
-  const res = await fetch(getSubmitPartForApprovalUrl(id),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: submitPartForApprovalResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as submitPartForApprovalResponse
 }
 
 
@@ -4319,6 +4123,267 @@ export const createPart = async (createPartRequest: CreatePartRequest, options?:
 
 
 /**
+ * @summary Get a part
+ */
+export type getPartByIdResponse200 = {
+  data: PartDetailDto
+  status: 200
+}
+
+export type getPartByIdResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type getPartByIdResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type getPartByIdResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+    
+export type getPartByIdResponseSuccess = (getPartByIdResponse200) & {
+  headers: Headers;
+};
+export type getPartByIdResponseError = (getPartByIdResponse401 | getPartByIdResponse403 | getPartByIdResponse404) & {
+  headers: Headers;
+};
+
+export type getPartByIdResponse = (getPartByIdResponseSuccess | getPartByIdResponseError)
+
+export const getGetPartByIdUrl = (id: string,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/parts/${id}`
+}
+
+export const getPartById = async (id: string, options?: RequestInit): Promise<getPartByIdResponse> => {
+  
+  const res = await fetch(getGetPartByIdUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: getPartByIdResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getPartByIdResponse
+}
+
+
+
+/**
+ * Requires the rowVersion returned by GET. A stale value yields 409 rather than overwriting a concurrent edit. The part number cannot be changed here.
+ * @summary Update a part
+ */
+export type updatePartResponse204 = {
+  data: void
+  status: 204
+}
+
+export type updatePartResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type updatePartResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type updatePartResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type updatePartResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type updatePartResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type updatePartResponseSuccess = (updatePartResponse204) & {
+  headers: Headers;
+};
+export type updatePartResponseError = (updatePartResponse400 | updatePartResponse401 | updatePartResponse403 | updatePartResponse404 | updatePartResponse409) & {
+  headers: Headers;
+};
+
+export type updatePartResponse = (updatePartResponseSuccess | updatePartResponseError)
+
+export const getUpdatePartUrl = (id: string,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/parts/${id}`
+}
+
+export const updatePart = async (id: string,
+    updatePartRequest: UpdatePartRequest, options?: RequestInit): Promise<updatePartResponse> => {
+  
+  const res = await fetch(getUpdatePartUrl(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updatePartRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: updatePartResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as updatePartResponse
+}
+
+
+
+/**
+ * Approves a part awaiting review. The author cannot approve their own part.
+ * @summary Approve a part
+ */
+export type approvePartResponse204 = {
+  data: void
+  status: 204
+}
+
+export type approvePartResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type approvePartResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type approvePartResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type approvePartResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type approvePartResponseSuccess = (approvePartResponse204) & {
+  headers: Headers;
+};
+export type approvePartResponseError = (approvePartResponse401 | approvePartResponse403 | approvePartResponse404 | approvePartResponse409) & {
+  headers: Headers;
+};
+
+export type approvePartResponse = (approvePartResponseSuccess | approvePartResponseError)
+
+export const getApprovePartUrl = (id: string,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/parts/${id}/approve`
+}
+
+export const approvePart = async (id: string, options?: RequestInit): Promise<approvePartResponse> => {
+  
+  const res = await fetch(getApprovePartUrl(id),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: approvePartResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as approvePartResponse
+}
+
+
+
+/**
+ * Moves a Draft part to PendingApproval. It cannot be edited while under review.
+ * @summary Submit a part for approval
+ */
+export type submitPartForApprovalResponse204 = {
+  data: void
+  status: 204
+}
+
+export type submitPartForApprovalResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type submitPartForApprovalResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type submitPartForApprovalResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type submitPartForApprovalResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type submitPartForApprovalResponseSuccess = (submitPartForApprovalResponse204) & {
+  headers: Headers;
+};
+export type submitPartForApprovalResponseError = (submitPartForApprovalResponse401 | submitPartForApprovalResponse403 | submitPartForApprovalResponse404 | submitPartForApprovalResponse409) & {
+  headers: Headers;
+};
+
+export type submitPartForApprovalResponse = (submitPartForApprovalResponseSuccess | submitPartForApprovalResponseError)
+
+export const getSubmitPartForApprovalUrl = (id: string,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/parts/${id}/submit`
+}
+
+export const submitPartForApproval = async (id: string, options?: RequestInit): Promise<submitPartForApprovalResponse> => {
+  
+  const res = await fetch(getSubmitPartForApprovalUrl(id),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: submitPartForApprovalResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as submitPartForApprovalResponse
+}
+
+
+
+/**
  * Accepts a single .xlsx upload of at most 5,000 rows. All or nothing: every row is parsed and checked first, and if anything is wrong nothing is written and the response is 422 with every problem in the file. On success the response is 200 and the report says how many rows landed.
  * @summary Import parts from an Excel file
  */
@@ -4434,71 +4499,6 @@ export const getPartsImportTemplate = async ( options?: RequestInit): Promise<ge
   
   const data: getPartsImportTemplateResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getPartsImportTemplateResponse
-}
-
-
-
-/**
- * Approves a part awaiting review. The author cannot approve their own part.
- * @summary Approve a part
- */
-export type approvePartResponse204 = {
-  data: void
-  status: 204
-}
-
-export type approvePartResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type approvePartResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type approvePartResponse404 = {
-  data: ProblemDetails
-  status: 404
-}
-
-export type approvePartResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type approvePartResponseSuccess = (approvePartResponse204) & {
-  headers: Headers;
-};
-export type approvePartResponseError = (approvePartResponse401 | approvePartResponse403 | approvePartResponse404 | approvePartResponse409) & {
-  headers: Headers;
-};
-
-export type approvePartResponse = (approvePartResponseSuccess | approvePartResponseError)
-
-export const getApprovePartUrl = (id: string,) => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/parts/${id}/approve`
-}
-
-export const approvePart = async (id: string, options?: RequestInit): Promise<approvePartResponse> => {
-  
-  const res = await fetch(getApprovePartUrl(id),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: approvePartResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as approvePartResponse
 }
 
 
@@ -4764,6 +4764,134 @@ export const updateParentPart = async (id: string,
 
 
 /**
+ * Every dropdown option in the system, across all lists. Filter on `type` to see one list. Not the endpoint a form fills its dropdowns from - that is GET /masters/lookups.
+ * @summary List reference-data options
+ */
+export type listLookupValuesResponse200 = {
+  data: PagedResultOfLookupValueListItemDto
+  status: 200
+}
+
+export type listLookupValuesResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listLookupValuesResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listLookupValuesResponseSuccess = (listLookupValuesResponse200) & {
+  headers: Headers;
+};
+export type listLookupValuesResponseError = (listLookupValuesResponse401 | listLookupValuesResponse403) & {
+  headers: Headers;
+};
+
+export type listLookupValuesResponse = (listLookupValuesResponseSuccess | listLookupValuesResponseError)
+
+export const getListLookupValuesUrl = (params?: ListLookupValuesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/lookup-values?${stringifiedParams}` : `/api/v1/api/v1/masters/lookup-values`
+}
+
+export const listLookupValues = async (params?: ListLookupValuesParams, options?: RequestInit): Promise<listLookupValuesResponse> => {
+  
+  const res = await fetch(getListLookupValuesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listLookupValuesResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listLookupValuesResponse
+}
+
+
+
+/**
+ * The option becomes selectable immediately - no deployment.
+ * @summary Add an option to a list
+ */
+export type createLookupValueResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createLookupValueResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createLookupValueResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createLookupValueResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createLookupValueResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createLookupValueResponseSuccess = (createLookupValueResponse201) & {
+  headers: Headers;
+};
+export type createLookupValueResponseError = (createLookupValueResponse400 | createLookupValueResponse401 | createLookupValueResponse403 | createLookupValueResponse409) & {
+  headers: Headers;
+};
+
+export type createLookupValueResponse = (createLookupValueResponseSuccess | createLookupValueResponseError)
+
+export const getCreateLookupValueUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/lookup-values`
+}
+
+export const createLookupValue = async (createLookupValueRequest: CreateLookupValueRequest, options?: RequestInit): Promise<createLookupValueResponse> => {
+  
+  const res = await fetch(getCreateLookupValueUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createLookupValueRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createLookupValueResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createLookupValueResponse
+}
+
+
+
+/**
  * @summary Get one reference-data option
  */
 export type getLookupValueByIdResponse200 = {
@@ -4823,7 +4951,7 @@ export const getLookupValueById = async (id: number, options?: RequestInit): Pro
 
 
 /**
- * The list and the code cannot be changed: records store the code, so editing it would reinterpret them. Retire an option by clearing Active — it stays for existing records and drops out of the dropdown.
+ * The list and the code cannot be changed: records store the code, so editing it would reinterpret them. Retire an option by clearing Active - it stays for existing records and drops out of the dropdown.
  * @summary Rename, reorder or retire an option
  */
 export type updateLookupValueResponse204 = {
@@ -4895,135 +5023,7 @@ export const updateLookupValue = async (id: number,
 
 
 /**
- * The option becomes selectable immediately — no deployment.
- * @summary Add an option to a list
- */
-export type createLookupValueResponse201 = {
-  data: void
-  status: 201
-}
-
-export type createLookupValueResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type createLookupValueResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type createLookupValueResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type createLookupValueResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type createLookupValueResponseSuccess = (createLookupValueResponse201) & {
-  headers: Headers;
-};
-export type createLookupValueResponseError = (createLookupValueResponse400 | createLookupValueResponse401 | createLookupValueResponse403 | createLookupValueResponse409) & {
-  headers: Headers;
-};
-
-export type createLookupValueResponse = (createLookupValueResponseSuccess | createLookupValueResponseError)
-
-export const getCreateLookupValueUrl = () => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/lookup-values`
-}
-
-export const createLookupValue = async (createLookupValueRequest: CreateLookupValueRequest, options?: RequestInit): Promise<createLookupValueResponse> => {
-  
-  const res = await fetch(getCreateLookupValueUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createLookupValueRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createLookupValueResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createLookupValueResponse
-}
-
-
-
-/**
- * Every dropdown option in the system, across all lists. Filter on `type` to see one list. Not the endpoint a form fills its dropdowns from — that is GET /masters/lookups.
- * @summary List reference-data options
- */
-export type listLookupValuesResponse200 = {
-  data: PagedResultOfLookupValueListItemDto
-  status: 200
-}
-
-export type listLookupValuesResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type listLookupValuesResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-    
-export type listLookupValuesResponseSuccess = (listLookupValuesResponse200) & {
-  headers: Headers;
-};
-export type listLookupValuesResponseError = (listLookupValuesResponse401 | listLookupValuesResponse403) & {
-  headers: Headers;
-};
-
-export type listLookupValuesResponse = (listLookupValuesResponseSuccess | listLookupValuesResponseError)
-
-export const getListLookupValuesUrl = (params?: ListLookupValuesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/lookup-values?${stringifiedParams}` : `/api/v1/api/v1/masters/lookup-values`
-}
-
-export const listLookupValues = async (params?: ListLookupValuesParams, options?: RequestInit): Promise<listLookupValuesResponse> => {
-  
-  const res = await fetch(getListLookupValuesUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: listLookupValuesResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as listLookupValuesResponse
-}
-
-
-
-/**
- * Comma-separated list names, e.g. ?types=uom,currency,supplier.type. Returns the active options of each in display order. This is the only source of dropdown options in the system — the web app holds none of its own.
+ * Comma-separated list names, e.g. ?types=uom,currency,supplier.type. Returns the active options of each in display order. This is the only source of dropdown options in the system - the web app holds none of its own.
  * @summary Option lists for master forms
  */
 export type getLookupsResponse200 = {
@@ -5080,48 +5080,51 @@ export const getLookups = async (params?: GetLookupsParams, options?: RequestIni
 
 
 /**
- * @summary Get one HSN code and its rate history
+ * Each row shows the GST rate in force today; the full rate history is on the detail.
+ * @summary List HSN codes
  */
-export type getHsnCodeByIdResponse200 = {
-  data: HsnCodeDetailDto
+export type listHsnCodesResponse200 = {
+  data: PagedResultOfHsnCodeListItemDto
   status: 200
 }
 
-export type getHsnCodeByIdResponse401 = {
+export type listHsnCodesResponse401 = {
   data: ProblemDetails
   status: 401
 }
 
-export type getHsnCodeByIdResponse403 = {
+export type listHsnCodesResponse403 = {
   data: ProblemDetails
   status: 403
 }
-
-export type getHsnCodeByIdResponse404 = {
-  data: ProblemDetails
-  status: 404
-}
     
-export type getHsnCodeByIdResponseSuccess = (getHsnCodeByIdResponse200) & {
+export type listHsnCodesResponseSuccess = (listHsnCodesResponse200) & {
   headers: Headers;
 };
-export type getHsnCodeByIdResponseError = (getHsnCodeByIdResponse401 | getHsnCodeByIdResponse403 | getHsnCodeByIdResponse404) & {
+export type listHsnCodesResponseError = (listHsnCodesResponse401 | listHsnCodesResponse403) & {
   headers: Headers;
 };
 
-export type getHsnCodeByIdResponse = (getHsnCodeByIdResponseSuccess | getHsnCodeByIdResponseError)
+export type listHsnCodesResponse = (listHsnCodesResponseSuccess | listHsnCodesResponseError)
 
-export const getGetHsnCodeByIdUrl = (id: number,) => {
+export const getListHsnCodesUrl = (params?: ListHsnCodesParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/v1/api/v1/masters/hsn-codes/${id}`
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/hsn-codes?${stringifiedParams}` : `/api/v1/api/v1/masters/hsn-codes`
 }
 
-export const getHsnCodeById = async (id: number, options?: RequestInit): Promise<getHsnCodeByIdResponse> => {
+export const listHsnCodes = async (params?: ListHsnCodesParams, options?: RequestInit): Promise<listHsnCodesResponse> => {
   
-  const res = await fetch(getGetHsnCodeByIdUrl(id),
+  const res = await fetch(getListHsnCodesUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -5132,80 +5135,8 @@ export const getHsnCodeById = async (id: number, options?: RequestInit): Promise
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
   
-  const data: getHsnCodeByIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getHsnCodeByIdResponse
-}
-
-
-
-/**
- * Neither the code nor its rates change here — post a rate to amend the tax.
- * @summary Edit an HSN code's description or active flag
- */
-export type updateHsnCodeResponse204 = {
-  data: void
-  status: 204
-}
-
-export type updateHsnCodeResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type updateHsnCodeResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type updateHsnCodeResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type updateHsnCodeResponse404 = {
-  data: ProblemDetails
-  status: 404
-}
-
-export type updateHsnCodeResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type updateHsnCodeResponseSuccess = (updateHsnCodeResponse204) & {
-  headers: Headers;
-};
-export type updateHsnCodeResponseError = (updateHsnCodeResponse400 | updateHsnCodeResponse401 | updateHsnCodeResponse403 | updateHsnCodeResponse404 | updateHsnCodeResponse409) & {
-  headers: Headers;
-};
-
-export type updateHsnCodeResponse = (updateHsnCodeResponseSuccess | updateHsnCodeResponseError)
-
-export const getUpdateHsnCodeUrl = (id: number,) => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/hsn-codes/${id}`
-}
-
-export const updateHsnCode = async (id: number,
-    updateHsnCodeRequest: UpdateHsnCodeRequest, options?: RequestInit): Promise<updateHsnCodeResponse> => {
-  
-  const res = await fetch(getUpdateHsnCodeUrl(id),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateHsnCodeRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: updateHsnCodeResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as updateHsnCodeResponse
+  const data: listHsnCodesResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listHsnCodesResponse
 }
 
 
@@ -5277,51 +5208,48 @@ export const createHsnCode = async (createHsnCodeRequest: CreateHsnCodeRequest, 
 
 
 /**
- * Each row shows the GST rate in force today; the full rate history is on the detail.
- * @summary List HSN codes
+ * @summary Get one HSN code and its rate history
  */
-export type listHsnCodesResponse200 = {
-  data: PagedResultOfHsnCodeListItemDto
+export type getHsnCodeByIdResponse200 = {
+  data: HsnCodeDetailDto
   status: 200
 }
 
-export type listHsnCodesResponse401 = {
+export type getHsnCodeByIdResponse401 = {
   data: ProblemDetails
   status: 401
 }
 
-export type listHsnCodesResponse403 = {
+export type getHsnCodeByIdResponse403 = {
   data: ProblemDetails
   status: 403
 }
+
+export type getHsnCodeByIdResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
     
-export type listHsnCodesResponseSuccess = (listHsnCodesResponse200) & {
+export type getHsnCodeByIdResponseSuccess = (getHsnCodeByIdResponse200) & {
   headers: Headers;
 };
-export type listHsnCodesResponseError = (listHsnCodesResponse401 | listHsnCodesResponse403) & {
+export type getHsnCodeByIdResponseError = (getHsnCodeByIdResponse401 | getHsnCodeByIdResponse403 | getHsnCodeByIdResponse404) & {
   headers: Headers;
 };
 
-export type listHsnCodesResponse = (listHsnCodesResponseSuccess | listHsnCodesResponseError)
+export type getHsnCodeByIdResponse = (getHsnCodeByIdResponseSuccess | getHsnCodeByIdResponseError)
 
-export const getListHsnCodesUrl = (params?: ListHsnCodesParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetHsnCodeByIdUrl = (id: number,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/hsn-codes?${stringifiedParams}` : `/api/v1/api/v1/masters/hsn-codes`
+  return `/api/v1/api/v1/masters/hsn-codes/${id}`
 }
 
-export const listHsnCodes = async (params?: ListHsnCodesParams, options?: RequestInit): Promise<listHsnCodesResponse> => {
+export const getHsnCodeById = async (id: number, options?: RequestInit): Promise<getHsnCodeByIdResponse> => {
   
-  const res = await fetch(getListHsnCodesUrl(params),
+  const res = await fetch(getGetHsnCodeByIdUrl(id),
   {      
     ...options,
     method: 'GET'
@@ -5332,8 +5260,80 @@ export const listHsnCodes = async (params?: ListHsnCodesParams, options?: Reques
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
   
-  const data: listHsnCodesResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as listHsnCodesResponse
+  const data: getHsnCodeByIdResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getHsnCodeByIdResponse
+}
+
+
+
+/**
+ * Neither the code nor its rates change here - post a rate to amend the tax.
+ * @summary Edit an HSN code's description or active flag
+ */
+export type updateHsnCodeResponse204 = {
+  data: void
+  status: 204
+}
+
+export type updateHsnCodeResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type updateHsnCodeResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type updateHsnCodeResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type updateHsnCodeResponse404 = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type updateHsnCodeResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type updateHsnCodeResponseSuccess = (updateHsnCodeResponse204) & {
+  headers: Headers;
+};
+export type updateHsnCodeResponseError = (updateHsnCodeResponse400 | updateHsnCodeResponse401 | updateHsnCodeResponse403 | updateHsnCodeResponse404 | updateHsnCodeResponse409) & {
+  headers: Headers;
+};
+
+export type updateHsnCodeResponse = (updateHsnCodeResponseSuccess | updateHsnCodeResponseError)
+
+export const getUpdateHsnCodeUrl = (id: number,) => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/hsn-codes/${id}`
+}
+
+export const updateHsnCode = async (id: number,
+    updateHsnCodeRequest: UpdateHsnCodeRequest, options?: RequestInit): Promise<updateHsnCodeResponse> => {
+  
+  const res = await fetch(getUpdateHsnCodeUrl(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateHsnCodeRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: updateHsnCodeResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as updateHsnCodeResponse
 }
 
 
@@ -5406,6 +5406,134 @@ export const addHsnGstRate = async (id: number,
   
   const data: addHsnGstRateResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as addHsnGstRateResponse
+}
+
+
+
+/**
+ * Server-paged. Supports sort=field:asc|desc (comma-separated), filter=field:op:value (semicolon-separated), and free-text search across first name, last name and email. Returns no payroll or credential field. pageSize is clamped to 200.
+ * @summary List employees
+ */
+export type listEmployeesResponse200 = {
+  data: PagedResultOfEmployeeListItemDto
+  status: 200
+}
+
+export type listEmployeesResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listEmployeesResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listEmployeesResponseSuccess = (listEmployeesResponse200) & {
+  headers: Headers;
+};
+export type listEmployeesResponseError = (listEmployeesResponse401 | listEmployeesResponse403) & {
+  headers: Headers;
+};
+
+export type listEmployeesResponse = (listEmployeesResponseSuccess | listEmployeesResponseError)
+
+export const getListEmployeesUrl = (params?: ListEmployeesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/employees?${stringifiedParams}` : `/api/v1/api/v1/masters/employees`
+}
+
+export const listEmployees = async (params?: ListEmployeesParams, options?: RequestInit): Promise<listEmployeesResponse> => {
+  
+  const res = await fetch(getListEmployeesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listEmployeesResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listEmployeesResponse
+}
+
+
+
+/**
+ * Pay fields are ignored without masters.employee.payroll.read.
+ * @summary Create an employee
+ */
+export type createEmployeeResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createEmployeeResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createEmployeeResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createEmployeeResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createEmployeeResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createEmployeeResponseSuccess = (createEmployeeResponse201) & {
+  headers: Headers;
+};
+export type createEmployeeResponseError = (createEmployeeResponse400 | createEmployeeResponse401 | createEmployeeResponse403 | createEmployeeResponse409) & {
+  headers: Headers;
+};
+
+export type createEmployeeResponse = (createEmployeeResponseSuccess | createEmployeeResponseError)
+
+export const getCreateEmployeeUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/employees`
+}
+
+export const createEmployee = async (createEmployeeRequest: CreateEmployeeRequest, options?: RequestInit): Promise<createEmployeeResponse> => {
+  
+  const res = await fetch(getCreateEmployeeUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createEmployeeRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createEmployeeResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createEmployeeResponse
 }
 
 
@@ -5543,134 +5671,6 @@ export const updateEmployee = async (id: number,
 
 
 /**
- * Pay fields are ignored without masters.employee.payroll.read.
- * @summary Create an employee
- */
-export type createEmployeeResponse201 = {
-  data: void
-  status: 201
-}
-
-export type createEmployeeResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type createEmployeeResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type createEmployeeResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type createEmployeeResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type createEmployeeResponseSuccess = (createEmployeeResponse201) & {
-  headers: Headers;
-};
-export type createEmployeeResponseError = (createEmployeeResponse400 | createEmployeeResponse401 | createEmployeeResponse403 | createEmployeeResponse409) & {
-  headers: Headers;
-};
-
-export type createEmployeeResponse = (createEmployeeResponseSuccess | createEmployeeResponseError)
-
-export const getCreateEmployeeUrl = () => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/employees`
-}
-
-export const createEmployee = async (createEmployeeRequest: CreateEmployeeRequest, options?: RequestInit): Promise<createEmployeeResponse> => {
-  
-  const res = await fetch(getCreateEmployeeUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createEmployeeRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createEmployeeResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createEmployeeResponse
-}
-
-
-
-/**
- * Server-paged. Supports sort=field:asc|desc (comma-separated), filter=field:op:value (semicolon-separated), and free-text search across first name, last name and email. Returns no payroll or credential field. pageSize is clamped to 200.
- * @summary List employees
- */
-export type listEmployeesResponse200 = {
-  data: PagedResultOfEmployeeListItemDto
-  status: 200
-}
-
-export type listEmployeesResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type listEmployeesResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-    
-export type listEmployeesResponseSuccess = (listEmployeesResponse200) & {
-  headers: Headers;
-};
-export type listEmployeesResponseError = (listEmployeesResponse401 | listEmployeesResponse403) & {
-  headers: Headers;
-};
-
-export type listEmployeesResponse = (listEmployeesResponseSuccess | listEmployeesResponseError)
-
-export const getListEmployeesUrl = (params?: ListEmployeesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/employees?${stringifiedParams}` : `/api/v1/api/v1/masters/employees`
-}
-
-export const listEmployees = async (params?: ListEmployeesParams, options?: RequestInit): Promise<listEmployeesResponse> => {
-  
-  const res = await fetch(getListEmployeesUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: listEmployeesResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as listEmployeesResponse
-}
-
-
-
-/**
  * Accepts a single .xlsx upload of at most 5,000 rows. All or nothing: every row is parsed and checked first, and if anything is wrong nothing is written and the response is 422 with every problem in the file. On success the response is 200 and the report says how many rows landed.
  * @summary Import employees from an Excel file
  */
@@ -5786,6 +5786,133 @@ export const getEmployeesImportTemplate = async ( options?: RequestInit): Promis
   
   const data: getEmployeesImportTemplateResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getEmployeesImportTemplateResponse
+}
+
+
+
+/**
+ * Server-paged. Supports sort=field:asc|desc (comma-separated), filter=field:op:value (semicolon-separated), and free-text search across customer code, name, email and GST number. pageSize is clamped to 200.
+ * @summary List customers
+ */
+export type listCustomersResponse200 = {
+  data: PagedResultOfCustomerListItemDto
+  status: 200
+}
+
+export type listCustomersResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listCustomersResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listCustomersResponseSuccess = (listCustomersResponse200) & {
+  headers: Headers;
+};
+export type listCustomersResponseError = (listCustomersResponse401 | listCustomersResponse403) & {
+  headers: Headers;
+};
+
+export type listCustomersResponse = (listCustomersResponseSuccess | listCustomersResponseError)
+
+export const getListCustomersUrl = (params?: ListCustomersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/customers?${stringifiedParams}` : `/api/v1/api/v1/masters/customers`
+}
+
+export const listCustomers = async (params?: ListCustomersParams, options?: RequestInit): Promise<listCustomersResponse> => {
+  
+  const res = await fetch(getListCustomersUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listCustomersResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listCustomersResponse
+}
+
+
+
+/**
+ * @summary Create a customer
+ */
+export type createCustomerResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createCustomerResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createCustomerResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createCustomerResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createCustomerResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createCustomerResponseSuccess = (createCustomerResponse201) & {
+  headers: Headers;
+};
+export type createCustomerResponseError = (createCustomerResponse400 | createCustomerResponse401 | createCustomerResponse403 | createCustomerResponse409) & {
+  headers: Headers;
+};
+
+export type createCustomerResponse = (createCustomerResponseSuccess | createCustomerResponseError)
+
+export const getCreateCustomerUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/customers`
+}
+
+export const createCustomer = async (createCustomerRequest: CreateCustomerRequest, options?: RequestInit): Promise<createCustomerResponse> => {
+  
+  const res = await fetch(getCreateCustomerUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createCustomerRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createCustomerResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createCustomerResponse
 }
 
 
@@ -5923,133 +6050,6 @@ export const updateCustomer = async (id: number,
 
 
 /**
- * @summary Create a customer
- */
-export type createCustomerResponse201 = {
-  data: void
-  status: 201
-}
-
-export type createCustomerResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type createCustomerResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type createCustomerResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type createCustomerResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type createCustomerResponseSuccess = (createCustomerResponse201) & {
-  headers: Headers;
-};
-export type createCustomerResponseError = (createCustomerResponse400 | createCustomerResponse401 | createCustomerResponse403 | createCustomerResponse409) & {
-  headers: Headers;
-};
-
-export type createCustomerResponse = (createCustomerResponseSuccess | createCustomerResponseError)
-
-export const getCreateCustomerUrl = () => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/customers`
-}
-
-export const createCustomer = async (createCustomerRequest: CreateCustomerRequest, options?: RequestInit): Promise<createCustomerResponse> => {
-  
-  const res = await fetch(getCreateCustomerUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createCustomerRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createCustomerResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createCustomerResponse
-}
-
-
-
-/**
- * Server-paged. Supports sort=field:asc|desc (comma-separated), filter=field:op:value (semicolon-separated), and free-text search across customer code, name, email and GST number. pageSize is clamped to 200.
- * @summary List customers
- */
-export type listCustomersResponse200 = {
-  data: PagedResultOfCustomerListItemDto
-  status: 200
-}
-
-export type listCustomersResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type listCustomersResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-    
-export type listCustomersResponseSuccess = (listCustomersResponse200) & {
-  headers: Headers;
-};
-export type listCustomersResponseError = (listCustomersResponse401 | listCustomersResponse403) & {
-  headers: Headers;
-};
-
-export type listCustomersResponse = (listCustomersResponseSuccess | listCustomersResponseError)
-
-export const getListCustomersUrl = (params?: ListCustomersParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/customers?${stringifiedParams}` : `/api/v1/api/v1/masters/customers`
-}
-
-export const listCustomers = async (params?: ListCustomersParams, options?: RequestInit): Promise<listCustomersResponse> => {
-  
-  const res = await fetch(getListCustomersUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: listCustomersResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as listCustomersResponse
-}
-
-
-
-/**
  * Accepts a single .xlsx upload of at most 5,000 rows. All or nothing: every row is parsed and checked first, and if anything is wrong nothing is written and the response is 422 with every problem in the file. On success the response is 200 and the report says how many rows landed.
  * @summary Import customers from an Excel file
  */
@@ -6165,6 +6165,134 @@ export const getCustomersImportTemplate = async ( options?: RequestInit): Promis
   
   const data: getCustomersImportTemplateResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as getCustomersImportTemplateResponse
+}
+
+
+
+/**
+ * Server-paged, with free-text search across business name, email and GSTN. Returns every unit rather than the caller's own: this table defines the tenancy boundary instead of sitting inside one, so the permission is the only access control on it. pageSize is clamped to 200.
+ * @summary List business units
+ */
+export type listBusinessUnitsResponse200 = {
+  data: PagedResultOfBusinessUnitListItemDto
+  status: 200
+}
+
+export type listBusinessUnitsResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type listBusinessUnitsResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+    
+export type listBusinessUnitsResponseSuccess = (listBusinessUnitsResponse200) & {
+  headers: Headers;
+};
+export type listBusinessUnitsResponseError = (listBusinessUnitsResponse401 | listBusinessUnitsResponse403) & {
+  headers: Headers;
+};
+
+export type listBusinessUnitsResponse = (listBusinessUnitsResponseSuccess | listBusinessUnitsResponseError)
+
+export const getListBusinessUnitsUrl = (params?: ListBusinessUnitsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/business-units?${stringifiedParams}` : `/api/v1/api/v1/masters/business-units`
+}
+
+export const listBusinessUnits = async (params?: ListBusinessUnitsParams, options?: RequestInit): Promise<listBusinessUnitsResponse> => {
+  
+  const res = await fetch(getListBusinessUnitsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listBusinessUnitsResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listBusinessUnitsResponse
+}
+
+
+
+/**
+ * The unit id is the value every other table carries in its tenancy column.
+ * @summary Create a business unit
+ */
+export type createBusinessUnitResponse201 = {
+  data: void
+  status: 201
+}
+
+export type createBusinessUnitResponse400 = {
+  data: HttpValidationProblemDetails
+  status: 400
+}
+
+export type createBusinessUnitResponse401 = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type createBusinessUnitResponse403 = {
+  data: ProblemDetails
+  status: 403
+}
+
+export type createBusinessUnitResponse409 = {
+  data: ProblemDetails
+  status: 409
+}
+    
+export type createBusinessUnitResponseSuccess = (createBusinessUnitResponse201) & {
+  headers: Headers;
+};
+export type createBusinessUnitResponseError = (createBusinessUnitResponse400 | createBusinessUnitResponse401 | createBusinessUnitResponse403 | createBusinessUnitResponse409) & {
+  headers: Headers;
+};
+
+export type createBusinessUnitResponse = (createBusinessUnitResponseSuccess | createBusinessUnitResponseError)
+
+export const getCreateBusinessUnitUrl = () => {
+
+
+  
+
+  return `/api/v1/api/v1/masters/business-units`
+}
+
+export const createBusinessUnit = async (createBusinessUnitRequest: CreateBusinessUnitRequest, options?: RequestInit): Promise<createBusinessUnitResponse> => {
+  
+  const res = await fetch(getCreateBusinessUnitUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createBusinessUnitRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createBusinessUnitResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createBusinessUnitResponse
 }
 
 
@@ -6296,134 +6424,6 @@ export const updateBusinessUnit = async (id: number,
   
   const data: updateBusinessUnitResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as updateBusinessUnitResponse
-}
-
-
-
-/**
- * The unit id is the value every other table carries in its tenancy column.
- * @summary Create a business unit
- */
-export type createBusinessUnitResponse201 = {
-  data: void
-  status: 201
-}
-
-export type createBusinessUnitResponse400 = {
-  data: HttpValidationProblemDetails
-  status: 400
-}
-
-export type createBusinessUnitResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type createBusinessUnitResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-
-export type createBusinessUnitResponse409 = {
-  data: ProblemDetails
-  status: 409
-}
-    
-export type createBusinessUnitResponseSuccess = (createBusinessUnitResponse201) & {
-  headers: Headers;
-};
-export type createBusinessUnitResponseError = (createBusinessUnitResponse400 | createBusinessUnitResponse401 | createBusinessUnitResponse403 | createBusinessUnitResponse409) & {
-  headers: Headers;
-};
-
-export type createBusinessUnitResponse = (createBusinessUnitResponseSuccess | createBusinessUnitResponseError)
-
-export const getCreateBusinessUnitUrl = () => {
-
-
-  
-
-  return `/api/v1/api/v1/masters/business-units`
-}
-
-export const createBusinessUnit = async (createBusinessUnitRequest: CreateBusinessUnitRequest, options?: RequestInit): Promise<createBusinessUnitResponse> => {
-  
-  const res = await fetch(getCreateBusinessUnitUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createBusinessUnitRequest,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createBusinessUnitResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createBusinessUnitResponse
-}
-
-
-
-/**
- * Server-paged, with free-text search across business name, email and GSTN. Returns every unit rather than the caller's own: this table defines the tenancy boundary instead of sitting inside one, so the permission is the only access control on it. pageSize is clamped to 200.
- * @summary List business units
- */
-export type listBusinessUnitsResponse200 = {
-  data: PagedResultOfBusinessUnitListItemDto
-  status: 200
-}
-
-export type listBusinessUnitsResponse401 = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type listBusinessUnitsResponse403 = {
-  data: ProblemDetails
-  status: 403
-}
-    
-export type listBusinessUnitsResponseSuccess = (listBusinessUnitsResponse200) & {
-  headers: Headers;
-};
-export type listBusinessUnitsResponseError = (listBusinessUnitsResponse401 | listBusinessUnitsResponse403) & {
-  headers: Headers;
-};
-
-export type listBusinessUnitsResponse = (listBusinessUnitsResponseSuccess | listBusinessUnitsResponseError)
-
-export const getListBusinessUnitsUrl = (params?: ListBusinessUnitsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/v1/api/v1/masters/business-units?${stringifiedParams}` : `/api/v1/api/v1/masters/business-units`
-}
-
-export const listBusinessUnits = async (params?: ListBusinessUnitsParams, options?: RequestInit): Promise<listBusinessUnitsResponse> => {
-  
-  const res = await fetch(getListBusinessUnitsUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: listBusinessUnitsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as listBusinessUnitsResponse
 }
 
 

@@ -1,7 +1,7 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Security.Claims;
-using Erp.BuildingBlocks.Web.Security;
-using Erp.Persistence.Identity;
+using Erp.Api.Common.Security;
+using Erp.Api.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -72,7 +72,7 @@ public sealed class ErpClaimsPrincipalFactory(
         {
             // Expanded from the catalogue at sign-in rather than stored, so the
             // account gains a new module's permissions the first time it signs in
-            // after that module ships — with no migration and nothing to remember.
+            // after that module ships â€” with no migration and nothing to remember.
             identity.AddClaim(new Claim(ErpClaimTypes.SuperAdministrator, "true"));
 
             foreach (var permission in permissionCatalogue.All)

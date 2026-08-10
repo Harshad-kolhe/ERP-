@@ -1,5 +1,5 @@
-using Erp.Persistence;
-using Erp.SharedKernel.Primitives;
+﻿using Erp.Api.Persistence;
+using Erp.Api.Common.Entities;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,7 +36,7 @@ public sealed class PersistenceConventionTests(ErpTestHost host) : IClassFixture
     /// Replaces the ineffective <c>T:System.Single</c> banned-symbol entry: the
     /// banned-API analyzer does not match predefined type keywords, so that rule
     /// looked like a guardrail while never firing. This checks the place the
-    /// precision loss would actually occur — a mapped column.
+    /// precision loss would actually occur â€” a mapped column.
     /// </summary>
     [Fact]
     public void No_mapped_property_uses_floating_point()
@@ -52,7 +52,7 @@ public sealed class PersistenceConventionTests(ErpTestHost host) : IClassFixture
             .ToList();
 
         offenders.ShouldBeEmpty(
-            "money and quantity must be decimal — float and double cannot represent them exactly:\n"
+            "money and quantity must be decimal â€” float and double cannot represent them exactly:\n"
             + string.Join('\n', offenders));
     }
 
@@ -108,6 +108,6 @@ public sealed class PersistenceConventionTests(ErpTestHost host) : IClassFixture
     [Fact]
     public void Model_contains_entities()
     {
-        EntityTypes.ShouldNotBeEmpty("no entity types were found — the DbContext resolution in this fixture is broken.");
+        EntityTypes.ShouldNotBeEmpty("no entity types were found â€” the DbContext resolution in this fixture is broken.");
     }
 }

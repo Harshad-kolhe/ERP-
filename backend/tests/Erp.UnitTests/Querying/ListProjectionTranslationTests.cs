@@ -1,10 +1,10 @@
 ﻿using Erp.Api.Common.Security;
 using Erp.Contracts.Common;
-using Erp.Api.Features.BusinessUnits.ListBusinessUnits;
-using Erp.Api.Features.Customers.ListCustomers;
+using Erp.Api.Features.BusinessUnits;
+using Erp.Api.Features.Customers;
 using Erp.Api.Features.Parts;
-using Erp.Api.Features.Roles.ListRoles;
-using Erp.Api.Features.Suppliers.ListSuppliers;
+using Erp.Api.Features.Roles;
+using Erp.Api.Features.Suppliers;
 using Erp.Api.Persistence;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -45,11 +45,11 @@ public sealed class ListProjectionTranslationTests
     {
         {
             "suppliers",
-            db => new ListSuppliersHandler(db).HandleAsync(new ListSuppliersQuery(StatusPage), default)
+            db => new SuppliersQueries(db).ListAsync(StatusPage, default)
         },
         {
             "customers",
-            db => new ListCustomersHandler(db).HandleAsync(new ListCustomersQuery(StatusPage), default)
+            db => new CustomersQueries(db).ListAsync(StatusPage, default)
         },
         {
             "parts",
@@ -57,13 +57,13 @@ public sealed class ListProjectionTranslationTests
         },
         {
             "roles",
-            db => new ListRolesHandler(db).HandleAsync(
-                new ListRolesQuery(new PageRequest { Sort = "rolesName:asc", Search = "admin" }), default)
+            db => new RolesQueries(db).ListAsync(
+                new PageRequest { Sort = "rolesName:asc", Search = "admin" }, default)
         },
         {
             "business units",
-            db => new ListBusinessUnitsHandler(db).HandleAsync(
-                new ListBusinessUnitsQuery(new PageRequest { Sort = "businessName:asc", Search = "plant" }), default)
+            db => new BusinessUnitsQueries(db).ListAsync(
+                new PageRequest { Sort = "businessName:asc", Search = "plant" }, default)
         },
     };
 

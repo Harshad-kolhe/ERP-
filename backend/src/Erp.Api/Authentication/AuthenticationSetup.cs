@@ -1,5 +1,5 @@
-using Erp.Persistence;
-using Erp.Persistence.Identity;
+﻿using Erp.Api.Persistence;
+using Erp.Api.Domain.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

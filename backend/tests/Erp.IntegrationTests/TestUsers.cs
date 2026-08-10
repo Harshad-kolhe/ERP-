@@ -1,4 +1,4 @@
-using Erp.Modules.Masters.Integration;
+﻿using Erp.Api.Common.Security;
 
 namespace Erp.IntegrationTests;
 
@@ -46,7 +46,7 @@ public static class TestUsers
     /// Business unit 1, maintains the machine breakdown and the parent-part builds.
     /// <para>
     /// Carries part read and create as well, because a build has to name parts that
-    /// exist — which is itself the point: the parent-part endpoints refuse a part id
+    /// exist â€” which is itself the point: the parent-part endpoints refuse a part id
     /// they cannot resolve, so a test that could not create parts could not
     /// distinguish "rejected because the rule works" from "rejected because nothing
     /// was there".
@@ -74,7 +74,7 @@ public static class TestUsers
 
     /// <summary>
     /// Business unit 1, may read and create sections but nothing below them. Exists
-    /// to prove the three levels really are three permissions — the whole reason
+    /// to prove the three levels really are three permissions â€” the whole reason
     /// they are not one <c>masters.assembly.*</c> grant over a shared table.
     /// </summary>
     public static readonly TestUser SectionOnly = new(

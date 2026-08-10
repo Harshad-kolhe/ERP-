@@ -1,4 +1,4 @@
-using Erp.BuildingBlocks.Web.Security;
+﻿using Erp.Api.Common.Security;
 using Erp.Contracts.Security;
 
 namespace Erp.Api.Administration;
@@ -11,9 +11,9 @@ namespace Erp.Api.Administration;
 /// this system and only one of them grants anything:
 /// </para>
 /// <list type="bullet">
-///   <item><c>masters.Role</c> — a master record carried over from the legacy schema
+///   <item><c>masters.Role</c> â€” a master record carried over from the legacy schema
 ///   (RolesName, IsActive, BypassBusinessUnit). Reference data. Grants nothing.</item>
-///   <item>Identity role — what these permissions administer. Holds permission
+///   <item>Identity role â€” what these permissions administer. Holds permission
 ///   claims, and is the only thing that grants anything.</item>
 /// </list>
 /// <para>

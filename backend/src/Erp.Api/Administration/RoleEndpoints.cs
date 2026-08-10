@@ -1,12 +1,12 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Erp.Api.Authentication;
-using Erp.BuildingBlocks.Web.Http;
-using Erp.BuildingBlocks.Web.Modules;
-using Erp.BuildingBlocks.Web.Security;
+using Erp.Api.Common.Http;
+using Erp.Api.Common.Modules;
+using Erp.Api.Common.Security;
 using Erp.Contracts.Common;
 using Erp.Contracts.Security;
-using Erp.Persistence;
-using Erp.Persistence.Identity;
+using Erp.Api.Persistence;
+using Erp.Api.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,8 +21,8 @@ namespace Erp.Api.Administration;
 /// deployment.
 /// </para>
 /// <para>
-/// Mapped by the host rather than by a module because Identity — <c>ErpRole</c>,
-/// <c>RoleManager</c> — currently lives here. It moves to <c>Erp.Modules.Identity</c>
+/// Mapped by the host rather than by a module because Identity â€” <c>ErpRole</c>,
+/// <c>RoleManager</c> â€” currently lives here. It moves to <c>Erp.Modules.Identity</c>
 /// with the rest of Identity; the route and contract stay the same when it does.
 /// </para>
 /// </summary>
@@ -210,7 +210,7 @@ internal static class RoleEndpoints
     /// Brings the role's permission claims in line with the requested set.
     /// <para>
     /// Computed as a diff rather than delete-all-then-insert, so an unrelated failure
-    /// part-way cannot leave a role holding nothing — which for an administrator role
+    /// part-way cannot leave a role holding nothing â€” which for an administrator role
     /// would lock everyone out of the screen needed to fix it.
     /// </para>
     /// </summary>

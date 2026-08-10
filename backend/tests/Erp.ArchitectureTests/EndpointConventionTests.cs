@@ -1,4 +1,4 @@
-using Erp.BuildingBlocks.Web.Security;
+﻿using Erp.Api.Common.Security;
 using Erp.Contracts.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,7 +25,7 @@ public sealed class EndpointConventionTests(ErpTestHost host) : IClassFixture<Er
     /// <para>
     /// The legacy system enforced permissions only in JavaScript and had zero
     /// server-side role or policy checks, so every restriction could be lifted with
-    /// the browser console. Here, an endpoint must state its access rule out loud —
+    /// the browser console. Here, an endpoint must state its access rule out loud â€”
     /// a permission, an explicit authenticated-only marker, or explicit anonymity.
     /// Forgetting is not one of the options.
     /// </para>
@@ -35,8 +35,8 @@ public sealed class EndpointConventionTests(ErpTestHost host) : IClassFixture<Er
     {
         var undeclared = Endpoints
             .Where(endpoint =>
-                endpoint.Metadata.GetMetadata<PermissionMetadata>() is null
-                && endpoint.Metadata.GetMetadata<AuthenticatedOnlyMetadata>() is null
+                endpoint.Metadata.GetMetadata<IPermissionDeclaration>() is null
+                && endpoint.Metadata.GetMetadata<IAuthenticatedOnlyDeclaration>() is null
                 && endpoint.Metadata.GetMetadata<IAllowAnonymous>() is null)
             .Select(Describe)
             .ToList();
@@ -112,7 +112,7 @@ public sealed class EndpointConventionTests(ErpTestHost host) : IClassFixture<Er
     /// The other tests in this class quantify over whatever endpoints happen to
     /// exist, so a master whose endpoint was never mapped passes all of them by
     /// being absent. This is the one test that fails when something is missing
-    /// rather than merely malformed — and it is the only way to confirm a route is
+    /// rather than merely malformed â€” and it is the only way to confirm a route is
     /// live without a session, because an unauthenticated request to a route that
     /// does not exist is answered 401 by the authentication middleware, exactly
     /// like a route that does.
@@ -140,8 +140,7 @@ public sealed class EndpointConventionTests(ErpTestHost host) : IClassFixture<Er
 
         var mapped = Endpoints
             .Where(IsGet)
-            .Select(endpoint => endpoint.RoutePattern.RawText)
-            .Where(route => route is not null)
+            .Select(Route)
             .ToHashSet(StringComparer.Ordinal);
 
         var missing = expected.Where(route => !mapped.Contains(route)).ToList();
@@ -158,11 +157,16 @@ public sealed class EndpointConventionTests(ErpTestHost host) : IClassFixture<Er
     public void Modules_actually_mapped_their_endpoints()
     {
         var moduleEndpoints = Endpoints
-            .Where(endpoint => endpoint.RoutePattern.RawText?.StartsWith("/api/v1/masters", StringComparison.Ordinal) == true)
+            .Where(endpoint => Route(endpoint).StartsWith("/api/v1/masters", StringComparison.Ordinal))
             .ToList();
 
-        moduleEndpoints.ShouldNotBeEmpty("the Masters module mapped no endpoints — module discovery is broken.");
+        moduleEndpoints.ShouldNotBeEmpty(
+            "no master endpoints are mapped. Check the registration list in ErpEndpoints.MapMasters "
+            + "and that app.MapControllers() is called.");
     }
+
+    private static string Route(RouteEndpoint endpoint) =>
+        "/" + (endpoint.RoutePattern.RawText ?? string.Empty).TrimStart('/');
 
     private static bool IsGet(RouteEndpoint endpoint) =>
         endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods.Contains(HttpMethods.Get) == true;
@@ -191,6 +195,6 @@ public sealed class EndpointConventionTests(ErpTestHost host) : IClassFixture<Er
     private static string Describe(RouteEndpoint endpoint)
     {
         var methods = endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? [];
-        return $"{string.Join('/', methods)} {endpoint.RoutePattern.RawText}";
+        return $"{string.Join('/', methods)} {Route(endpoint)}";
     }
 }

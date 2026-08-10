@@ -1,12 +1,12 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using Erp.Api.Authentication;
-using Erp.BuildingBlocks.Web.Security;
+using Erp.Api.Common.Security;
 using Erp.Contracts.Auth;
-using Erp.Modules.Masters;
-using Erp.Persistence;
-using Erp.Persistence.Identity;
+using Erp.Api.Features;
+using Erp.Api.Persistence;
+using Erp.Api.Domain.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -25,9 +25,9 @@ namespace Erp.IntegrationTests;
 /// Not the in-memory provider: it does not enforce unique indexes, filtered
 /// indexes, <c>rowversion</c> concurrency or check constraints, so a test suite
 /// built on it proves the C# compiles rather than that the schema is correct.
-/// Every guarantee this system relies on — the tenant filter translating to SQL,
+/// Every guarantee this system relies on â€” the tenant filter translating to SQL,
 /// the duplicate part number being rejected by the index, a stale rowversion
-/// producing a concurrency exception — only exists against a real database.
+/// producing a concurrency exception â€” only exists against a real database.
 /// </para>
 /// </summary>
 public sealed class ErpApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
@@ -96,7 +96,7 @@ public sealed class ErpApiFactory : WebApplicationFactory<Program>, IAsyncLifeti
     /// <para>
     /// The base address must be <c>https</c>. The session cookie is issued with
     /// <c>SecurePolicy = Always</c>, so a cookie container will refuse to store or
-    /// resend it over plain HTTP — and <see cref="WebApplicationFactory{T}.CreateClient"/>
+    /// resend it over plain HTTP â€” and <see cref="WebApplicationFactory{T}.CreateClient"/>
     /// defaults to <c>http://localhost</c>. Every authenticated request would come
     /// back 401. The fix belongs here rather than in the cookie policy: requiring
     /// Secure in production is correct.
@@ -159,7 +159,7 @@ public sealed class ErpApiFactory : WebApplicationFactory<Program>, IAsyncLifeti
     /// </summary>
     private static async Task MigrateAllContextsAsync(IServiceProvider services)
     {
-        var contextTypes = new[] { typeof(MastersModule).Assembly, typeof(ErpDbContext).Assembly }
+        var contextTypes = new[] { typeof(ErpDbContext).Assembly }
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => typeof(DbContext).IsAssignableFrom(type) && !type.IsAbstract)
             .Distinct();

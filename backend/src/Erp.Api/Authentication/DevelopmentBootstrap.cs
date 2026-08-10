@@ -1,8 +1,8 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography;
-using Erp.BuildingBlocks.Web.Security;
-using Erp.Persistence;
-using Erp.Persistence.Identity;
+using Erp.Api.Common.Security;
+using Erp.Api.Persistence;
+using Erp.Api.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,8 +12,8 @@ namespace Erp.Api.Authentication;
 /// Applies migrations and creates one way in, in Development only.
 /// <para>
 /// This is a <em>bootstrap</em>, not a configuration mechanism. It exists to solve
-/// one problem — a fresh database has no account, so nobody can reach the roles
-/// screen to create one — and it does nothing else. Every subsequent role and every
+/// one problem â€” a fresh database has no account, so nobody can reach the roles
+/// screen to create one â€” and it does nothing else. Every subsequent role and every
 /// permission grant is made at runtime through the administration screens and
 /// stored in the database.
 /// </para>
@@ -27,8 +27,8 @@ namespace Erp.Api.Authentication;
 internal static class DevelopmentBootstrap
 {
     /// <summary>
-    /// The single seeded role. Named as what it is — the account that bootstraps the
-    /// others — so it reads as a starting point rather than a permanent fixture.
+    /// The single seeded role. Named as what it is â€” the account that bootstraps the
+    /// others â€” so it reads as a starting point rather than a permanent fixture.
     /// </summary>
     private const string BootstrapRole = "Super Administrator";
 
@@ -49,8 +49,8 @@ internal static class DevelopmentBootstrap
 
     private static async Task MigrateAsync(IServiceProvider services)
     {
-        // One context for the whole application — master data and identity in a
-        // single model with a single migration history — so this is one call rather
+        // One context for the whole application â€” master data and identity in a
+        // single model with a single migration history â€” so this is one call rather
         // than a scan for every module's own context.
         if (services.GetService(typeof(ErpDbContext)) is DbContext context)
         {
@@ -121,7 +121,7 @@ internal static class DevelopmentBootstrap
 
         logger.LogWarning(
             "Bootstrapped super administrator {Email} with password {Password}. Full access to all "
-            + "{Count} catalogued permissions, and to any added later. Development only — create "
+            + "{Count} catalogued permissions, and to any added later. Development only â€” create "
             + "real roles through the roles screen.",
             email,
             password,

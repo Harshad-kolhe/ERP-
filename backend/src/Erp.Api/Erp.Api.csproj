@@ -7,15 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup Label="Shared">
-    <ProjectReference Include="..\shared\Erp.BuildingBlocks.Web\Erp.BuildingBlocks.Web.csproj" />
-    <ProjectReference Include="..\shared\Erp.BuildingBlocks.Persistence\Erp.BuildingBlocks.Persistence.csproj" />
     <ProjectReference Include="..\Erp.Contracts\Erp.Contracts.csproj" />
-    <ProjectReference Include="..\Erp.Persistence\Erp.Persistence.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Label="Modules">
-    <!-- Modules are discovered by assembly scan at startup, not wired by hand. -->
-    <ProjectReference Include="..\modules\Erp.Modules.Masters\Erp.Modules.Masters.csproj" />
   </ItemGroup>
 
   <ItemGroup Label="Hosting">
@@ -28,6 +20,16 @@
     <PackageReference Include="DotNetEnv" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup Label="Persistence">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup Label="Documents">
+    <PackageReference Include="ClosedXML" />
   </ItemGroup>
 
   <ItemGroup Label="Observability">
@@ -75,6 +77,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Erp.ArchitectureTests" />
     <InternalsVisibleTo Include="Erp.IntegrationTests" />
+    <InternalsVisibleTo Include="Erp.UnitTests" />
   </ItemGroup>
 
 </Project>
